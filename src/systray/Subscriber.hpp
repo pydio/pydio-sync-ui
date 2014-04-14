@@ -29,7 +29,7 @@
 
 #include "SampleBase.hpp"
 
-#include <nzmqt/nzmqt.hpp>
+#include <../../nzmqt/include/nzmqt/nzmqt.hpp>
 
 #include <QByteArray>
 #include <QList>

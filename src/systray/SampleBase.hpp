@@ -27,7 +27,7 @@
 #ifndef NZMQT_SAMPLEBASE_H
 #define NZMQT_SAMPLEBASE_H
 
-#include "nzmqt/nzmqt.hpp"
+#include "../../nzmqt/include/nzmqt/nzmqt.hpp"
 
 #include <QDebug>
 #include <QEventLoop>
