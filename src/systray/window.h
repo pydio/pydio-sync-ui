@@ -45,6 +45,9 @@
 #include <QtWebKit>
 #include <Requester.hpp>
 #include <pydiogui.h>
+#include <queuemenu.h>
+#include <nzmqt/nzmqt.hpp>
+#include <togglestatusrequester.h>
 
 #ifndef QT_NO_SYSTEMTRAYICON
 
@@ -52,74 +55,49 @@
 
 QT_BEGIN_NAMESPACE
 class QAction;
-class QCheckBox;
-class QComboBox;
-class QGroupBox;
-class QLabel;
-class QLineEdit;
 class QMenu;
-class QPushButton;
-class QSpinBox;
-class QTextEdit;
 QT_END_NAMESPACE
 
-//! [0]
 class Window : public QDialog
 {
     Q_OBJECT
 
 public:
     Window();
-
     void setVisible(bool visible);
 
 protected:
     void closeEvent(QCloseEvent *event);
 
 private slots:
-    void setIcon(int index);
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
-    void showMessage();
-    void messageClicked();
     void pingReceived(QList<QByteArray> message);
     void toggleJobStatus();
-    void statusReceived(QList<QByteArray> message);
+    void updateStatus(QString);
 
 private:
     void createActions();
     void createTrayIcon();
+    void createLastEventsMenu();
 
     QWidget *centralWidget;
-    QGroupBox *iconGroupBox;
-    QLabel *iconLabel;
-    QComboBox *iconComboBox;
-    QCheckBox *showIconCheckBox;
-
-    QGroupBox *messageGroupBox;
-    QLabel *typeLabel;
-    QLabel *durationLabel;
-    QLabel *durationWarningLabel;
-    QLabel *titleLabel;
-    QLabel *bodyLabel;
-    QComboBox *typeComboBox;
-    QSpinBox *durationSpinBox;
-    QLineEdit *titleEdit;
-    QTextEdit *bodyEdit;
-    QPushButton *showMessageButton;
 
     QAction *minimizeAction;
-    QAction *maximizeAction;
-    QAction *restoreAction;
+    QAction *startAction;
+    QAction *settingsAction;
     QAction *quitAction;
+
+    QueueMenu *lastEventsMenu;
 
     QSystemTrayIcon *trayIcon;
     QMenu *trayIconMenu;
     bool running;
 
     nzmqt::ZMQContext* context;
-    //nzmqt::Requester *requester;
+    nzmqt::Requester *req;
+    ToggleStatusRequester* commandHandler;
+
 };
-//! [0]
 
 #endif // QT_NO_SYSTEMTRAYICON
 

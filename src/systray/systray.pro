@@ -3,10 +3,14 @@ HEADERS       = window.h \
                 SampleBase.hpp \
                 ../nzmqt/include/nzmqt/nzmqt.hpp \
                 Requester.hpp \
-                pydiogui.h
+                pydiogui.h \
+    queuemenu.h \
+    togglestatusrequester.h
 SOURCES       = main.cpp \
                 window.cpp \
-                pydiogui.cpp
+                pydiogui.cpp \
+    queuemenu.cpp \
+    togglestatusrequester.cpp
 RESOURCES     = systray.qrc
 
 QT += widgets \

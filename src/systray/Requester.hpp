@@ -1,4 +1,4 @@
-// Copyright 2011-2014 Johann Duscher (a.k.a. Jonny Dee). All rights reserved.
+﻿// Copyright 2011-2014 Johann Duscher (a.k.a. Jonny Dee). All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
@@ -58,36 +58,37 @@ public:
 
 signals:
     void requestSent(const QList<QByteArray>& request);
-    void replyReceived(const QList<QByteArray>& reply);
+    void replyReceived(QString);
 
 protected:
     void startImpl()
     {
         socket_->connectTo(address_);
-
         QTimer::singleShot(1000, this, SLOT(sendRequest()));
     }
 
 protected slots:
     void sendRequest()
     {
-        static quint64 counter = 0;
-
-        QList<QByteArray> request;
-        //request += QString("REQUEST[%1: %2]").arg(++counter).arg(QDateTime::currentDateTime().toString(Qt::ISODate)).toLocal8Bit();
-        request += requestMsg_.toLocal8Bit();
-        qDebug() << "Requester::sendRequest> " << request;
-        socket_->sendMessage(request);
-        emit requestSent(request);
+        QList<QByteArray> req;
+        req.append(requestMsg_.toLocal8Bit());
+        socket_->sendMessage(req);
+        qDebug() <<QDateTime::currentDateTime().toString("hh:mm:ss")<< " Requester::sendRequest> " << req;
+        emit requestSent(req);
     }
 
     void receiveReply(const QList<QByteArray>& reply)
     {
-        qDebug() << "Requester::replyReceived> " << reply;
-        emit replyReceived(reply);
+        QString replyString;
+        foreach(QByteArray byte, reply)
+        {
+            replyString += byte.constData();
+        }
+        qDebug() <<QDateTime::currentDateTime().toString("hh:mm:ss")<< " Requester::replyReceived> " << replyString;
+        emit replyReceived(replyString);
 
         // Start timer again in order to trigger the next sendRequest() call.
-        // QTimer::singleShot(1000, this, SLOT(sendRequest()));
+        QTimer::singleShot(5000, this, SLOT(sendRequest()));
     }
 
 private:
@@ -96,7 +97,6 @@ private:
 
     ZMQSocket* socket_;
 };
-
 }
 
 #endif // NZMQT_REQREPCLIENT_H

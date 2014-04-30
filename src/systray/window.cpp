@@ -1,4 +1,4 @@
-/****************************************************************************
+﻿/****************************************************************************
 **
 ** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
@@ -41,6 +41,7 @@
 #include "window.h"
 #include "Subscriber.hpp"
 
+
 #ifndef QT_NO_SYSTEMTRAYICON
 
 #include <QtGui>
@@ -58,15 +59,16 @@
 #include <QVBoxLayout>
 #include <QMessageBox>
 
+
 //! [0]
 Window::Window()
 {
 
     createActions();
     createTrayIcon();
+
     centralWidget = new PydioGui(this);
 
-    connect(trayIcon, SIGNAL(messageClicked()), this, SLOT(messageClicked()));
     connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
             this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
 
@@ -74,143 +76,82 @@ Window::Window()
     trayIcon->setIcon(icon);
     setWindowIcon(icon);
     trayIcon->show();
-    running = false;
 
     context = nzmqt::createDefaultContext(this);
     context->start();
+
+
+    nzmqt::Requester* req = new nzmqt::Requester(*context, "tcp://127.0.0.1:5558", "sync", this);
+    connect(req, SIGNAL(replyReceived(QString)), this, SLOT(updateStatus(QString)));
+    req->start();
+
+    commandHandler = new ToggleStatusRequester(*context, "tcp://127.0.0.1:5557", this);
+    connect(commandHandler, SIGNAL(replyReceived(QString)), this, SLOT(updateStatus(QString)));
+
     nzmqt::Subscriber* sub = new nzmqt::Subscriber(*context, "tcp://127.0.0.1:5556", "sync", this);
     connect(sub, SIGNAL(pingReceived(QList<QByteArray>)), SLOT(pingReceived(QList<QByteArray>)));
-    // Start command.
     sub->start();
 
-    nzmqt::Subscriber* sub2 = new nzmqt::Subscriber(*context, "tcp://127.0.0.1:5556", "status", this);
-    connect(sub2, SIGNAL(pingReceived(QList<QByteArray>)), SLOT(statusReceived(QList<QByteArray>)));
-    // Start command.
-    sub2->start();
-
-/*
-    nzmqt::Requester* req = new nzmqt::Requester(*context, "tcp://127.0.0.1:5557", "STATUS", this);
-    connect(req, SIGNAL(replyReceived(QList<QByteArray>)), this, SLOT(statusReceived(QList<QByteArray>)));
-    req->start();
-*/
-
-    setWindowTitle(tr("Systray"));
+    setWindowTitle(tr("Sync UI"));
     resize(400, 300);
 }
-//! [0]
 
 void Window::pingReceived(QList<QByteArray> message)
 {
     for(int i=0; i<message.size(); ++i){
         QString str(message[i].constData());
         trayIcon->showMessage("Sync Message", str.replace("sync ", ""));
+        lastEventsMenu->addEvent(str);
     }
 }
 
-void Window::statusReceived(QList<QByteArray> message)
-{
-    for(int i=0; i<message.size(); ++i){
-        QString str(message[i].constData());
-        str = str.replace("status ", "");
-        //trayIcon->showMessage("Status Message", str);
-        if(str == "START"){
-            running = true;
-        }else{
-            running = false;
-        }
-        maximizeAction->setText(running?tr("&Pause"):tr("&Start"));
+void Window::updateStatus(QString order){
+    if(order == "RUNNING" && this->running == false)
+    {
+        trayIcon->showMessage("Status Message", "Synchronization started");
+        this->running = true;
+        lastEventsMenu->addEvent("Synchronization started");
+        startAction->setText(tr("&Pause"));
+    }
+    else if(order == "PAUSED" && this->running == true)
+    {
+        trayIcon->showMessage("Status Message", "Synchronization paused");
+        this->running = false;
+        lastEventsMenu->addEvent("Synchronization paused");
+        startAction->setText(tr("&Resume"));
     }
 }
 
-//! [1]
 void Window::setVisible(bool visible)
 {
     minimizeAction->setEnabled(visible);
-    maximizeAction->setEnabled(!isMaximized());
-    restoreAction->setEnabled(isMaximized() || !visible);
     QDialog::setVisible(visible);
 }
-//! [1]
 
-//! [2]
 void Window::closeEvent(QCloseEvent *event)
 {
     if (trayIcon->isVisible()) {
-        QMessageBox::information(this, tr("Systray"),
-                                 tr("The program will keep running in the "
-                                    "system tray. To terminate the program, "
-                                    "choose <b>Quit</b> in the context menu "
-                                    "of the system tray entry."));
+        trayIcon->showMessage(tr("Info"),tr("The program will still be running right here"));
         hide();
         event->ignore();
     }
 }
-//! [2]
 
-//! [3]
-void Window::setIcon(int index)
-{
-    QIcon icon = iconComboBox->itemIcon(index);
-    trayIcon->setIcon(icon);
-    setWindowIcon(icon);
-
-    trayIcon->setToolTip(iconComboBox->itemText(index));
-}
-//! [3]
-
-//! [4]
-void Window::iconActivated(QSystemTrayIcon::ActivationReason reason)
-{
-    switch (reason) {
-    case QSystemTrayIcon::Trigger:
-    case QSystemTrayIcon::DoubleClick:
-        break;
-    case QSystemTrayIcon::MiddleClick:
-        showMessage();
-        break;
-    default:
-        ;
-    }
-}
-//! [4]
-
-//! [5]
-void Window::showMessage()
-{
-    QSystemTrayIcon::MessageIcon icon = QSystemTrayIcon::MessageIcon(
-            typeComboBox->itemData(typeComboBox->currentIndex()).toInt());
-    trayIcon->showMessage(titleEdit->text(), bodyEdit->toPlainText(), icon,
-                          durationSpinBox->value() * 1000);
-}
-//! [5]
-
-//! [6]
-void Window::messageClicked()
-{
-    QMessageBox::information(0, tr("Systray"),
-                             tr("Sorry, I already gave what help I could.\n"
-                                "Maybe you should try asking a human?"));
-}
-//! [6]
-//! [6]
 void Window::toggleJobStatus()
 {
-    nzmqt::Requester* req = new nzmqt::Requester(*context, "tcp://127.0.0.1:5557", running?"PAUSE":"START", this);
-    connect(req, SIGNAL(replyReceived(QList<QByteArray>)), this, SLOT(statusReceived(QList<QByteArray>)));
-    req->start();
+    commandHandler->sendRequest(running);
 }
-
 
 void Window::createActions()
 {
-    minimizeAction = new QAction(tr("Mi&nimize"), this);
+    minimizeAction = new QAction(tr("&Minimize"), this);
     connect(minimizeAction, SIGNAL(triggered()), this, SLOT(hide()));
 
-    maximizeAction = new QAction(tr("&Start"), this);
-    connect(maximizeAction, SIGNAL(triggered()), this, SLOT(toggleJobStatus()));
+    startAction = new QAction(tr("&Start"), this);
+    connect(startAction, SIGNAL(triggered()), this, SLOT(toggleJobStatus()));
 
-    restoreAction = new QAction(tr("&Restore"), this);
-    connect(restoreAction, SIGNAL(triggered()), this, SLOT(showNormal()));
+    settingsAction = new QAction("Configure...", this);
+    connect(settingsAction, SIGNAL(triggered()), this, SLOT(showNormal()));
 
     quitAction = new QAction(tr("&Quit"), this);
     connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
@@ -219,9 +160,15 @@ void Window::createActions()
 void Window::createTrayIcon()
 {
     trayIconMenu = new QMenu(this);
+    this->createLastEventsMenu();
+
+    trayIconMenu->addMenu(lastEventsMenu);
+
+    trayIconMenu->addSeparator();
     trayIconMenu->addAction(minimizeAction);
-    trayIconMenu->addAction(maximizeAction);
-    trayIconMenu->addAction(restoreAction);
+    trayIconMenu->addAction(startAction);
+    trayIconMenu->addAction(settingsAction);
+
     trayIconMenu->addSeparator();
     trayIconMenu->addAction(quitAction);
 
@@ -229,4 +176,18 @@ void Window::createTrayIcon()
     trayIcon->setContextMenu(trayIconMenu);
 }
 
+void Window::createLastEventsMenu()
+{
+    lastEventsMenu = new QueueMenu("Last events", this);
+}
+
+void Window::iconActivated(QSystemTrayIcon::ActivationReason reason)
+{
+    switch (reason) {
+    case QSystemTrayIcon::Trigger:
+        break;
+    default:
+        ;
+    }
+}
 #endif
