@@ -1,7 +1,7 @@
-HEADERS       = window.h \
+HEADERS      += window.h \
                 Subscriber.hpp \
                 SampleBase.hpp \
-                ../nzmqt/include/nzmqt/nzmqt.hpp \
+                ../../nzmqt/include/nzmqt/nzmqt.hpp \
                 Requester.hpp \
                 pydiogui.h \
     queuemenu.h \
@@ -25,8 +25,8 @@ INSTALLS += target
 simulator: warning(This example might not fully work on Simulator platform)
 
 INCLUDEPATH += \
-    ../nzmqt/include \
-    ../nzmqt/externals/include \
+    ../../nzmqt/include \
+    ../../nzmqt/externals/include \
     $(QTDIR)/include \
     /usr/local/include
 

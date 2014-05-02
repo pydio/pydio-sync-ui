@@ -2,5 +2,6 @@
     <qresource prefix="/">
         <file>images/Icon-16.png</file>
         <file>images/Pydio16.png</file>
+        <file>webkit-sources/test.html</file>
     </qresource>
 </RCC>

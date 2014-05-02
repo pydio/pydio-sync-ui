@@ -1,0 +1,3 @@
+[submodule "nzmqt"]
+	path = nzmqt
+	url = https://github.com/jonnydee/nzmqt.git

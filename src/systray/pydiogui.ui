@@ -33,7 +33,7 @@
    </property>
    <property name="url">
     <url>
-     <string>file:///Users/Jr/Documents/Pydio/test.html</string>
+     <string>qrc:/webkit-sources/test.html</string>
     </url>
    </property>
   </widget>

@@ -13,7 +13,6 @@
 
 # Qt files
 moc_*.cpp
-qrc_*.cpp
 ui_*.h
 *.pro.user
 *.pro.user.*
@@ -45,4 +44,3 @@ desktop.ini
 
 # Project directories
 externals/
-
