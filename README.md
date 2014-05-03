@@ -7,7 +7,7 @@ To run it, you must
  * Install Qt and QtCreator
  * Make sure ZeroMQ in installed 
  * clone the project, 
- * init submodules, 
+ * execute init-project script
  * Open the .pro file inside Qt Creator and run the project from here.
 
 Currently tested on Mac and Linux.
