@@ -52,6 +52,8 @@ public:
         , socket_(0)
     {
         socket_ = context.createSocket(ZMQSocket::TYP_REQ, this);
+        socket_->setOption(PollingZMQSocket::OPT_RCVTIMEO, 1000);
+        socket_->setLinger(500);
         socket_->setObjectName("Requester.Socket.socket(REQ)");
         connect(socket_, SIGNAL(messageReceived(const QList<QByteArray>&)), SLOT(receiveReply(const QList<QByteArray>&)));
     }

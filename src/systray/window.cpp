@@ -80,8 +80,7 @@ Window::Window()
     context = nzmqt::createDefaultContext(this);
     context->start();
 
-
-    nzmqt::Requester* req = new nzmqt::Requester(*context, "tcp://127.0.0.1:5558", "sync", this);
+    req = new nzmqt::Requester(*context, "tcp://127.0.0.1:5558", "sync", this);
     connect(req, SIGNAL(replyReceived(QString)), this, SLOT(updateStatus(QString)));
     req->start();
 
@@ -154,7 +153,7 @@ void Window::createActions()
     connect(settingsAction, SIGNAL(triggered()), this, SLOT(showNormal()));
 
     quitAction = new QAction(tr("&Quit"), this);
-    connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
+    connect(quitAction, SIGNAL(triggered()), this, SLOT(cleanQuit()));
 }
 
 void Window::createTrayIcon()
@@ -190,4 +189,11 @@ void Window::iconActivated(QSystemTrayIcon::ActivationReason reason)
         ;
     }
 }
+
+void Window::cleanQuit()
+{
+    delete context;
+    emit qApp->quit();
+}
+
 #endif

@@ -4,6 +4,7 @@ ToggleStatusRequester::ToggleStatusRequester(nzmqt::ZMQContext& context, const Q
     : super(parent),address(address_)
 {
     socket = context.createSocket(nzmqt::ZMQSocket::TYP_REQ, this);
+    socket->setLinger(100);
     connect(socket, SIGNAL(messageReceived(const QList<QByteArray>&)), SLOT(receiveReply(const QList<QByteArray>&)));
     socket->connectTo(address);
 }

@@ -74,6 +74,7 @@ private slots:
     void pingReceived(QList<QByteArray> message);
     void toggleJobStatus();
     void updateStatus(QString);
+    void cleanQuit();
 
 private:
     void createActions();
