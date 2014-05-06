@@ -44,6 +44,7 @@
 #include <QSystemTrayIcon>
 #include <QtWebKit>
 #include <Requester.hpp>
+#include <Subscriber.hpp>
 #include <pydiogui.h>
 #include <queuemenu.h>
 #include <nzmqt/nzmqt.hpp>
@@ -96,6 +97,7 @@ private:
 
     nzmqt::ZMQContext* context;
     nzmqt::Requester *req;
+    nzmqt::Subscriber *sub;
     ToggleStatusRequester* commandHandler;
 
 };

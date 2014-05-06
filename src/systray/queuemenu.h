@@ -15,7 +15,7 @@ public:
     void updateLastEvents();
 
 private:
-    const static  int NB_MAX_UPDATES = 10;
+    const static int NB_MAX_UPDATES = 10;
     QQueue<QAction*> *lastEvents;
 };
 

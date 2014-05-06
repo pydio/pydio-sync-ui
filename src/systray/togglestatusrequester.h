@@ -12,6 +12,7 @@ class ToggleStatusRequester : public QObject
 public:
     ToggleStatusRequester(nzmqt::ZMQContext& context, const QString& address_, QObject* parent);
     void sendRequest(bool);
+    void closeSocket();
 
 signals:
     void replyReceived(QString reply);

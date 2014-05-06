@@ -23,3 +23,8 @@ void ToggleStatusRequester::receiveReply(const QList<QByteArray>& reply)
     }
     emit replyReceived(replyString);
 }
+
+void ToggleStatusRequester::closeSocket()
+{
+    socket->close();
+}

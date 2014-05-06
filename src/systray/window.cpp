@@ -39,7 +39,7 @@
 ****************************************************************************/
 
 #include "window.h"
-#include "Subscriber.hpp"
+#include "smoketest.h"
 
 
 #ifndef QT_NO_SYSTEMTRAYICON
@@ -80,6 +80,9 @@ Window::Window()
     context = nzmqt::createDefaultContext(this);
     context->start();
 
+    SmokeTest* smokeTest = new SmokeTest(*context, "tcp://127.0.0.1:5513", this);
+    smokeTest->sendRequest();
+
     req = new nzmqt::Requester(*context, "tcp://127.0.0.1:5558", "sync", this);
     connect(req, SIGNAL(replyReceived(QString)), this, SLOT(updateStatus(QString)));
     req->start();
@@ -87,7 +90,7 @@ Window::Window()
     commandHandler = new ToggleStatusRequester(*context, "tcp://127.0.0.1:5557", this);
     connect(commandHandler, SIGNAL(replyReceived(QString)), this, SLOT(updateStatus(QString)));
 
-    nzmqt::Subscriber* sub = new nzmqt::Subscriber(*context, "tcp://127.0.0.1:5556", "sync", this);
+    sub = new nzmqt::Subscriber(*context, "tcp://127.0.0.1:5556", "sync", this);
     connect(sub, SIGNAL(pingReceived(QList<QByteArray>)), SLOT(pingReceived(QList<QByteArray>)));
     sub->start();
 
@@ -192,7 +195,9 @@ void Window::iconActivated(QSystemTrayIcon::ActivationReason reason)
 
 void Window::cleanQuit()
 {
-    delete context;
+    sub->closeSocket();
+    req->closeSocket();
+    commandHandler->closeSocket();
     emit qApp->quit();
 }
 

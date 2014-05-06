@@ -58,6 +58,11 @@ public:
         connect(socket_, SIGNAL(messageReceived(const QList<QByteArray>&)), SLOT(receiveReply(const QList<QByteArray>&)));
     }
 
+    void closeSocket()
+    {
+        socket_->close();
+    }
+
 signals:
     void requestSent(const QList<QByteArray>& request);
     void replyReceived(QString);

@@ -53,6 +53,11 @@ public:
         connect(socket_, SIGNAL(messageReceived(const QList<QByteArray>&)), SLOT(messageReceived(const QList<QByteArray>&)));
     }
 
+    void closeSocket()
+    {
+        socket_->close();
+    }
+
 signals:
     void pingReceived(const QList<QByteArray>& message);
 
