@@ -64,38 +64,64 @@
 Window::Window()
 {
 
+    QCommandLineParser parser;
+    QCommandLineOption smokeTestOption("s", "Toggle smoke test.");
+    parser.addOption(smokeTestOption);
+    QCommandLineOption pathArgument("f", "Path to config file.", "filePath");
+    parser.addOption(pathArgument);
+    parser.process(*qApp);
+    configFilePath = parser.value(pathArgument);
+    this->getPortsFromFile();
+
     createActions();
     createTrayIcon();
+    trayIcon->show();
 
     centralWidget = new PydioGui(this);
-
-    connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
-            this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
-
-    const QIcon& icon = QIcon(":/images/Pydio16.png");
-    trayIcon->setIcon(icon);
-    setWindowIcon(icon);
-    trayIcon->show();
 
     context = nzmqt::createDefaultContext(this);
     context->start();
 
-    SmokeTest* smokeTest = new SmokeTest(*context, "tcp://127.0.0.1:5513", this);
-    smokeTest->sendRequest();
+    if(parser.isSet(smokeTestOption))
+    {
+        SmokeTest* smokeTest = new SmokeTest(*context, "tcp://127.0.0.1:5513", this);
+        connect(smokeTest, SIGNAL(testFinished()), qApp, SLOT(quit()));
+        smokeTest->launch();
+    }
+    else
+    {
+        req = new nzmqt::Requester(*context, "tcp://127.0.0.1:" + portHash["watch_socket"], "sync", this);
+        connect(req, SIGNAL(replyReceived(QString)), this, SLOT(updateStatus(QString)));
+        req->start();
 
-    req = new nzmqt::Requester(*context, "tcp://127.0.0.1:5558", "sync", this);
-    connect(req, SIGNAL(replyReceived(QString)), this, SLOT(updateStatus(QString)));
-    req->start();
+        commandHandler = new ToggleStatusRequester(*context, "tcp://127.0.0.1:" + portHash["command_socket"], this);
+        connect(commandHandler, SIGNAL(replyReceived(QString)), this, SLOT(updateStatus(QString)));
 
-    commandHandler = new ToggleStatusRequester(*context, "tcp://127.0.0.1:5557", this);
-    connect(commandHandler, SIGNAL(replyReceived(QString)), this, SLOT(updateStatus(QString)));
+        sub = new nzmqt::Subscriber(*context, "tcp://127.0.0.1:" + portHash["pub_socket"], "sync", this);
+        connect(sub, SIGNAL(pingReceived(QList<QByteArray>)), SLOT(pingReceived(QList<QByteArray>)));
+        sub->start();
 
-    sub = new nzmqt::Subscriber(*context, "tcp://127.0.0.1:5556", "sync", this);
-    connect(sub, SIGNAL(pingReceived(QList<QByteArray>)), SLOT(pingReceived(QList<QByteArray>)));
-    sub->start();
+        setWindowTitle(tr("Sync UI"));
+        resize(400, 300);
+    }
+}
 
-    setWindowTitle(tr("Sync UI"));
-    resize(400, 300);
+void Window::getPortsFromFile()
+{
+    QFile configFile(configFilePath);
+    if(!configFile.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        qWarning("Cannot open file, check the path you entered.");
+        return;
+    }
+    QTextStream in(&configFile);
+    if(!in.readLine().startsWith("Pydio port config file"))
+            return;
+
+    while(!in.atEnd()){
+        QStringList line = in.readLine().split(":", QString::SkipEmptyParts);
+        portHash[line[0]] = line[1];
+    }
 }
 
 void Window::pingReceived(QList<QByteArray> message)
@@ -176,6 +202,13 @@ void Window::createTrayIcon()
 
     trayIcon = new QSystemTrayIcon(this);
     trayIcon->setContextMenu(trayIconMenu);
+
+    connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
+            this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
+
+    const QIcon& icon = QIcon(":/images/Pydio16.png");
+    trayIcon->setIcon(icon);
+    setWindowIcon(icon);
 }
 
 void Window::createLastEventsMenu()

@@ -12,11 +12,10 @@ class SmokeTest : public QObject
 
 public:
     SmokeTest(nzmqt::ZMQContext& context, QString ad, QObject* parent);
-    void sendRequest();
+    void launch();
 
 signals:
-    void replyReceived(QString reply);
-    void requestReceived(const QList<QByteArray> &request);
+    void testFinished();
 
 private slots:
     void receiveReply(const QList<QByteArray>& reply);

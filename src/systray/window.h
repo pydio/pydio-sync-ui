@@ -49,6 +49,7 @@
 #include <queuemenu.h>
 #include <nzmqt/nzmqt.hpp>
 #include <togglestatusrequester.h>
+#include <QFile>
 
 #ifndef QT_NO_SYSTEMTRAYICON
 
@@ -81,6 +82,7 @@ private:
     void createActions();
     void createTrayIcon();
     void createLastEventsMenu();
+    void getPortsFromFile();
 
     QWidget *centralWidget;
 
@@ -94,6 +96,8 @@ private:
     QSystemTrayIcon *trayIcon;
     QMenu *trayIconMenu;
     bool running;
+    QString configFilePath;
+    QHash<QString, QString> portHash;
 
     nzmqt::ZMQContext* context;
     nzmqt::Requester *req;

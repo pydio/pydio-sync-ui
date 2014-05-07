@@ -17,7 +17,7 @@ SmokeTest::SmokeTest(nzmqt::ZMQContext& context, QString ad, QObject* parent)
     repSocket->bindTo(address);
 }
 
-void SmokeTest::sendRequest()
+void SmokeTest::launch()
 {
     reqSocket->sendMessage(requestMsg.toLocal8Bit());
     qDebug()<<"Smoke Test Client :: Request Sent >"<<requestMsg;
@@ -51,4 +51,5 @@ void SmokeTest::endTest()
     repSocket->close();
     reqSocket->close();
     qDebug()<<"Smoke Test :: Done";
+    emit testFinished();
 }
