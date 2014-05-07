@@ -70,8 +70,7 @@ Window::Window()
     QCommandLineOption pathArgument("f", "Path to config file.", "filePath");
     parser.addOption(pathArgument);
     parser.process(*qApp);
-    configFilePath = parser.value(pathArgument);
-    this->getPortsFromFile();
+    portConfigurer = new PortConfigurer(parser.value(pathArgument));
 
     createActions();
     createTrayIcon();
@@ -90,14 +89,14 @@ Window::Window()
     }
     else
     {
-        req = new nzmqt::Requester(*context, "tcp://127.0.0.1:" + portHash["watch_socket"], "sync", this);
+        req = new nzmqt::Requester(*context, portConfigurer->address("watch_socket") , "sync", this);
         connect(req, SIGNAL(replyReceived(QString)), this, SLOT(updateStatus(QString)));
         req->start();
 
-        commandHandler = new ToggleStatusRequester(*context, "tcp://127.0.0.1:" + portHash["command_socket"], this);
+        commandHandler = new ToggleStatusRequester(*context, portConfigurer->address("command_socket"), this);
         connect(commandHandler, SIGNAL(replyReceived(QString)), this, SLOT(updateStatus(QString)));
 
-        sub = new nzmqt::Subscriber(*context, "tcp://127.0.0.1:" + portHash["pub_socket"], "sync", this);
+        sub = new nzmqt::Subscriber(*context, portConfigurer->address("pub_socket"), "sync", this);
         connect(sub, SIGNAL(pingReceived(QList<QByteArray>)), SLOT(pingReceived(QList<QByteArray>)));
         sub->start();
 
@@ -106,23 +105,6 @@ Window::Window()
     }
 }
 
-void Window::getPortsFromFile()
-{
-    QFile configFile(configFilePath);
-    if(!configFile.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        qWarning("Cannot open file, check the path you entered.");
-        return;
-    }
-    QTextStream in(&configFile);
-    if(!in.readLine().startsWith("Pydio port config file"))
-            return;
-
-    while(!in.atEnd()){
-        QStringList line = in.readLine().split(":", QString::SkipEmptyParts);
-        portHash[line[0]] = line[1];
-    }
-}
 
 void Window::pingReceived(QList<QByteArray> message)
 {

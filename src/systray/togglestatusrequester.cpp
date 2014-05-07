@@ -7,6 +7,7 @@ ToggleStatusRequester::ToggleStatusRequester(nzmqt::ZMQContext& context, const Q
     socket->setLinger(100);
     connect(socket, SIGNAL(messageReceived(const QList<QByteArray>&)), SLOT(receiveReply(const QList<QByteArray>&)));
     socket->connectTo(address);
+    qDebug()<<"Connected to"<<address;
 }
 
 void ToggleStatusRequester::sendRequest(bool isRunning)

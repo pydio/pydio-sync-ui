@@ -71,6 +71,7 @@ protected:
     void startImpl()
     {
         socket_->connectTo(address_);
+        qDebug()<<"Connected to"<<address_;
         QTimer::singleShot(1000, this, SLOT(sendRequest()));
     }
 

@@ -66,6 +66,7 @@ protected:
     {
         socket_->subscribeTo(topic_);
         socket_->connectTo(address_);
+        qDebug()<<"Connected to"<<address_;
     }
 
 protected slots:
