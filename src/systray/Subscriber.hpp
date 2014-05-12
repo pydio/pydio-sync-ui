@@ -59,21 +59,30 @@ public:
     }
 
 signals:
-    void pingReceived(const QList<QByteArray>& message);
+    void pingReceived();
 
 protected:
     void startImpl()
     {
-        socket_->subscribeTo(topic_);
+        socket_->subscribeTo("ping");
+        socket_->subscribeTo("sync");
         socket_->connectTo(address_);
-        qDebug()<<"Connected to"<<address_;
+        qDebug()<<"Subscribrer is connecting to"<<address_;
     }
 
 protected slots:
     void messageReceived(const QList<QByteArray>& message)
     {
         qDebug() << "Subscriber> " << message;
-        emit pingReceived(message);
+        QString str;
+        for(int i=0; i<message.size(); ++i){
+            str = message[i].constData();
+        }
+        QStringList splitted = str.split("/");
+        if(splitted[0] == "ping")
+        {
+            emit pingReceived();
+        }
     }
 
 private:

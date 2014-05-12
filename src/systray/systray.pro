@@ -2,15 +2,18 @@ HEADERS      += window.h \
                 Subscriber.hpp \
                 SampleBase.hpp \
                 ../../nzmqt/include/nzmqt/nzmqt.hpp \
-                Requester.hpp \
                 pydiogui.h \
-    queuemenu.h \
-    togglestatusrequester.h
+                queuemenu.h \
+                portconfigurer.h \
+                togglestatusrequester.h \
+                smoketest.h
 SOURCES       = main.cpp \
                 window.cpp \
                 pydiogui.cpp \
-    queuemenu.cpp \
-    togglestatusrequester.cpp
+                queuemenu.cpp \
+                portconfigurer.cpp \
+                togglestatusrequester.cpp \
+                smoketest.cpp
 RESOURCES     = systray.qrc
 
 QT += widgets \

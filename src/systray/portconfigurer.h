@@ -11,13 +11,14 @@ public:
     PortConfigurer(QString pathToFile);
     QString port(QString socketName);
     QString address(QString socketName);
-    void getPortsFromFile(QString);
+    void updatePorts();
 
 private:
     void setPortsToDefault();
     QHash<QString, QString> portHash;
     QString ipAddress;
     const static int DEFAULT_PORT = 5556;
+    QFile *configFile;
 };
 
 #endif // PORTCONFIGURER_H

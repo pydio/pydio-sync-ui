@@ -76,6 +76,11 @@ Window::Window()
     createTrayIcon();
     trayIcon->show();
 
+    isConnected = false;
+    running = false;
+    timeOutBomb = new QTimer(this);
+    connect(timeOutBomb, SIGNAL(timeout()), this, SLOT(disconnected()));
+
     centralWidget = new PydioGui(this);
 
     context = nzmqt::createDefaultContext(this);
@@ -89,30 +94,47 @@ Window::Window()
     }
     else
     {
-        req = new nzmqt::Requester(*context, portConfigurer->address("watch_socket") , "sync", this);
-        connect(req, SIGNAL(replyReceived(QString)), this, SLOT(updateStatus(QString)));
-        req->start();
-
-        commandHandler = new ToggleStatusRequester(*context, portConfigurer->address("command_socket"), this);
-        connect(commandHandler, SIGNAL(replyReceived(QString)), this, SLOT(updateStatus(QString)));
-
-        sub = new nzmqt::Subscriber(*context, portConfigurer->address("pub_socket"), "sync", this);
-        connect(sub, SIGNAL(pingReceived(QList<QByteArray>)), SLOT(pingReceived(QList<QByteArray>)));
-        sub->start();
+        this->setSockets();
 
         setWindowTitle(tr("Sync UI"));
         resize(400, 300);
     }
 }
 
-
-void Window::pingReceived(QList<QByteArray> message)
+void Window::setSockets()
 {
-    for(int i=0; i<message.size(); ++i){
-        QString str(message[i].constData());
-        trayIcon->showMessage("Sync Message", str.replace("sync ", ""));
-        lastEventsMenu->addEvent(str);
+    portConfigurer->updatePorts();
+
+    commandHandler = new ToggleStatusRequester(*context, portConfigurer->address("command_socket"), this);
+    connect(commandHandler, SIGNAL(replyReceived(QString)), this, SLOT(updateStatus(QString)));
+
+    sub = new nzmqt::Subscriber(*context, portConfigurer->address("pub_socket"), "sync", this);
+    connect(sub, SIGNAL(pingReceived()), SLOT(pingReceived()));
+    sub->start();
+}
+
+void Window::pingReceived()
+{
+    if(!isConnected)
+    {
+        emit connected();
+        timeOutBomb->stop();
     }
+    timeOutBomb->start(TIME_OUT_LIMIT);
+}
+
+void Window::connected(){
+    lastEventsMenu->addEvent("Connection established");
+    isConnected = true;
+    qDebug()<<"Connection established";
+}
+
+void Window::disconnected()
+{
+    qDebug()<<"Connection lost";
+    lastEventsMenu->addEvent("Connection lost, will try to reconnect...");
+    isConnected = false;
+    emit setSockets();
 }
 
 void Window::updateStatus(QString order){
@@ -163,6 +185,9 @@ void Window::createActions()
     settingsAction = new QAction("Configure...", this);
     connect(settingsAction, SIGNAL(triggered()), this, SLOT(showNormal()));
 
+    reconnectAction = new QAction("Reconnect", this);
+    connect(reconnectAction, SIGNAL(triggered()), this, SLOT(setSockets()));
+
     quitAction = new QAction(tr("&Quit"), this);
     connect(quitAction, SIGNAL(triggered()), this, SLOT(cleanQuit()));
 }
@@ -178,6 +203,7 @@ void Window::createTrayIcon()
     trayIconMenu->addAction(minimizeAction);
     trayIconMenu->addAction(startAction);
     trayIconMenu->addAction(settingsAction);
+    trayIconMenu->addAction(reconnectAction);
 
     trayIconMenu->addSeparator();
     trayIconMenu->addAction(quitAction);
@@ -211,7 +237,6 @@ void Window::iconActivated(QSystemTrayIcon::ActivationReason reason)
 void Window::cleanQuit()
 {
     sub->closeSocket();
-    req->closeSocket();
     commandHandler->closeSocket();
     emit qApp->quit();
 }

@@ -43,7 +43,6 @@
 
 #include <QSystemTrayIcon>
 #include <QtWebKit>
-#include <Requester.hpp>
 #include <Subscriber.hpp>
 #include <pydiogui.h>
 #include <queuemenu.h>
@@ -73,10 +72,13 @@ protected:
 
 private slots:
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
-    void pingReceived(QList<QByteArray> message);
+    void pingReceived();
     void toggleJobStatus();
     void updateStatus(QString);
     void cleanQuit();
+    void setSockets();
+    void disconnected();
+    void connected();
 
 private:
     void createActions();
@@ -90,19 +92,23 @@ private:
     QAction *startAction;
     QAction *settingsAction;
     QAction *quitAction;
+    QAction *reconnectAction;
 
     QueueMenu *lastEventsMenu;
 
+    QTimer *timeOutBomb;
     QSystemTrayIcon *trayIcon;
     QMenu *trayIconMenu;
     bool running;
+    bool isConnected;
 
     PortConfigurer *portConfigurer;
 
     nzmqt::ZMQContext* context;
-    nzmqt::Requester *req;
     nzmqt::Subscriber *sub;
     ToggleStatusRequester* commandHandler;
+
+    const static int TIME_OUT_LIMIT = 25000;
 
 };
 
