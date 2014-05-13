@@ -1,6 +1,8 @@
 The pydio-sync repository is providing a headless python script for running the synchro. This project is communicating with Python through ZMQ to provide a systray-like UI for the sync service.
 It's based on the Qt (see http://qt-project.org) library.
 
+! For now, you need at least Qt 5.2 to make it work !
+
 ## Run
 
 To run it, you must 
