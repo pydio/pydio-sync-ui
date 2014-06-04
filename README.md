@@ -1,16 +1,38 @@
 The pydio-sync repository is providing a headless python script for running the synchro. This project is communicating with Python through ZMQ to provide a systray-like UI for the sync service.
 It's based on the Qt (see http://qt-project.org) library.
 
-! For now, you need at least Qt 5.2 to make it work !
+! Since some changes have occurred with Qt 5, we recommend to install Qt 5.2.1 (last version to date) !
 
-## Run
+## Build instructions
 
 To run it, you must 
- * Install Qt and QtCreator
- * Make sure ZeroMQ in installed 
- * clone the project, 
- * execute init-project script
- * Open the .pro file inside Qt Creator and run the project from here.
+ * Install Qt 5.2
+ * Make sure ZeroMQ is installed 
+ * Clone the project
+```
+git clone git://github.com/pydio/pydio-sync-ui
+```
+ * Execute init-project script
+```
+cd pydio-sync-ui
+./init-project.sh
+```
+ * Open the .pro file in Qt Creator and build the project or :
+```
+export PATH=$PATH:/your/path/to/qmake
+```
+ * Generate a makefile from your project file
+```
+qmake /your/path/to/systray.pro
+```
+ * Compile
+```
+make all
+```
+* Launch the UI
+```
+open systray.app
+```
 
 Currently tested on Mac and Linux.
 
