@@ -43,12 +43,13 @@
 
 #include <QSystemTrayIcon>
 #include <QtWebKit>
-#include <Subscriber.hpp>
-#include <pydiogui.h>
 #include <queuemenu.h>
-#include <nzmqt/nzmqt.hpp>
-#include <togglestatusrequester.h>
 #include <portconfigurer.h>
+#include <QWebView>
+#include <JSEventHandler.h>
+#include <httppoller.h>
+#include <QThread>
+#include <QWebFrame>
 
 #ifndef QT_NO_SYSTEMTRAYICON
 
@@ -76,17 +77,17 @@ private slots:
     void toggleJobStatus();
     void updateStatus(QString);
     void cleanQuit();
-    void setSockets();
+    void init();
     void disconnected();
     void connected();
+    void testSlot();
 
 private:
     void createActions();
     void createTrayIcon();
     void createLastEventsMenu();
-    void getPortsFromFile();
 
-    QWidget *centralWidget;
+    QWebView *view;
 
     QAction *minimizeAction;
     QAction *startAction;
@@ -102,11 +103,10 @@ private:
     bool running;
     bool isConnected;
 
-    PortConfigurer *portConfigurer;
+    HTTPPoller *poller;
+    QTimer *pollTimer;
 
-    nzmqt::ZMQContext* context;
-    nzmqt::Subscriber *sub;
-    ToggleStatusRequester* commandHandler;
+    PortConfigurer *portConfigurer;
 
     const static int TIME_OUT_LIMIT = 25000;
 

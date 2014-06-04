@@ -39,31 +39,11 @@
 ****************************************************************************/
 
 #include "window.h"
-#include "smoketest.h"
-
 
 #ifndef QT_NO_SYSTEMTRAYICON
 
-#include <QtGui>
-
-#include <QAction>
-#include <QCheckBox>
-#include <QComboBox>
-#include <QGroupBox>
-#include <QLabel>
-#include <QLineEdit>
-#include <QMenu>
-#include <QPushButton>
-#include <QSpinBox>
-#include <QTextEdit>
-#include <QVBoxLayout>
-#include <QMessageBox>
-
-
-//! [0]
 Window::Window()
 {
-
     QCommandLineParser parser;
     QCommandLineOption smokeTestOption("s", "Toggle smoke test.");
     parser.addOption(smokeTestOption);
@@ -81,44 +61,49 @@ Window::Window()
     timeOutBomb = new QTimer(this);
     connect(timeOutBomb, SIGNAL(timeout()), this, SLOT(disconnected()));
 
-    centralWidget = new PydioGui(this);
+    view = new QWebView();
+    //view->setWindowFlags(Qt::FramelessWindowHint);
+    view->settings()->setAttribute( QWebSettings::JavascriptEnabled, true);
+    view->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
 
-    context = nzmqt::createDefaultContext(this);
-    context->start();
+    pollTimer = new QTimer(this);
+    pollTimer->setInterval(2500);
+    pollTimer->setSingleShot(true);
 
-    if(parser.isSet(smokeTestOption))
-    {
-        SmokeTest* smokeTest = new SmokeTest(*context, "tcp://127.0.0.1:5513", this);
-        connect(smokeTest, SIGNAL(testFinished()), qApp, SLOT(quit()));
-        smokeTest->launch();
-    }
-    else
-    {
-        this->setSockets();
+    poller = new HTTPPoller(this);
+    connect(pollTimer, SIGNAL(timeout()), poller, SLOT(poll()));
+    connect(poller, SIGNAL(requestFinished()), pollTimer, SLOT(start()));
 
-        setWindowTitle(tr("Sync UI"));
-        resize(400, 300);
-    }
+    this->init();
+
+    pollTimer->start();
+
+    setWindowTitle(tr("Sync UI"));
+    resize(400, 300);
+
 }
 
-void Window::setSockets()
+void Window::init()
 {
     portConfigurer->updatePorts();
+    QUrl syncUrl = QUrl("http://127.0.0.1:" + portConfigurer->port("flask_api"));
 
-    commandHandler = new ToggleStatusRequester(*context, portConfigurer->address("command_socket"), this);
-    connect(commandHandler, SIGNAL(replyReceived(QString)), this, SLOT(updateStatus(QString)));
+    poller->setUrl(syncUrl);
+    view->load(syncUrl);
 
-    sub = new nzmqt::Subscriber(*context, portConfigurer->address("pub_socket"), "sync", this);
-    connect(sub, SIGNAL(pingReceived()), SLOT(pingReceived()));
-    sub->start();
+    JSEventHandler *fileDialog = new JSEventHandler(this);
+
+    connect(view->page(), SIGNAL(linkClicked(QUrl)), fileDialog, SLOT(openUrl(QUrl)));
+    view->page()->currentFrame()->addToJavaScriptWindowObject("PydioQtFileDialog", fileDialog);
+    timeOutBomb->start(TIME_OUT_LIMIT);
 }
 
 void Window::pingReceived()
 {
+    timeOutBomb->stop();
     if(!isConnected)
     {
         emit connected();
-        timeOutBomb->stop();
     }
     timeOutBomb->start(TIME_OUT_LIMIT);
 }
@@ -126,15 +111,21 @@ void Window::pingReceived()
 void Window::connected(){
     lastEventsMenu->addEvent("Connection established");
     isConnected = true;
-    qDebug()<<"Connection established";
+    timeOutBomb->start(TIME_OUT_LIMIT);
 }
 
 void Window::disconnected()
 {
-    qDebug()<<"Connection lost";
-    lastEventsMenu->addEvent("Connection lost, will try to reconnect...");
+    if(isConnected)
+    {
+        lastEventsMenu->addEvent("Connection lost, will try to reconnect...");
+    }
+    else
+    {
+        lastEventsMenu->addEvent("Connection failed, will try again...");
+    }
     isConnected = false;
-    emit setSockets();
+    emit init();
 }
 
 void Window::updateStatus(QString order){
@@ -171,7 +162,7 @@ void Window::closeEvent(QCloseEvent *event)
 
 void Window::toggleJobStatus()
 {
-    commandHandler->sendRequest(running);
+
 }
 
 void Window::createActions()
@@ -186,7 +177,7 @@ void Window::createActions()
     connect(settingsAction, SIGNAL(triggered()), this, SLOT(showNormal()));
 
     reconnectAction = new QAction("Reconnect", this);
-    connect(reconnectAction, SIGNAL(triggered()), this, SLOT(setSockets()));
+    connect(reconnectAction, SIGNAL(triggered()), this, SLOT(init()));
 
     quitAction = new QAction(tr("&Quit"), this);
     connect(quitAction, SIGNAL(triggered()), this, SLOT(cleanQuit()));
@@ -236,9 +227,12 @@ void Window::iconActivated(QSystemTrayIcon::ActivationReason reason)
 
 void Window::cleanQuit()
 {
-    sub->closeSocket();
-    commandHandler->closeSocket();
     emit qApp->quit();
+}
+
+void Window::testSlot()
+{
+    qDebug()<<"Test slot ok";
 }
 
 #endif

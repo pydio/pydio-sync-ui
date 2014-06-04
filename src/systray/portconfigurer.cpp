@@ -12,6 +12,7 @@ void PortConfigurer::setPortsToDefault()
     portHash.clear();
     portHash["pub_socket"] = QString::number(DEFAULT_PORT);
     portHash["command_socket"] = QString::number(DEFAULT_PORT + 1);
+    portHash["flask_api"] = "5000";
 }
 
 QString PortConfigurer::port(QString socketName)
@@ -28,7 +29,7 @@ void PortConfigurer::updatePorts()
 {
     portHash.clear();
     if(!configFile->open(QIODevice::ReadOnly | QIODevice::Text)){
-        qWarning("Cannot open file, check the path you entered.");
+        qWarning("No config file detected, connecting to default ports...");
         setPortsToDefault();
         return;
     }
