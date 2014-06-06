@@ -5,6 +5,12 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QJsonObject>
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonValue>
+#include <job.h>
+#include <QHash>
 
 class HTTPPoller : public QObject
 {
@@ -15,6 +21,9 @@ public:
 
 signals:
    void requestFinished();
+   void newJob(QString, QString);
+   void jobUpdated(QString, QString);
+   void jobDeleted(QString);
 
 public slots:
     void poll();
@@ -23,6 +32,7 @@ public slots:
 private:
     QNetworkAccessManager *manager;
     QUrl serverUrl;
+    QHash<QString, Job*> *jobs;
 
 };
 

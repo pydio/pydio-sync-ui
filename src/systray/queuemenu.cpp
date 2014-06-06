@@ -32,6 +32,5 @@ void QueueMenu::updateLastEvents()
     {
         QAction *toDelete = lastEvents->dequeue();
         this->removeAction(toDelete);
-        //delete toDelete;
     }
 }

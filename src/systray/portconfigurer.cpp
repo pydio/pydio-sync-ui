@@ -2,7 +2,7 @@
 
 PortConfigurer::PortConfigurer(QString pathToFile)
 {
-    ipAddress = "tcp://127.0.0.1:";
+    ipAddress = "http://127.0.0.1:";
     configFile = new QFile(pathToFile);
 
 }
@@ -10,9 +10,7 @@ PortConfigurer::PortConfigurer(QString pathToFile)
 void PortConfigurer::setPortsToDefault()
 {
     portHash.clear();
-    portHash["pub_socket"] = QString::number(DEFAULT_PORT);
-    portHash["command_socket"] = QString::number(DEFAULT_PORT + 1);
-    portHash["flask_api"] = "5000";
+    portHash["flask_api"] = QString::number(DEFAULT_PORT);
 }
 
 QString PortConfigurer::port(QString socketName)
@@ -29,7 +27,7 @@ void PortConfigurer::updatePorts()
 {
     portHash.clear();
     if(!configFile->open(QIODevice::ReadOnly | QIODevice::Text)){
-        qWarning("No config file detected, connecting to default ports...");
+        qWarning("No config file detected, connecting to default port...");
         setPortsToDefault();
         return;
     }

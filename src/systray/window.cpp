@@ -61,26 +61,29 @@ Window::Window()
     timeOutBomb = new QTimer(this);
     connect(timeOutBomb, SIGNAL(timeout()), this, SLOT(disconnected()));
 
-    view = new QWebView();
-    //view->setWindowFlags(Qt::FramelessWindowHint);
-    view->settings()->setAttribute( QWebSettings::JavascriptEnabled, true);
-    view->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
+    jobActions = new QHash<QString, QAction*>();
+
+    settingsWebView = new QWebView();
+    settingsWebView->settings()->setAttribute( QWebSettings::JavascriptEnabled, true);
+    settingsWebView->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
+    this->setCentralWidget(settingsWebView);
+
 
     pollTimer = new QTimer(this);
-    pollTimer->setInterval(2500);
+    pollTimer->setInterval(2000);
     pollTimer->setSingleShot(true);
 
     poller = new HTTPPoller(this);
     connect(pollTimer, SIGNAL(timeout()), poller, SLOT(poll()));
     connect(poller, SIGNAL(requestFinished()), pollTimer, SLOT(start()));
+    connect(poller, SIGNAL(newJob(QString, QString)), this, SLOT(onNewJob(QString, QString)));
+    connect(poller, SIGNAL(jobUpdated(QString, QString)), this, SLOT(onJobUpdated(QString, QString)));
 
     this->init();
 
-    pollTimer->start();
+    poller->poll();
 
     setWindowTitle(tr("Sync UI"));
-    resize(400, 300);
-
 }
 
 void Window::init()
@@ -89,13 +92,13 @@ void Window::init()
     QUrl syncUrl = QUrl("http://127.0.0.1:" + portConfigurer->port("flask_api"));
 
     poller->setUrl(syncUrl);
-    view->load(syncUrl);
+    settingsWebView->load(syncUrl);
 
     JSEventHandler *fileDialog = new JSEventHandler(this);
 
-    connect(view->page(), SIGNAL(linkClicked(QUrl)), fileDialog, SLOT(openUrl(QUrl)));
-    view->page()->currentFrame()->addToJavaScriptWindowObject("PydioQtFileDialog", fileDialog);
-    timeOutBomb->start(TIME_OUT_LIMIT);
+    connect(settingsWebView->page(), SIGNAL(linkClicked(QUrl)), fileDialog, SLOT(openUrl(QUrl)));
+    settingsWebView->page()->currentFrame()->addToJavaScriptWindowObject("PydioQtFileDialog", fileDialog);
+    //timeOutBomb->start(TIME_OUT_LIMIT);
 }
 
 void Window::pingReceived()
@@ -134,21 +137,21 @@ void Window::updateStatus(QString order){
         trayIcon->showMessage("Status Message", "Synchronization started");
         this->running = true;
         lastEventsMenu->addEvent("Synchronization started");
-        startAction->setText(tr("&Pause"));
     }
     else if(order == "PAUSED" && this->running == true)
     {
         trayIcon->showMessage("Status Message", "Synchronization paused");
         this->running = false;
         lastEventsMenu->addEvent("Synchronization paused");
-        startAction->setText(tr("&Resume"));
     }
 }
 
-void Window::setVisible(bool visible)
+void Window::show()
 {
-    minimizeAction->setEnabled(visible);
-    QDialog::setVisible(visible);
+    this->resize(400, 550);
+    this->setFixedWidth(400);
+    this->move(QApplication::desktop()->availableGeometry(0).width()/2 - this->width()/2, QApplication::desktop()->geometry().height()/2 -200);
+    this->QWidget::show();
 }
 
 void Window::closeEvent(QCloseEvent *event)
@@ -160,24 +163,13 @@ void Window::closeEvent(QCloseEvent *event)
     }
 }
 
-void Window::toggleJobStatus()
-{
-
-}
-
 void Window::createActions()
 {
-    minimizeAction = new QAction(tr("&Minimize"), this);
-    connect(minimizeAction, SIGNAL(triggered()), this, SLOT(hide()));
+    settingsAction = new QAction(tr("Open Pydio"), this);
+    connect(settingsAction, SIGNAL(triggered()), this, SLOT(show()));
 
-    startAction = new QAction(tr("&Start"), this);
-    connect(startAction, SIGNAL(triggered()), this, SLOT(toggleJobStatus()));
-
-    settingsAction = new QAction("Configure...", this);
-    connect(settingsAction, SIGNAL(triggered()), this, SLOT(showNormal()));
-
-    reconnectAction = new QAction("Reconnect", this);
-    connect(reconnectAction, SIGNAL(triggered()), this, SLOT(init()));
+    noJobAction = new QAction(tr("No active job"), this);
+    noJobAction->setDisabled(true);
 
     quitAction = new QAction(tr("&Quit"), this);
     connect(quitAction, SIGNAL(triggered()), this, SLOT(cleanQuit()));
@@ -188,16 +180,15 @@ void Window::createTrayIcon()
     trayIconMenu = new QMenu(this);
     this->createLastEventsMenu();
 
-    trayIconMenu->addMenu(lastEventsMenu);
-
     trayIconMenu->addSeparator();
-    trayIconMenu->addAction(minimizeAction);
-    trayIconMenu->addAction(startAction);
+
     trayIconMenu->addAction(settingsAction);
-    trayIconMenu->addAction(reconnectAction);
+
+    trayIconMenu->insertAction(settingsAction, noJobAction);
 
     trayIconMenu->addSeparator();
     trayIconMenu->addAction(quitAction);
+
 
     trayIcon = new QSystemTrayIcon(this);
     trayIcon->setContextMenu(trayIconMenu);
@@ -230,9 +221,33 @@ void Window::cleanQuit()
     emit qApp->quit();
 }
 
-void Window::testSlot()
+void Window::onNewJob(QString id, QString desc)
 {
-    qDebug()<<"Test slot ok";
+    trayIconMenu->removeAction(noJobAction);
+
+    QAction *newAction = new QAction(desc, this);
+    newAction->setDisabled(true);
+    jobActions->insert(id, newAction);
+    trayIconMenu->insertAction(settingsAction, newAction);
+    if(jobActions->size() < 2)
+    {
+        trayIconMenu->insertSeparator(settingsAction);
+    }
+}
+
+void Window::onJobUpdated(QString id, QString desc)
+{
+    jobActions->operator [](id)->setText(desc);
+}
+
+void Window::onJobDeleted(QString id)
+{
+    trayIconMenu->removeAction(jobActions->operator [](id));
+    jobActions->remove(id);
+    if(jobActions->isEmpty())
+    {
+        trayIconMenu->insertAction(settingsAction, noJobAction);
+    }
 }
 
 #endif

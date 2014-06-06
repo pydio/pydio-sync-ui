@@ -2,13 +2,15 @@ HEADERS      += window.h \
                 queuemenu.h \
                 portconfigurer.h \
                 JSEventHandler.h \
-    httppoller.h
+                httppoller.h \
+                job.h
 SOURCES       = main.cpp \
                 window.cpp \
                 queuemenu.cpp \
                 portconfigurer.cpp \
                 JSEventHandler.cpp \
-    httppoller.cpp
+                httppoller.cpp \
+                job.cpp
 RESOURCES     = systray.qrc
 
 QT += widgets \

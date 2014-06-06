@@ -41,6 +41,7 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
+#include <QMainWindow>
 #include <QSystemTrayIcon>
 #include <QtWebKit>
 #include <queuemenu.h>
@@ -50,6 +51,9 @@
 #include <httppoller.h>
 #include <QThread>
 #include <QWebFrame>
+#include <QApplication>
+#include <QDesktopWidget>
+#include <QHash>
 
 #ifndef QT_NO_SYSTEMTRAYICON
 
@@ -60,40 +64,41 @@ class QAction;
 class QMenu;
 QT_END_NAMESPACE
 
-class Window : public QDialog
+class Window : public QMainWindow
 {
     Q_OBJECT
 
 public:
     Window();
-    void setVisible(bool visible);
 
 protected:
     void closeEvent(QCloseEvent *event);
 
 private slots:
+    void show();
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
     void pingReceived();
-    void toggleJobStatus();
     void updateStatus(QString);
     void cleanQuit();
     void init();
     void disconnected();
     void connected();
-    void testSlot();
+    void onNewJob(QString jobId, QString desc);
+    void onJobUpdated(QString jobId, QString desc);
+    void onJobDeleted(QString jobId);
 
 private:
     void createActions();
     void createTrayIcon();
     void createLastEventsMenu();
 
-    QWebView *view;
+    QWebView *settingsWebView;
 
-    QAction *minimizeAction;
-    QAction *startAction;
+    QAction *noJobAction;
     QAction *settingsAction;
     QAction *quitAction;
     QAction *reconnectAction;
+    QHash<QString, QAction*> *jobActions;
 
     QueueMenu *lastEventsMenu;
 
