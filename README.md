@@ -12,6 +12,8 @@ To run it, you must
 git clone git://github.com/pydio/pydio-sync-ui
 ```
  * Open the .pro file in Qt Creator and build the project or :
+
+### On Mac OS
 ```
 export PATH=$PATH:/your/path/to/qmake
 ```
@@ -28,7 +30,18 @@ make all
 open systray.app
 ```
 
-Currently tested on Mac and Linux.
+### On Windows
+ * Generate a makefile from your project file
+```
+c:/qt/5.2.1/mingw48_32/bin/./qmake your/path/to/pydio-sync-ui/src/systray/systray.pro
+```
+ * Compile
+```
+C:/Qt/Tools/mingw48_32/bin/./mingw32-make -f makefile
+```
+* Launch the UI
+
+Currently tested on Mac and Windows 7.
 
 ## Contributing
 
