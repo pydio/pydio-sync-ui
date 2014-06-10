@@ -1,6 +1,6 @@
 TARGET = pydio-ui
 
-DESTDIR = ../../build
+DESTDIR = $$PWD/../../build
 MOC_DIR = $${DESTDIR}/.moc
 OBJECTS_DIR = $${DESTDIR}/.obj
 RCC_DIR = $${DESTDIR}/.rcc
