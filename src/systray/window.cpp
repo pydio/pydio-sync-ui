@@ -59,13 +59,18 @@ Window::Window()
     isConnected = false;
     running = false;
     timeOutBomb = new QTimer(this);
+    qDebug()<<"after connect";
+    //connect(poller, SIGNAL(requestFinished()), this, SLOT(pingReceived()));
+
     connect(timeOutBomb, SIGNAL(timeout()), this, SLOT(disconnected()));
+
 
     jobActions = new QHash<QString, QAction*>();
 
     settingsWebView = new QWebView();
     settingsWebView->settings()->setAttribute( QWebSettings::JavascriptEnabled, true);
     settingsWebView->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
+    settingsWebView->setContextMenuPolicy(Qt::NoContextMenu);
     this->setCentralWidget(settingsWebView);
 
 
@@ -131,21 +136,6 @@ void Window::disconnected()
     emit init();
 }
 
-void Window::updateStatus(QString order){
-    if(order == "RUNNING" && this->running == false)
-    {
-        trayIcon->showMessage("Status Message", "Synchronization started");
-        this->running = true;
-        lastEventsMenu->addEvent("Synchronization started");
-    }
-    else if(order == "PAUSED" && this->running == true)
-    {
-        trayIcon->showMessage("Status Message", "Synchronization paused");
-        this->running = false;
-        lastEventsMenu->addEvent("Synchronization paused");
-    }
-}
-
 void Window::show()
 {
     this->resize(400, 550);
@@ -154,14 +144,6 @@ void Window::show()
     this->QWidget::show();
 }
 
-void Window::closeEvent(QCloseEvent *event)
-{
-    if (trayIcon->isVisible()) {
-        trayIcon->showMessage(tr("Info"),tr("The program will still be running right here"));
-        hide();
-        event->ignore();
-    }
-}
 
 void Window::createActions()
 {
@@ -178,8 +160,8 @@ void Window::createActions()
 void Window::createTrayIcon()
 {
     trayIconMenu = new QMenu(this);
-    this->createLastEventsMenu();
 
+    this->createLastEventsMenu();
     trayIconMenu->addSeparator();
 
     trayIconMenu->addAction(settingsAction);
@@ -229,10 +211,6 @@ void Window::onNewJob(QString id, QString desc)
     newAction->setDisabled(true);
     jobActions->insert(id, newAction);
     trayIconMenu->insertAction(settingsAction, newAction);
-    if(jobActions->size() < 2)
-    {
-        trayIconMenu->insertSeparator(settingsAction);
-    }
 }
 
 void Window::onJobUpdated(QString id, QString desc)

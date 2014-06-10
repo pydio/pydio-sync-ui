@@ -71,14 +71,10 @@ class Window : public QMainWindow
 public:
     Window();
 
-protected:
-    void closeEvent(QCloseEvent *event);
-
 private slots:
     void show();
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
     void pingReceived();
-    void updateStatus(QString);
     void cleanQuit();
     void init();
     void disconnected();

@@ -32,10 +32,17 @@ void HTTPPoller::pollingFinished(QNetworkReply* reply)
         {
             QJsonObject job = jsonJob.toObject();
             QString jobId = job["id"].toString();
+            QString directory = job["directory"].toString();
+            bool running = job["running"].toBool();
+            int queue_length = job["state"].toObject().operator []("global").toObject().operator[]("queue_length").toInt();
+            double eta = -1;
+            if(queue_length > 0){
+                eta = job["state"].toObject().operator []("global").toObject().operator[]("eta").toDouble();
+            }
             if(!this->jobs->contains(jobId))
             {
                 if(job["active"].toBool()){
-                    Job *newJob = new Job(jobId, job["directory"].toString(), job["running"].toBool(), job["state"].toObject().operator []("global").toObject().operator[]("eta").toDouble());
+                    Job *newJob = new Job(jobId, directory, running, eta);
                     connect(newJob, SIGNAL(updated(QString, QString)), this, SIGNAL(jobUpdated(QString, QString)));
                     this->jobs->insert(jobId, newJob);
                     emit this->newJob(newJob->getId(), newJob->getJobDescription());
@@ -48,7 +55,8 @@ void HTTPPoller::pollingFinished(QNetworkReply* reply)
                 }
                 else
                 {
-                    jobs->value(jobId)->update(job["directory"].toString(), job["running"].toBool(), job["state"].toObject().operator []("global").toObject().operator[]("eta").toDouble());
+                    jobs->value(jobId)->update(directory, running, eta);
+                    jobs->value(jobId)->update(directory, running, eta);
                 }
             }
         }
