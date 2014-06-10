@@ -1,7 +1,7 @@
 The pydio-sync repository is providing a headless python script for running the synchro.
 It's based on the Qt (see http://qt-project.org) library.
 
-Since some changes have occurred with Qt 5, we recommend to install Qt 5.2.1  !
+Since some changes have occurred with Qt 5, we recommend to install the latest version  !
 
 ## Build instructions
 
@@ -19,15 +19,19 @@ export PATH=$PATH:/your/path/to/qmake
 ```
  * Generate a makefile from your project file
 ```
-qmake -r -spec macx-clang /your/path/to/pydio-sync-ui/src/systray/systray.pro
+cd /your/path/to/pydio-sync-ui/src/systray/
+qmake -o path/you/want/makefile/to/go systray.pro
 ```
  * Compile
 ```
-make all
+make
 ```
-* Launch the UI
+
+#### Deployment
 ```
-open systray.app
+cd ../../build
+macdeployqt pydio-ui.app -no-plugins
+open pydio-ui.app
 ```
 
 ### On Windows
