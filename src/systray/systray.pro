@@ -1,3 +1,11 @@
+TARGET = pydio-ui
+
+DESTDIR = ../../build
+MOC_DIR = $${DESTDIR}/.moc
+OBJECTS_DIR = $${DESTDIR}/.obj
+RCC_DIR = $${DESTDIR}/.rcc
+UI_DIR = $$DESTDIR/.ui
+
 HEADERS      += window.h \
                 queuemenu.h \
                 portconfigurer.h \
@@ -11,15 +19,16 @@ SOURCES       = main.cpp \
                 JSEventHandler.cpp \
                 httppoller.cpp \
                 job.cpp
+
 RESOURCES     = systray.qrc
+
+# install
+ target.path = ./
+ INSTALLS += target
 
 QT += widgets \
       webkitwidgets \
       network
-
-# install
-target.path = ./
-INSTALLS += target
 
 simulator: warning(This example might not fully work on Simulator platform)
 
