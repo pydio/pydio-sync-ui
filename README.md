@@ -1,29 +1,25 @@
-The pydio-sync repository is providing a headless python script for running the synchro. This project is communicating with Python through ZMQ to provide a systray-like UI for the sync service.
+The pydio-sync repository is providing a headless python script for running the synchro.
 It's based on the Qt (see http://qt-project.org) library.
 
-! Since some changes have occurred with Qt 5, we recommend to install Qt 5.2.1 (last version to date) !
+Since some changes have occurred with Qt 5, we recommend to install Qt 5.2.1  !
 
 ## Build instructions
 
 To run it, you must 
  * Install Qt 5.2
- * Make sure ZeroMQ is installed 
  * Clone the project
 ```
 git clone git://github.com/pydio/pydio-sync-ui
 ```
- * Execute init-project script
-```
-cd pydio-sync-ui
-./init-project.sh
-```
  * Open the .pro file in Qt Creator and build the project or :
+
+### On Mac OS
 ```
 export PATH=$PATH:/your/path/to/qmake
 ```
  * Generate a makefile from your project file
 ```
-qmake /your/path/to/systray.pro
+qmake -r -spec macx-clang /your/path/to/pydio-sync-ui/src/systray/systray.pro
 ```
  * Compile
 ```
@@ -34,7 +30,39 @@ make all
 open systray.app
 ```
 
-Currently tested on Mac and Linux.
+### On Windows
+ * Generate a makefile from your project file
+```
+c:/qt/5.2.1/mingw48_32/bin/./qmake your/path/to/pydio-sync-ui/src/systray/systray.pro
+```
+ * Compile
+```
+C:/Qt/Tools/mingw48_32/bin/./mingw32-make -f makefile
+```
+* Add the following .dll files to the systray.exe folder :
+```
+Qt5Core.dll
+Qt5Gui.dll
+Qt5Multimedia.dll
+Qt5MultimediaWidgets.dll
+Qt5Network.dll
+Qt5OpenGL.dll
+Qt5Positioning.dll
+Qt5PrintSupport.dll
+Qt5Qml.dll
+Qt5Quick.dll
+Qt5Sensors.dll
+Qt5Sql.dll
+Qt5WebKit.dll
+Qt5WebKitWidgets.dll
+Qt5Widgets.dll
+icudt51.dll
+icuin51.dll
+icuuc51.dll
+```
+* Launch the UI
+
+Currently tested on Mac and Windows 7.
 
 ## Contributing
 
