@@ -24,6 +24,7 @@ signals:
    void newJob(QString, QString);
    void jobUpdated(QString, QString);
    void jobDeleted(QString);
+   void connectionProblem();
 
 public slots:
     void poll();
@@ -33,6 +34,9 @@ private:
     QNetworkAccessManager *manager;
     QUrl serverUrl;
     QHash<QString, Job*> *jobs;
+    const static int MAX_CONNECTION_ATTEMPTS = 10;
+    int failed_attempts;
+
 
 };
 

@@ -7,11 +7,14 @@ HTTPPoller::HTTPPoller(QObject *parent) :
     connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(pollingFinished(QNetworkReply*)));
     serverUrl = "";
     jobs = new QHash<QString, Job*>();
+    failed_attempts = 0;
 }
 
 void HTTPPoller::setUrl(QUrl &servUrl)
 {
     this->serverUrl = servUrl;
+    failed_attempts = 0;
+    jobs->clear();
 }
 
 void HTTPPoller::poll()
@@ -24,6 +27,7 @@ void HTTPPoller::pollingFinished(QNetworkReply* reply)
 {
     if (reply->error() == QNetworkReply::NoError)
     {
+        failed_attempts = 0;
         QString strReply = (QString)reply->readAll();
         QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
 
@@ -60,12 +64,14 @@ void HTTPPoller::pollingFinished(QNetworkReply* reply)
                 }
             }
         }
-
-        reply->deleteLater();
     }
     else {
         qDebug() << "HTTP Poller Reply failure :" <<reply->errorString();
-        delete reply;
+        ++failed_attempts;
+        if(failed_attempts >= MAX_CONNECTION_ATTEMPTS){
+            emit connectionProblem();
+        }
     }
+    reply->deleteLater();
     emit requestFinished();
 }

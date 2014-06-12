@@ -49,7 +49,6 @@
 #include <QWebView>
 #include <JSEventHandler.h>
 #include <httppoller.h>
-#include <QThread>
 #include <QWebFrame>
 #include <QApplication>
 #include <QDesktopWidget>
@@ -74,11 +73,8 @@ public:
 private slots:
     void show();
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
-    void pingReceived();
     void cleanQuit();
-    void init();
-    void disconnected();
-    void connected();
+    void initWebKit();
     void onNewJob(QString jobId, QString desc);
     void onJobUpdated(QString jobId, QString desc);
     void onJobDeleted(QString jobId);
@@ -97,20 +93,14 @@ private:
     QHash<QString, QAction*> *jobActions;
 
     QueueMenu *lastEventsMenu;
-
-    QTimer *timeOutBomb;
     QSystemTrayIcon *trayIcon;
     QMenu *trayIconMenu;
-    bool running;
-    bool isConnected;
 
     HTTPPoller *poller;
     QTimer *pollTimer;
 
     PortConfigurer *portConfigurer;
-
-    const static int TIME_OUT_LIMIT = 25000;
-
+    JSEventHandler *jsDialog;
 };
 
 #endif // QT_NO_SYSTEMTRAYICON

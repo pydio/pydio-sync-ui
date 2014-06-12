@@ -3,7 +3,6 @@
 
 #include <QMenu>
 #include <QQueue>
-#include <QDebug>
 #include <QDateTime>
 
 class QueueMenu : public QMenu

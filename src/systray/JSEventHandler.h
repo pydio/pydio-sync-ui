@@ -2,7 +2,6 @@
 #define JSEVENTHANDLER_H
 
 #include <QObject>
-#include <QDebug>
 #include <QFileDialog>
 #include <QDesktopServices>
 

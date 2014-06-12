@@ -56,15 +56,6 @@ Window::Window()
     createTrayIcon();
     trayIcon->show();
 
-    isConnected = false;
-    running = false;
-    timeOutBomb = new QTimer(this);
-    qDebug()<<"after connect";
-    //connect(poller, SIGNAL(requestFinished()), this, SLOT(pingReceived()));
-
-    connect(timeOutBomb, SIGNAL(timeout()), this, SLOT(disconnected()));
-
-
     jobActions = new QHash<QString, QAction*>();
 
     settingsWebView = new QWebView();
@@ -83,15 +74,18 @@ Window::Window()
     connect(poller, SIGNAL(requestFinished()), pollTimer, SLOT(start()));
     connect(poller, SIGNAL(newJob(QString, QString)), this, SLOT(onNewJob(QString, QString)));
     connect(poller, SIGNAL(jobUpdated(QString, QString)), this, SLOT(onJobUpdated(QString, QString)));
+    connect(poller, SIGNAL(connectionProblem()), this, SLOT(initWebKit()));
 
-    this->init();
+    jsDialog = new JSEventHandler(this);
+
+    this->initWebKit();
 
     poller->poll();
 
-    setWindowTitle(tr("Sync UI"));
+    setWindowTitle(tr("Pydio"));
 }
 
-void Window::init()
+void Window::initWebKit()
 {
     portConfigurer->updatePorts();
     QUrl syncUrl = QUrl("http://127.0.0.1:" + portConfigurer->port("flask_api"));
@@ -99,48 +93,21 @@ void Window::init()
     poller->setUrl(syncUrl);
     settingsWebView->load(syncUrl);
 
-    JSEventHandler *fileDialog = new JSEventHandler(this);
-
-    connect(settingsWebView->page(), SIGNAL(linkClicked(QUrl)), fileDialog, SLOT(openUrl(QUrl)));
-    settingsWebView->page()->currentFrame()->addToJavaScriptWindowObject("PydioQtFileDialog", fileDialog);
-    //timeOutBomb->start(TIME_OUT_LIMIT);
-}
-
-void Window::pingReceived()
-{
-    timeOutBomb->stop();
-    if(!isConnected)
-    {
-        emit connected();
-    }
-    timeOutBomb->start(TIME_OUT_LIMIT);
-}
-
-void Window::connected(){
-    lastEventsMenu->addEvent("Connection established");
-    isConnected = true;
-    timeOutBomb->start(TIME_OUT_LIMIT);
-}
-
-void Window::disconnected()
-{
-    if(isConnected)
-    {
-        lastEventsMenu->addEvent("Connection lost, will try to reconnect...");
-    }
-    else
-    {
-        lastEventsMenu->addEvent("Connection failed, will try again...");
-    }
-    isConnected = false;
-    emit init();
+    connect(settingsWebView->page(), SIGNAL(linkClicked(QUrl)), jsDialog, SLOT(openUrl(QUrl)));
+    settingsWebView->page()->currentFrame()->addToJavaScriptWindowObject("PydioQtFileDialog", jsDialog);
 }
 
 void Window::show()
 {
     this->resize(400, 550);
     this->setFixedWidth(400);
-    this->move(QApplication::desktop()->availableGeometry(0).width()/2 - this->width()/2, QApplication::desktop()->geometry().height()/2 -200);
+    if(trayIcon->geometry().y() < QApplication::desktop()->height()*0.5)
+    {
+        this->move(this->trayIcon->geometry().center().x() - this->width()/2, trayIcon->geometry().bottom() + 10);
+    }
+    else{
+        this->move(this->trayIcon->geometry().center().x() - this->width()/2, QApplication::desktop()->height() - 80 - this->height());
+    }
     this->QWidget::show();
 }
 
