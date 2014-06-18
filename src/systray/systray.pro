@@ -39,4 +39,4 @@ INCLUDEPATH += \
 QMAKE_LIBDIR += \
     /usr/local/lib
 
-QMAKE_INFO_PLIST = deploy/macos/pydio-ui.plist
+QMAKE_INFO_PLIST = ../../deploy/macos/pydio-ui.plist
