@@ -45,60 +45,63 @@
 Window::Window()
 {
     QCommandLineParser parser;
-    QCommandLineOption smokeTestOption("s", "Toggle smoke test.");
-    parser.addOption(smokeTestOption);
+    QCommandLineOption dumbTestOption("test", "Toggle dumb test.");
+    parser.addOption(dumbTestOption);
     QCommandLineOption pathArgument("f", "Path to config file.", "filePath");
     parser.addOption(pathArgument);
     parser.process(*qApp);
-    portConfigurer = new PortConfigurer(parser.value(pathArgument));
 
-    createActions();
-    createTrayIcon();
-    trayIcon->show();
+    if(parser.isSet(dumbTestOption)){
+        QTimer *t = new QTimer(this);
+        connect(t, SIGNAL(timeout()), this, SLOT(cleanQuit()));
+        t->setInterval(5000);
+        t->setSingleShot(true);
+        t->start();
+        qDebug()<<"Dumb test, will exit in 5 seconds...";
+    }
+    else{
+        portConfigurer = new PortConfigurer(parser.value(pathArgument));
+        createActions();
+        createTrayIcon();
+        trayIcon->show();
 
-    jobActions = new QHash<QString, QAction*>();
+        jobActions = new QHash<QString, QAction*>();
 
+        pollTimer = new QTimer(this);
+        pollTimer->setInterval(2000);
+        pollTimer->setSingleShot(true);
+
+        poller = new HTTPPoller(this);
+        connect(pollTimer, SIGNAL(timeout()), poller, SLOT(poll()));
+        connect(poller, SIGNAL(requestFinished()), pollTimer, SLOT(start()));
+        connect(poller, SIGNAL(newJob(QString, QString)), this, SLOT(onNewJob(QString, QString)));
+        connect(poller, SIGNAL(jobUpdated(QString, QString)), this, SLOT(onJobUpdated(QString, QString)));
+        connect(poller, SIGNAL(connectionProblem()), this, SLOT(connectionProblem()));
+        connect(poller, SIGNAL(agentReached()), this, SLOT(agentReached()));
+
+        jsDialog = new JSEventHandler(this);
+
+        portConfigurer->updatePorts();
+        poller->setUrl("http://127.0.0.1:" + portConfigurer->port("flask_api") + "/jobs");
+        poller->poll();
+
+        setWindowTitle(tr("Pydio"));
+    }
+}
+
+void Window::show()
+{
     settingsWebView = new QWebView();
     settingsWebView->settings()->setAttribute( QWebSettings::JavascriptEnabled, true);
     settingsWebView->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
     settingsWebView->setContextMenuPolicy(Qt::NoContextMenu);
     this->setCentralWidget(settingsWebView);
 
-
-    pollTimer = new QTimer(this);
-    pollTimer->setInterval(2000);
-    pollTimer->setSingleShot(true);
-
-    poller = new HTTPPoller(this);
-    connect(pollTimer, SIGNAL(timeout()), poller, SLOT(poll()));
-    connect(poller, SIGNAL(requestFinished()), pollTimer, SLOT(start()));
-    connect(poller, SIGNAL(newJob(QString, QString)), this, SLOT(onNewJob(QString, QString)));
-    connect(poller, SIGNAL(jobUpdated(QString, QString)), this, SLOT(onJobUpdated(QString, QString)));
-    connect(poller, SIGNAL(connectionProblem()), this, SLOT(initWebKit()));
-
-    jsDialog = new JSEventHandler(this);
-
-    this->initWebKit();
-
-    poller->poll();
-
-    setWindowTitle(tr("Pydio"));
-}
-
-void Window::initWebKit()
-{
-    portConfigurer->updatePorts();
     QUrl syncUrl = QUrl("http://127.0.0.1:" + portConfigurer->port("flask_api"));
-
-    poller->setUrl(syncUrl);
     settingsWebView->load(syncUrl);
-
     connect(settingsWebView->page(), SIGNAL(linkClicked(QUrl)), jsDialog, SLOT(openUrl(QUrl)));
     settingsWebView->page()->currentFrame()->addToJavaScriptWindowObject("PydioQtFileDialog", jsDialog);
-}
 
-void Window::show()
-{
     this->resize(400, 550);
     this->setFixedWidth(400);
     if(trayIcon->geometry().y() < QApplication::desktop()->height()*0.5)
@@ -111,14 +114,24 @@ void Window::show()
     this->QWidget::show();
 }
 
+void Window::closeEvent(QCloseEvent *e)
+{
+    settingsWebView->disconnect();
+    this->close();
+    settingsWebView->deleteLater();
+}
 
 void Window::createActions()
 {
     settingsAction = new QAction(tr("Open Pydio"), this);
     connect(settingsAction, SIGNAL(triggered()), this, SLOT(show()));
+    settingsAction->setDisabled(true);
 
     noJobAction = new QAction(tr("No active job"), this);
     noJobAction->setDisabled(true);
+
+    noAgentAction = new QAction(tr("No active agent"), this);
+    noAgentAction->setDisabled(true);
 
     quitAction = new QAction(tr("&Quit"), this);
     connect(quitAction, SIGNAL(triggered()), this, SLOT(cleanQuit()));
@@ -133,7 +146,7 @@ void Window::createTrayIcon()
 
     trayIconMenu->addAction(settingsAction);
 
-    trayIconMenu->insertAction(settingsAction, noJobAction);
+    trayIconMenu->insertAction(settingsAction, noAgentAction);
 
     trayIconMenu->addSeparator();
     trayIconMenu->addAction(quitAction);
@@ -193,6 +206,28 @@ void Window::onJobDeleted(QString id)
     {
         trayIconMenu->insertAction(settingsAction, noJobAction);
     }
+}
+
+void Window::agentReached()
+{
+    qDebug()<<"agent reached";
+    trayIconMenu->removeAction(noAgentAction);
+    trayIconMenu->insertAction(settingsAction, noJobAction);
+    settingsAction->setDisabled(false);
+    portConfigurer->updatePorts();
+    poller->setUrl("http://127.0.0.1:" + portConfigurer->port("flask_api") + "/jobs");
+}
+
+void Window::connectionProblem()
+{
+    qDebug()<<"can't reach the agent anymore";
+    foreach(const QString &k, jobActions->keys()){
+        trayIconMenu->removeAction(jobActions->value(k));
+    }
+    jobActions->clear();
+    trayIconMenu->removeAction(noJobAction);
+    trayIconMenu->insertAction(settingsAction, noAgentAction);
+    settingsAction->setDisabled(true);
 }
 
 #endif

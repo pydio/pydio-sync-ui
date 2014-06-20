@@ -7,19 +7,20 @@ HTTPPoller::HTTPPoller(QObject *parent) :
     connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(pollingFinished(QNetworkReply*)));
     serverUrl = "";
     jobs = new QHash<QString, Job*>();
-    failed_attempts = 0;
+    failed_attempts = -1;
 }
 
-void HTTPPoller::setUrl(QUrl &servUrl)
+void HTTPPoller::setUrl(QString servUrl)
 {
-    this->serverUrl = servUrl;
-    failed_attempts = 0;
+    qDebug()<<"will poll on"<<servUrl;
+    this->serverUrl = QUrl(servUrl);
+    failed_attempts = -1;
     jobs->clear();
 }
 
 void HTTPPoller::poll()
 {
-    manager->get(QNetworkRequest(QUrl("http://127.0.0.1:5556/jobs")));
+    manager->get(QNetworkRequest(this->serverUrl));
 }
 
 
@@ -27,7 +28,11 @@ void HTTPPoller::pollingFinished(QNetworkReply* reply)
 {
     if (reply->error() == QNetworkReply::NoError)
     {
-        failed_attempts = 0;
+        if(failed_attempts != 0)
+        {
+            emit agentReached();
+            failed_attempts = 0;
+        }
         QString strReply = (QString)reply->readAll();
         QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
 
@@ -60,7 +65,6 @@ void HTTPPoller::pollingFinished(QNetworkReply* reply)
                 else
                 {
                     jobs->value(jobId)->update(directory, running, eta);
-                    jobs->value(jobId)->update(directory, running, eta);
                 }
             }
         }
@@ -68,7 +72,7 @@ void HTTPPoller::pollingFinished(QNetworkReply* reply)
     else {
         qDebug() << "HTTP Poller Reply failure :" <<reply->errorString();
         ++failed_attempts;
-        if(failed_attempts >= MAX_CONNECTION_ATTEMPTS){
+        if(failed_attempts == MAX_CONNECTION_ATTEMPTS){
             emit connectionProblem();
         }
     }

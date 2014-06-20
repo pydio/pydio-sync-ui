@@ -69,15 +69,18 @@ class Window : public QMainWindow
 
 public:
     Window();
+protected:
+    void closeEvent(QCloseEvent *);
 
 private slots:
     void show();
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
     void cleanQuit();
-    void initWebKit();
     void onNewJob(QString jobId, QString desc);
     void onJobUpdated(QString jobId, QString desc);
     void onJobDeleted(QString jobId);
+    void connectionProblem();
+    void agentReached();
 
 private:
     void createActions();
@@ -86,6 +89,7 @@ private:
 
     QWebView *settingsWebView;
 
+    QAction *noAgentAction;
     QAction *noJobAction;
     QAction *settingsAction;
     QAction *quitAction;
@@ -98,6 +102,7 @@ private:
 
     HTTPPoller *poller;
     QTimer *pollTimer;
+
 
     PortConfigurer *portConfigurer;
     JSEventHandler *jsDialog;
