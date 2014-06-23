@@ -1,4 +1,4 @@
-﻿/****************************************************************************
+/****************************************************************************
 **
 ** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
@@ -102,8 +102,8 @@ void Window::show()
     connect(settingsWebView->page(), SIGNAL(linkClicked(QUrl)), jsDialog, SLOT(openUrl(QUrl)));
     settingsWebView->page()->currentFrame()->addToJavaScriptWindowObject("PydioQtFileDialog", jsDialog);
 
-    this->resize(400, 550);
-    this->setFixedWidth(400);
+    this->resize(480, 630);
+    this->setFixedWidth(480);
     if(trayIcon->geometry().y() < QApplication::desktop()->height()*0.5)
     {
         this->move(this->trayIcon->geometry().center().x() - this->width()/2, trayIcon->geometry().bottom() + 10);
@@ -118,6 +118,7 @@ void Window::closeEvent(QCloseEvent *e)
 {
     settingsWebView->disconnect();
     this->close();
+    settingsWebView->stop();
     settingsWebView->deleteLater();
 }
 
@@ -180,6 +181,7 @@ void Window::iconActivated(QSystemTrayIcon::ActivationReason reason)
 
 void Window::cleanQuit()
 {
+    settingsWebView->deleteLater();
     emit qApp->quit();
 }
 
