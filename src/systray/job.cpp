@@ -6,15 +6,16 @@ Job::Job(QObject *parent) :
 {
 }
 
-Job::Job(QString id, QString name, bool running, double eta)
+Job::Job(QString id, QString name, bool running, double eta, QString lastEventMessage)
 {
     this->id = id;
     this->name = name;
     this->remainingTime = eta;
     this->status = running;
+    this->lastEventMessage = lastEventMessage;
 }
 
-void Job::update(QString newName, bool newStatus, double eta)
+void Job::update(QString newName, bool newStatus, double eta, QString lastEventMessage)
 {
     bool updated = false;
     if(this->name != newName){
@@ -29,6 +30,10 @@ void Job::update(QString newName, bool newStatus, double eta)
         this->remainingTime = eta;
         updated = true;
     }
+    if(this->lastEventMessage != lastEventMessage){
+        this->lastEventMessage = lastEventMessage;
+        updated = true;
+    }
     if(updated){
         emit this->updated(this->id, this->getJobDescription());
     }
@@ -41,5 +46,17 @@ QString Job::getId()
 
 QString Job::getJobDescription()
 {
-    return this->name.split('/').last() + " : " + ((this->status)?((this->remainingTime<0)?"idle":("syncing (" + QString::number(this->remainingTime)) + "s remaining)"):"paused");
+    QString desc;
+    if(this->status){
+        if(this->remainingTime < 0){
+            desc = "idle (last event : " + this->lastEventMessage + ")";
+        }
+        else{
+            desc = "syncing (" + QString::number(this->remainingTime) + "s remaining)";
+        }
+    }
+    else{
+        desc = this->lastEventMessage;
+    }
+    return this->name + " : " + desc;
 }

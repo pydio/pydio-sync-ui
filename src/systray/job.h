@@ -8,8 +8,8 @@ class Job : public QObject
     Q_OBJECT
 public:
     explicit Job(QObject *parent = 0);
-    Job(QString, QString, bool, double);
-    void update(QString, bool, double);
+    Job(QString, QString, bool, double, QString);
+    void update(QString, bool, double, QString);
     QString getJobDescription();
     QString getId();
 
@@ -22,6 +22,7 @@ private:
     bool status;
     double remainingTime;
     QString id;
+    QString lastEventMessage;
 
 };
 

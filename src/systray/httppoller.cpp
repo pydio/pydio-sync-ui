@@ -43,6 +43,7 @@ void HTTPPoller::pollingFinished(QNetworkReply* reply)
             QJsonObject job = jsonJob.toObject();
             QString jobId = job["id"].toString();
             QString label = job["label"].toString();
+            QString lastEventMessage = job["last_event"].toObject().operator []("message").toString();
             bool running = job["running"].toBool();
             int queue_length = job["state"].toObject().operator []("global").toObject().operator[]("queue_length").toInt();
             double eta = -1;
@@ -56,7 +57,7 @@ void HTTPPoller::pollingFinished(QNetworkReply* reply)
             {
                 if(job["active"].toBool()){
                     // create a new active job, add it and notify the main class
-                    Job *newJob = new Job(jobId, label, running, eta);
+                    Job *newJob = new Job(jobId, label, running, eta, lastEventMessage);
                     connect(newJob, SIGNAL(updated(QString, QString)), this, SIGNAL(jobUpdated(QString, QString)));
                     this->jobs->insert(jobId, newJob);
                     emit this->newJob(newJob->getId(), newJob->getJobDescription());
@@ -70,13 +71,12 @@ void HTTPPoller::pollingFinished(QNetworkReply* reply)
                 }
                 else
                 {
-                    jobs->value(jobId)->update(label, running, eta);
+                    jobs->value(jobId)->update(label, running, eta, lastEventMessage);
                 }
             }
         }
         if(jobs->empty() && launch){
             launch = false;
-            qDebug()<<"NO JOB";
             emit noActiveJobsAtLaunch();
         }
     }
