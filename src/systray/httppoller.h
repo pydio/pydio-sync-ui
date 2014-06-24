@@ -26,6 +26,7 @@ signals:
    void jobDeleted(QString);
    void connectionProblem();
    void agentReached();
+   void noActiveJobsAtLaunch();
 
 public slots:
     void poll();
@@ -37,6 +38,7 @@ private:
     QHash<QString, Job*> *jobs;
     const static int MAX_CONNECTION_ATTEMPTS = 2;
     int failed_attempts;
+    bool launch;
 
 
 };

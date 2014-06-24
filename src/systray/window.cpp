@@ -79,6 +79,7 @@ Window::Window()
         connect(poller, SIGNAL(jobDeleted(QString)),this, SLOT(onJobDeleted(QString)));
         connect(poller, SIGNAL(connectionProblem()), this, SLOT(connectionProblem()));
         connect(poller, SIGNAL(agentReached()), this, SLOT(agentReached()));
+        connect(poller, SIGNAL(noActiveJobsAtLaunch()), this, SLOT(show()));
 
         jsDialog = new JSEventHandler(this);
 
@@ -103,7 +104,7 @@ void Window::show()
     connect(settingsWebView->page(), SIGNAL(linkClicked(QUrl)), jsDialog, SLOT(openUrl(QUrl)));
     settingsWebView->page()->currentFrame()->addToJavaScriptWindowObject("PydioQtFileDialog", jsDialog);
 
-    this->resize(480, 630);
+    this->resize(480, 730);
     this->setFixedWidth(480);
     if(trayIcon->geometry().y() < QApplication::desktop()->height()*0.5)
     {
@@ -203,7 +204,6 @@ void Window::onJobUpdated(QString id, QString desc)
 
 void Window::onJobDeleted(QString id)
 {
-    qDebug()<<"should delete";
     trayIconMenu->removeAction(jobActions->operator [](id));
     jobActions->remove(id);
     if(jobActions->isEmpty())

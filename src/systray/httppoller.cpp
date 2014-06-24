@@ -8,6 +8,7 @@ HTTPPoller::HTTPPoller(QObject *parent) :
     serverUrl = "";
     jobs = new QHash<QString, Job*>();
     failed_attempts = -1;
+    launch = true;
 }
 
 void HTTPPoller::setUrl(QString servUrl)
@@ -41,7 +42,7 @@ void HTTPPoller::pollingFinished(QNetworkReply* reply)
         {
             QJsonObject job = jsonJob.toObject();
             QString jobId = job["id"].toString();
-            QString directory = job["directory"].toString();
+            QString label = job["label"].toString();
             bool running = job["running"].toBool();
             int queue_length = job["state"].toObject().operator []("global").toObject().operator[]("queue_length").toInt();
             double eta = -1;
@@ -55,7 +56,7 @@ void HTTPPoller::pollingFinished(QNetworkReply* reply)
             {
                 if(job["active"].toBool()){
                     // create a new active job, add it and notify the main class
-                    Job *newJob = new Job(jobId, directory, running, eta);
+                    Job *newJob = new Job(jobId, label, running, eta);
                     connect(newJob, SIGNAL(updated(QString, QString)), this, SIGNAL(jobUpdated(QString, QString)));
                     this->jobs->insert(jobId, newJob);
                     emit this->newJob(newJob->getId(), newJob->getJobDescription());
@@ -69,9 +70,14 @@ void HTTPPoller::pollingFinished(QNetworkReply* reply)
                 }
                 else
                 {
-                    jobs->value(jobId)->update(directory, running, eta);
+                    jobs->value(jobId)->update(label, running, eta);
                 }
             }
+        }
+        if(jobs->empty() && launch){
+            launch = false;
+            qDebug()<<"NO JOB";
+            emit noActiveJobsAtLaunch();
         }
     }
     else {
