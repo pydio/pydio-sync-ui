@@ -80,6 +80,7 @@ Window::Window()
         connect(poller, SIGNAL(connectionProblem()), this, SLOT(connectionProblem()));
         connect(poller, SIGNAL(agentReached()), this, SLOT(agentReached()));
         connect(poller, SIGNAL(noActiveJobsAtLaunch()), this, SLOT(show()));
+        //connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), this, SLOT(focusChanged(QWidget*, QWidget*)));
 
         jsDialog = new JSEventHandler(this);
 
@@ -87,6 +88,8 @@ Window::Window()
         poller->setUrl("http://127.0.0.1:" + portConfigurer->port("flask_api") + "/jobs");
         poller->poll();
 
+        this->setWindowFlags(Qt::Tool);
+        //Qt::FramelessWindowHint);
         setWindowTitle(tr("Pydio"));
     }
 }
@@ -108,7 +111,7 @@ void Window::show()
     this->setFixedWidth(480);
     if(trayIcon->geometry().y() < QApplication::desktop()->height()*0.5)
     {
-        this->move(this->trayIcon->geometry().center().x() - this->width()/2, trayIcon->geometry().bottom() + 10);
+        this->move(this->trayIcon->geometry().center().x() - this->width()/2, trayIcon->geometry().bottom());
     }
     else{
         this->move(this->trayIcon->geometry().center().x() - this->width()/2, QApplication::desktop()->height() - 80 - this->height());
@@ -116,17 +119,22 @@ void Window::show()
     this->QWidget::show();
 }
 
+void Window::focusChanged(QWidget* old, QWidget* newFocused){
+    if(old == settingsWebView){
+        this->close();
+    }
+}
+
 void Window::closeEvent(QCloseEvent *e)
 {
+    settingsWebView->stop();
     settingsWebView->disconnect();
     this->close();
-    settingsWebView->stop();
-    settingsWebView->deleteLater();
 }
 
 void Window::createActions()
 {
-    settingsAction = new QAction(tr("Open Pydio"), this);
+    settingsAction = new QAction(tr("Configure.."), this);
     connect(settingsAction, SIGNAL(triggered()), this, SLOT(show()));
     settingsAction->setDisabled(true);
 
@@ -183,7 +191,10 @@ void Window::iconActivated(QSystemTrayIcon::ActivationReason reason)
 
 void Window::cleanQuit()
 {
-    settingsWebView->deleteLater();
+    poller->disconnect();
+    this->close();
+    settingsWebView->clearFocus();
+    this->clearFocus();
     emit qApp->quit();
 }
 
@@ -202,8 +213,7 @@ void Window::onJobUpdated(QString id, QString desc)
     jobActions->operator [](id)->setText(desc);
 }
 
-void Window::onJobDeleted(QString id)
-{
+void Window::onJobDeleted(QString id){
     trayIconMenu->removeAction(jobActions->operator [](id));
     jobActions->remove(id);
     if(jobActions->isEmpty())
@@ -212,8 +222,17 @@ void Window::onJobDeleted(QString id)
     }
 }
 
-void Window::agentReached()
-{
+void Window::jobsCleared(){
+    foreach(const QString &k, jobActions->keys()){
+        qDebug()<<k<<"deleted";
+        trayIconMenu->removeAction(jobActions->value(k));
+    }
+    jobActions->clear();
+    trayIconMenu->removeAction(noJobAction);
+    trayIconMenu->insertAction(settingsAction, noAgentAction);
+}
+
+void Window::agentReached(){
     qDebug()<<"agent reached";
     trayIconMenu->removeAction(noAgentAction);
     trayIconMenu->insertAction(settingsAction, noJobAction);
@@ -222,8 +241,7 @@ void Window::agentReached()
     poller->setUrl("http://127.0.0.1:" + portConfigurer->port("flask_api") + "/jobs");
 }
 
-void Window::connectionProblem()
-{
+void Window::connectionProblem(){
     foreach(const QString &k, jobActions->keys()){
         trayIconMenu->removeAction(jobActions->value(k));
     }

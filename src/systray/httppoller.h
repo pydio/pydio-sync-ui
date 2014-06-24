@@ -27,6 +27,7 @@ signals:
    void connectionProblem();
    void agentReached();
    void noActiveJobsAtLaunch();
+   void jobsCleared();
 
 public slots:
     void poll();

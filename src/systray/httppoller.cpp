@@ -38,46 +38,57 @@ void HTTPPoller::pollingFinished(QNetworkReply* reply)
         QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
 
         QJsonArray jsonJobs = jsonResponse.array();
-        foreach(QJsonValue jsonJob, jsonJobs)
-        {
-            QJsonObject job = jsonJob.toObject();
-            QString jobId = job["id"].toString();
-            QString label = job["label"].toString();
-            QString lastEventMessage = job["last_event"].toObject().operator []("message").toString();
-            bool running = job["running"].toBool();
-            int queue_length = job["state"].toObject().operator []("global").toObject().operator[]("queue_length").toInt();
-            double eta = -1;
-
-            // if job has pending tasks we update it
-            if(queue_length > 0){
-                eta = job["state"].toObject().operator []("global").toObject().operator[]("eta").toDouble();
+        if(jsonJobs.count()==0){
+            if(launch){
+                emit noActiveJobsAtLaunch();
             }
-            // if jobs doesn't exist here, we create it
-            if(!this->jobs->contains(jobId))
-            {
-                if(job["active"].toBool()){
-                    // create a new active job, add it and notify the main class
-                    Job *newJob = new Job(jobId, label, running, eta, lastEventMessage);
-                    connect(newJob, SIGNAL(updated(QString, QString)), this, SIGNAL(jobUpdated(QString, QString)));
-                    this->jobs->insert(jobId, newJob);
-                    emit this->newJob(newJob->getId(), newJob->getJobDescription());
-                }
-            }
-            // if job exists and is active, we update it, otherwise we delete it
-            else{
-                if(!job["active"].toBool()){
-                    this->jobs->remove(jobId);
-                    emit jobDeleted(jobId);
-                }
-                else
-                {
-                    jobs->value(jobId)->update(label, running, eta, lastEventMessage);
-                }
+            if(!jobs->empty()){
+                this->jobs->clear();
+                emit jobsCleared();
             }
         }
-        if(jobs->empty() && launch){
-            launch = false;
-            emit noActiveJobsAtLaunch();
+        else{
+            foreach(QJsonValue jsonJob, jsonJobs)
+            {
+                QJsonObject job = jsonJob.toObject();
+                QString jobId = job["id"].toString();
+                QString label = job["label"].toString();
+                QString lastEventMessage = job["last_event"].toObject().operator []("message").toString();
+                bool running = job["running"].toBool();
+                int queue_length = job["state"].toObject().operator []("global").toObject().operator[]("queue_length").toInt();
+                double eta = -1;
+
+                // if job has pending tasks we update it
+                if(queue_length > 0){
+                    eta = job["state"].toObject().operator []("global").toObject().operator[]("eta").toDouble();
+                }
+                // if jobs doesn't exist here, we create it
+                if(!this->jobs->contains(jobId))
+                {
+                    if(job["active"].toBool()){
+                        // create a new active job, add it and notify the main class
+                        Job *newJob = new Job(jobId, label, running, eta, lastEventMessage);
+                        connect(newJob, SIGNAL(updated(QString, QString)), this, SIGNAL(jobUpdated(QString, QString)));
+                        this->jobs->insert(jobId, newJob);
+                        emit this->newJob(newJob->getId(), newJob->getJobDescription());
+                    }
+                }
+                // if job exists and is active, we update it, otherwise we delete it
+                else{
+                    if(!job["active"].toBool()){
+                        this->jobs->remove(jobId);
+                        emit jobDeleted(jobId);
+                    }
+                    else
+                    {
+                        jobs->value(jobId)->update(label, running, eta, lastEventMessage);
+                    }
+                }
+            }
+            if(jobs->empty() && launch){
+                launch = false;
+                emit noActiveJobsAtLaunch();
+            }
         }
     }
     else {

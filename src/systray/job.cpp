@@ -58,5 +58,5 @@ QString Job::getJobDescription()
     else{
         desc = this->lastEventMessage;
     }
-    return this->name + " : " + desc;
+    return this->name + " - " + desc;
 }
