@@ -107,7 +107,12 @@ void Window::show()
     connect(settingsWebView->page(), SIGNAL(linkClicked(QUrl)), jsDialog, SLOT(openUrl(QUrl)));
     settingsWebView->page()->currentFrame()->addToJavaScriptWindowObject("PydioQtFileDialog", jsDialog);
 
-    this->resize(480, 730);
+    if(QApplication::desktop()->height() < 800){
+        this->resize(480, QApplication::desktop()->height() - 100);
+    }
+    else{
+        this->resize(480, 730);
+    }
     this->setFixedWidth(480);
     if(trayIcon->geometry().y() < QApplication::desktop()->height()*0.5)
     {

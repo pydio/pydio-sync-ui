@@ -40,6 +40,7 @@ void HTTPPoller::pollingFinished(QNetworkReply* reply)
         QJsonArray jsonJobs = jsonResponse.array();
         if(jsonJobs.count()==0){
             if(launch){
+                launch = false;
                 emit noActiveJobsAtLaunch();
             }
             if(!jobs->empty()){

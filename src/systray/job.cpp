@@ -52,7 +52,7 @@ QString Job::getJobDescription()
             desc = "idle (last event : " + this->lastEventMessage + ")";
         }
         else{
-            desc = "syncing (" + QString::number(this->remainingTime) + "s remaining)";
+            desc = "syncing (" + QString::number(this->remainingTime, 'f', 1) + "s remaining)";
         }
     }
     else{
