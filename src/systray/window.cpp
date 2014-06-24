@@ -76,6 +76,7 @@ Window::Window()
         connect(poller, SIGNAL(requestFinished()), pollTimer, SLOT(start()));
         connect(poller, SIGNAL(newJob(QString, QString)), this, SLOT(onNewJob(QString, QString)));
         connect(poller, SIGNAL(jobUpdated(QString, QString)), this, SLOT(onJobUpdated(QString, QString)));
+        connect(poller, SIGNAL(jobDeleted(QString)),this, SLOT(onJobDeleted(QString)));
         connect(poller, SIGNAL(connectionProblem()), this, SLOT(connectionProblem()));
         connect(poller, SIGNAL(agentReached()), this, SLOT(agentReached()));
 
@@ -202,6 +203,7 @@ void Window::onJobUpdated(QString id, QString desc)
 
 void Window::onJobDeleted(QString id)
 {
+    qDebug()<<"should delete";
     trayIconMenu->removeAction(jobActions->operator [](id));
     jobActions->remove(id);
     if(jobActions->isEmpty())
@@ -222,7 +224,6 @@ void Window::agentReached()
 
 void Window::connectionProblem()
 {
-    qDebug()<<"can't reach the agent anymore";
     foreach(const QString &k, jobActions->keys()){
         trayIconMenu->removeAction(jobActions->value(k));
     }

@@ -23,7 +23,6 @@ void HTTPPoller::poll()
     manager->get(QNetworkRequest(this->serverUrl));
 }
 
-
 void HTTPPoller::pollingFinished(QNetworkReply* reply)
 {
     if (reply->error() == QNetworkReply::NoError)
@@ -33,6 +32,7 @@ void HTTPPoller::pollingFinished(QNetworkReply* reply)
             emit agentReached();
             failed_attempts = 0;
         }
+        //read the server response
         QString strReply = (QString)reply->readAll();
         QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
 
@@ -45,18 +45,23 @@ void HTTPPoller::pollingFinished(QNetworkReply* reply)
             bool running = job["running"].toBool();
             int queue_length = job["state"].toObject().operator []("global").toObject().operator[]("queue_length").toInt();
             double eta = -1;
+
+            // if job has pending tasks we update it
             if(queue_length > 0){
                 eta = job["state"].toObject().operator []("global").toObject().operator[]("eta").toDouble();
             }
+            // if jobs doesn't exist here, we create it
             if(!this->jobs->contains(jobId))
             {
                 if(job["active"].toBool()){
+                    // create a new active job, add it and notify the main class
                     Job *newJob = new Job(jobId, directory, running, eta);
                     connect(newJob, SIGNAL(updated(QString, QString)), this, SIGNAL(jobUpdated(QString, QString)));
                     this->jobs->insert(jobId, newJob);
                     emit this->newJob(newJob->getId(), newJob->getJobDescription());
                 }
             }
+            // if job exists and is active, we update it, otherwise we delete it
             else{
                 if(!job["active"].toBool()){
                     this->jobs->remove(jobId);
