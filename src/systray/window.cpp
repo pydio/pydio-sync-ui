@@ -53,7 +53,7 @@ Window::Window()
 
     if(parser.isSet(dumbTestOption)){
         QTimer *t = new QTimer(this);
-        connect(t, SIGNAL(timeout()), this, SLOT(cleanQuit()));
+        connect(t, SIGNAL(timeout()), qApp, SLOT(quit()));
         t->setInterval(5000);
         t->setSingleShot(true);
         t->start();
@@ -122,12 +122,6 @@ void Window::show()
         this->move(this->trayIcon->geometry().center().x() - this->width()/2, QApplication::desktop()->height() - 80 - this->height());
     }
     this->QWidget::show();
-}
-
-void Window::focusChanged(QWidget* old, QWidget* newFocused){
-    if(old == settingsWebView){
-        this->close();
-    }
 }
 
 void Window::closeEvent(QCloseEvent *e)
@@ -208,7 +202,6 @@ void Window::about(){
 }
 
 void Window::cleanQuit(){
-    settingsWebView->stop();
     emit qApp->quit();
 }
 

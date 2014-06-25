@@ -83,7 +83,6 @@ private slots:
     void onJobDeleted(QString jobId);
     void connectionProblem();
     void agentReached();
-    void focusChanged(QWidget*, QWidget*);
     void jobsCleared();
 
 private:
