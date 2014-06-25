@@ -139,7 +139,7 @@ void Window::closeEvent(QCloseEvent *e)
 
 void Window::createActions()
 {
-    settingsAction = new QAction(tr("Configure.."), this);
+    settingsAction = new QAction(tr("Open Pydio"), this);
     connect(settingsAction, SIGNAL(triggered()), this, SLOT(show()));
     settingsAction->setDisabled(true);
 
@@ -148,6 +148,9 @@ void Window::createActions()
 
     noAgentAction = new QAction(tr("No active agent"), this);
     noAgentAction->setDisabled(true);
+
+    aboutAction = new QAction(tr("About"), this);
+    connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
 
     quitAction = new QAction(tr("&Quit"), this);
     connect(quitAction, SIGNAL(triggered()), this, SLOT(cleanQuit()));
@@ -165,6 +168,7 @@ void Window::createTrayIcon()
     trayIconMenu->insertAction(settingsAction, noAgentAction);
 
     trayIconMenu->addSeparator();
+    trayIconMenu->addAction(aboutAction);
     trayIconMenu->addAction(quitAction);
 
 
@@ -192,6 +196,14 @@ void Window::iconActivated(QSystemTrayIcon::ActivationReason reason)
     default:
         ;
     }
+}
+
+void Window::about(){
+    QMessageBox  msgBox(this);
+    msgBox.setWindowTitle("About Pydio UI");
+    msgBox.setTextFormat(Qt::RichText);   //this is what makes the links clickable
+    msgBox.setText("Pydio Desktop Sync<br>v0.8 pre-alpha<br>Learn more : <a href=http://liftoff.pydio.com>http://liftoff.pydio.com</a>");
+    msgBox.exec();
 }
 
 void Window::cleanQuit()

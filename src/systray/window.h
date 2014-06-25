@@ -53,6 +53,7 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QHash>
+#include <QMessageBox>
 
 #ifndef QT_NO_SYSTEMTRAYICON
 
@@ -75,6 +76,7 @@ protected:
 private slots:
     void show();
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
+    void about();
     void cleanQuit();
     void onNewJob(QString jobId, QString desc);
     void onJobUpdated(QString jobId, QString desc);
@@ -96,6 +98,7 @@ private:
     QAction *settingsAction;
     QAction *quitAction;
     QAction *reconnectAction;
+    QAction *aboutAction;
     QHash<QString, QAction*> *jobActions;
 
     QueueMenu *lastEventsMenu;
