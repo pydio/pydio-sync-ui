@@ -134,6 +134,7 @@ void Window::closeEvent(QCloseEvent *e)
 {
     settingsWebView->stop();
     settingsWebView->disconnect();
+    settingsWebView->deleteLater();
     this->close();
 }
 
@@ -206,17 +207,12 @@ void Window::about(){
     msgBox.exec();
 }
 
-void Window::cleanQuit()
-{
-    poller->disconnect();
-    this->close();
-    settingsWebView->clearFocus();
-    this->clearFocus();
+void Window::cleanQuit(){
+    settingsWebView->stop();
     emit qApp->quit();
 }
 
-void Window::onNewJob(QString id, QString desc)
-{
+void Window::onNewJob(QString id, QString desc){
     trayIconMenu->removeAction(noJobAction);
 
     QAction *newAction = new QAction(desc, this);
@@ -225,8 +221,7 @@ void Window::onNewJob(QString id, QString desc)
     trayIconMenu->insertAction(settingsAction, newAction);
 }
 
-void Window::onJobUpdated(QString id, QString desc)
-{
+void Window::onJobUpdated(QString id, QString desc){
     jobActions->operator [](id)->setText(desc);
 }
 
