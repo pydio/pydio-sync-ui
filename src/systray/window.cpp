@@ -61,9 +61,6 @@ Window::Window()
     }
     else{
         portConfigurer = new PortConfigurer(parser.value(pathArgument));
-        createActions();
-        createTrayIcon();
-        trayIcon->show();
 
         jobActions = new QHash<QString, QAction*>();
 
@@ -82,10 +79,14 @@ Window::Window()
         connect(poller, SIGNAL(noActiveJobsAtLaunch()), this, SLOT(show()));
         //connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), this, SLOT(focusChanged(QWidget*, QWidget*)));
 
+        createActions();
+        createTrayIcon();
+        trayIcon->show();
+
         jsDialog = new JSEventHandler(this);
 
         portConfigurer->updatePorts();
-        poller->setUrl("http://127.0.0.1:" + portConfigurer->port("flask_api") + "/jobs");
+        poller->setUrl("http://127.0.0.1:" + portConfigurer->port("flask_api"));
         poller->poll();
 
         this->setWindowFlags(Qt::Tool);
@@ -144,6 +145,13 @@ void Window::createActions()
     noAgentAction = new QAction(tr("No active agent"), this);
     noAgentAction->setDisabled(true);
 
+    startAction = new QAction(tr("Start all"), this);
+    connect(startAction, SIGNAL(triggered()), poller, SLOT(start_all()));
+    pauseAction = new QAction(tr("Pause all"), this);
+    connect(pauseAction, SIGNAL(triggered()), poller, SLOT(pause_all()));
+    quitAgentAction = new QAction(tr("Terminate agent"), this);
+    connect(quitAgentAction, SIGNAL(triggered()), poller, SLOT(terminateAgent()));
+
     aboutAction = new QAction(tr("About"), this);
     connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
 
@@ -161,15 +169,12 @@ void Window::createTrayIcon()
     trayIconMenu->addAction(settingsAction);
 
     trayIconMenu->insertAction(settingsAction, noAgentAction);
-
     trayIconMenu->addSeparator();
     trayIconMenu->addAction(aboutAction);
     trayIconMenu->addAction(quitAction);
 
-
     trayIcon = new QSystemTrayIcon(this);
     trayIcon->setContextMenu(trayIconMenu);
-
     connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
             this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
 
@@ -228,32 +233,36 @@ void Window::onJobDeleted(QString id){
 }
 
 void Window::jobsCleared(){
+    qDebug()<<"jobs cleared";
     foreach(const QString &k, jobActions->keys()){
         qDebug()<<k<<"deleted";
         trayIconMenu->removeAction(jobActions->value(k));
     }
     jobActions->clear();
-    trayIconMenu->removeAction(noJobAction);
-    trayIconMenu->insertAction(settingsAction, noAgentAction);
 }
 
 void Window::agentReached(){
     qDebug()<<"agent reached";
+    this->jobsCleared();
     trayIconMenu->removeAction(noAgentAction);
     trayIconMenu->insertAction(settingsAction, noJobAction);
     settingsAction->setDisabled(false);
     portConfigurer->updatePorts();
-    poller->setUrl("http://127.0.0.1:" + portConfigurer->port("flask_api") + "/jobs");
+    poller->setUrl("http://127.0.0.1:" + portConfigurer->port("flask_api"));
+    trayIconMenu->insertAction(aboutAction, startAction);
+    trayIconMenu->insertAction(aboutAction, pauseAction);
+    trayIconMenu->insertAction(aboutAction, quitAgentAction);
 }
 
 void Window::connectionProblem(){
-    foreach(const QString &k, jobActions->keys()){
-        trayIconMenu->removeAction(jobActions->value(k));
-    }
-    jobActions->clear();
+    qDebug()<<"connection problem";
+    this->jobsCleared();
     trayIconMenu->removeAction(noJobAction);
     trayIconMenu->insertAction(settingsAction, noAgentAction);
     settingsAction->setDisabled(true);
+    trayIconMenu->removeAction(startAction);
+    trayIconMenu->removeAction(pauseAction);
+    trayIconMenu->removeAction(quitAgentAction);
 }
 
 #endif

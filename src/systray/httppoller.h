@@ -32,10 +32,13 @@ signals:
 public slots:
     void poll();
     void pollingFinished(QNetworkReply*);
+    void start_all();
+    void pause_all();
+    void terminateAgent();
 
 private:
     QNetworkAccessManager *manager;
-    QUrl serverUrl;
+    QString serverUrl;
     QHash<QString, Job*> *jobs;
     const static int MAX_CONNECTION_ATTEMPTS = 2;
     int failed_attempts;

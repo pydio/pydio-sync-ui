@@ -13,82 +13,84 @@ HTTPPoller::HTTPPoller(QObject *parent) :
 
 void HTTPPoller::setUrl(QString servUrl)
 {
-    qDebug()<<"will poll on"<<servUrl;
-    this->serverUrl = QUrl(servUrl);
+    qDebug()<<"Server is"<<servUrl;
+    this->serverUrl = servUrl;
     failed_attempts = -1;
     jobs->clear();
 }
 
 void HTTPPoller::poll()
 {
-    manager->get(QNetworkRequest(this->serverUrl));
+    manager->get(QNetworkRequest(QUrl(this->serverUrl + "/jobs")));
 }
 
 void HTTPPoller::pollingFinished(QNetworkReply* reply)
 {
     if (reply->error() == QNetworkReply::NoError)
     {
-        if(failed_attempts != 0)
-        {
-            emit agentReached();
-            failed_attempts = 0;
-        }
         //read the server response
         QString strReply = (QString)reply->readAll();
-        QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
-
-        QJsonArray jsonJobs = jsonResponse.array();
-        if(jsonJobs.count()==0){
-            if(launch){
-                launch = false;
-                emit noActiveJobsAtLaunch();
-            }
-            if(!jobs->empty()){
-                this->jobs->clear();
-                emit jobsCleared();
-            }
-        }
-        else{
-            foreach(QJsonValue jsonJob, jsonJobs)
+        if(strReply != "\"success\"")
+        {
+            if(failed_attempts != 0)
             {
-                QJsonObject job = jsonJob.toObject();
-                QString jobId = job["id"].toString();
-                QString label = job["label"].toString();
-                QString lastEventMessage = job["last_event"].toObject().operator []("message").toString();
-                bool running = job["running"].toBool();
-                int queue_length = job["state"].toObject().operator []("global").toObject().operator[]("queue_length").toInt();
-                double eta = -1;
+                emit agentReached();
+                failed_attempts = 0;
+            }
 
-                // if job has pending tasks we update it
-                if(queue_length > 0){
-                    eta = job["state"].toObject().operator []("global").toObject().operator[]("eta").toDouble();
+            QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
+            QJsonArray jsonJobs = jsonResponse.array();
+            if(jsonJobs.count()==0){
+                if(launch){
+                    launch = false;
+                    emit noActiveJobsAtLaunch();
                 }
-                // if jobs doesn't exist here, we create it
-                if(!this->jobs->contains(jobId))
-                {
-                    if(job["active"].toBool()){
-                        // create a new active job, add it and notify the main class
-                        Job *newJob = new Job(jobId, label, running, eta, lastEventMessage);
-                        connect(newJob, SIGNAL(updated(QString, QString)), this, SIGNAL(jobUpdated(QString, QString)));
-                        this->jobs->insert(jobId, newJob);
-                        emit this->newJob(newJob->getId(), newJob->getJobDescription());
-                    }
-                }
-                // if job exists and is active, we update it, otherwise we delete it
-                else{
-                    if(!job["active"].toBool()){
-                        this->jobs->remove(jobId);
-                        emit jobDeleted(jobId);
-                    }
-                    else
-                    {
-                        jobs->value(jobId)->update(label, running, eta, lastEventMessage);
-                    }
+                if(!jobs->empty()){
+                    this->jobs->clear();
+                    emit jobsCleared();
                 }
             }
-            if(jobs->empty() && launch){
-                launch = false;
-                emit noActiveJobsAtLaunch();
+            else{
+                foreach(QJsonValue jsonJob, jsonJobs){
+                    QJsonObject job = jsonJob.toObject();
+                    QString jobId = job["id"].toString();
+                    QString label = job["label"].toString();
+                    QString lastEventMessage = job["last_event"].toObject().operator []("message").toString();
+                    bool running = job["running"].toBool();
+                    int queue_length = job["state"].toObject().operator []("global").toObject().operator[]("queue_length").toInt();
+                    double eta = -1;
+
+                    // if job has pending tasks we update it
+                    if(queue_length > 0){
+                        eta = job["state"].toObject().operator []("global").toObject().operator[]("eta").toDouble();
+                    }
+                    // if jobs doesn't exist here, we create it
+                    if(!this->jobs->contains(jobId))
+                    {
+                        if(job["active"].toBool()){
+                            // create a new active job, add it and notify the main class
+                            Job *newJob = new Job(jobId, label, running, eta, lastEventMessage);
+                            connect(newJob, SIGNAL(updated(QString, QString)), this, SIGNAL(jobUpdated(QString, QString)));
+                            this->jobs->insert(jobId, newJob);
+                            emit this->newJob(newJob->getId(), newJob->getJobDescription());
+                        }
+                    }
+                    // if job exists and is active, we update it, otherwise we delete it
+                    else{
+                        if(!job["active"].toBool()){
+                            this->jobs->remove(jobId);
+                            emit jobDeleted(jobId);
+                        }
+                        else
+                        {
+                            jobs->value(jobId)->update(label, running, eta, lastEventMessage);
+                        }
+                    }
+                }
+                if(jobs->empty() && launch){
+                    launch = false;
+                    emit noActiveJobsAtLaunch();
+                }
             }
         }
     }
@@ -101,4 +103,16 @@ void HTTPPoller::pollingFinished(QNetworkReply* reply)
     }
     reply->deleteLater();
     emit requestFinished();
+}
+
+void HTTPPoller::start_all(){
+    manager->get(QNetworkRequest(QUrl(this->serverUrl + "/cmd/start-all")));
+}
+
+void HTTPPoller::pause_all(){
+    manager->get(QNetworkRequest(QUrl(this->serverUrl + "/cmd/pause-all")));
+}
+
+void HTTPPoller::terminateAgent(){
+    manager->get(QNetworkRequest(QUrl(this->serverUrl + "/cmd/quit")));
 }

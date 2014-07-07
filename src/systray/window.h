@@ -97,6 +97,9 @@ private:
     QAction *settingsAction;
     QAction *quitAction;
     QAction *reconnectAction;
+    QAction *quitAgentAction;
+    QAction *startAction;
+    QAction *pauseAction;
     QAction *aboutAction;
     QHash<QString, QAction*> *jobActions;
 
