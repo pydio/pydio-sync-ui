@@ -48,7 +48,7 @@
 #include <portconfigurer.h>
 #include <QWebView>
 #include <JSEventHandler.h>
-#include <httppoller.h>
+#include <httpmanager.h>
 #include <QWebFrame>
 #include <QApplication>
 #include <QDesktopWidget>
@@ -107,7 +107,7 @@ private:
     QSystemTrayIcon *trayIcon;
     QMenu *trayIconMenu;
 
-    HTTPPoller *poller;
+    HTTPManager *httpManager;
     QTimer *pollTimer;
 
 

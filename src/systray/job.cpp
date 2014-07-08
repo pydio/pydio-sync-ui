@@ -49,7 +49,7 @@ QString Job::getJobDescription()
     QString desc;
     if(this->status){
         if(this->remainingTime < 0){
-            desc = "idle (last event : " + this->lastEventMessage + ")";
+            desc = "idle (" + this->lastEventMessage + ")";
         }
         else{
             desc = "syncing (" + QString::number(this->remainingTime, 'f', 1) + "s remaining)";

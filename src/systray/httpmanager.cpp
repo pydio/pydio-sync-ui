@@ -1,6 +1,6 @@
-#include "httppoller.h"
+#include "HTTPManager.h"
 
-HTTPPoller::HTTPPoller(QObject *parent) :
+HTTPManager::HTTPManager(QObject *parent) :
     QObject(parent)
 {
     manager = new QNetworkAccessManager(parent);
@@ -11,7 +11,7 @@ HTTPPoller::HTTPPoller(QObject *parent) :
     launch = true;
 }
 
-void HTTPPoller::setUrl(QString servUrl)
+void HTTPManager::setUrl(QString servUrl)
 {
     qDebug()<<"Server is"<<servUrl;
     this->serverUrl = servUrl;
@@ -19,21 +19,18 @@ void HTTPPoller::setUrl(QString servUrl)
     jobs->clear();
 }
 
-void HTTPPoller::poll()
+void HTTPManager::poll()
 {
     manager->get(QNetworkRequest(QUrl(this->serverUrl + "/jobs")));
 }
 
-void HTTPPoller::pollingFinished(QNetworkReply* reply)
+void HTTPManager::pollingFinished(QNetworkReply* reply)
 {
-    if (reply->error() == QNetworkReply::NoError)
-    {
+    if (reply->error() == QNetworkReply::NoError){
         //read the server response
         QString strReply = (QString)reply->readAll();
-        if(strReply != "\"success\"")
-        {
-            if(failed_attempts != 0)
-            {
+        if(strReply != "\"success\""){
+            if(failed_attempts != 0){
                 emit agentReached();
                 failed_attempts = 0;
             }
@@ -51,6 +48,21 @@ void HTTPPoller::pollingFinished(QNetworkReply* reply)
                 }
             }
             else{
+                foreach(QString id, jobs->keys()){
+                    bool present = false;
+                    foreach(QJsonValue jsonJob, jsonJobs){
+                        QJsonObject job = jsonJob.toObject();
+                        QString jobId = job["id"].toString();
+                        if(jobId == id){
+                            present = true;
+                        }
+                    }
+                    if(present == false){
+                        this->jobs->remove(id);
+                        emit jobDeleted(id);
+                    }
+                }
+
                 foreach(QJsonValue jsonJob, jsonJobs){
                     QJsonObject job = jsonJob.toObject();
                     QString jobId = job["id"].toString();
@@ -59,14 +71,13 @@ void HTTPPoller::pollingFinished(QNetworkReply* reply)
                     bool running = job["running"].toBool();
                     int queue_length = job["state"].toObject().operator []("global").toObject().operator[]("queue_length").toInt();
                     double eta = -1;
-
                     // if job has pending tasks we update it
                     if(queue_length > 0){
                         eta = job["state"].toObject().operator []("global").toObject().operator[]("eta").toDouble();
                     }
+
                     // if jobs doesn't exist here, we create it
-                    if(!this->jobs->contains(jobId))
-                    {
+                    if(!this->jobs->contains(jobId)){
                         if(job["active"].toBool()){
                             // create a new active job, add it and notify the main class
                             Job *newJob = new Job(jobId, label, running, eta, lastEventMessage);
@@ -81,8 +92,7 @@ void HTTPPoller::pollingFinished(QNetworkReply* reply)
                             this->jobs->remove(jobId);
                             emit jobDeleted(jobId);
                         }
-                        else
-                        {
+                        else{
                             jobs->value(jobId)->update(label, running, eta, lastEventMessage);
                         }
                     }
@@ -94,7 +104,7 @@ void HTTPPoller::pollingFinished(QNetworkReply* reply)
             }
         }
     }
-    else {
+    else{
         qDebug() << "HTTP Poller Reply failure :" <<reply->errorString();
         ++failed_attempts;
         if(failed_attempts == MAX_CONNECTION_ATTEMPTS){
@@ -105,14 +115,14 @@ void HTTPPoller::pollingFinished(QNetworkReply* reply)
     emit requestFinished();
 }
 
-void HTTPPoller::start_all(){
+void HTTPManager::start_all(){
     manager->get(QNetworkRequest(QUrl(this->serverUrl + "/cmd/start-all")));
 }
 
-void HTTPPoller::pause_all(){
+void HTTPManager::pause_all(){
     manager->get(QNetworkRequest(QUrl(this->serverUrl + "/cmd/pause-all")));
 }
 
-void HTTPPoller::terminateAgent(){
+void HTTPManager::terminateAgent(){
     manager->get(QNetworkRequest(QUrl(this->serverUrl + "/cmd/quit")));
 }

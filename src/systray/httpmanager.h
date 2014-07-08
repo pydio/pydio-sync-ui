@@ -1,5 +1,5 @@
-#ifndef HTTPPOLLER_H
-#define HTTPPOLLER_H
+#ifndef HTTPMANAGER_H
+#define HTTPMANAGER_H
 
 #include <QObject>
 #include <QNetworkAccessManager>
@@ -12,11 +12,11 @@
 #include <job.h>
 #include <QHash>
 
-class HTTPPoller : public QObject
+class HTTPManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit HTTPPoller(QObject *parent = 0);
+    explicit HTTPManager(QObject *parent = 0);
     void setUrl(QString);
 
 signals:
@@ -47,4 +47,4 @@ private:
 
 };
 
-#endif // HTTPPOLLER_H
+#endif // HTTPManager_H

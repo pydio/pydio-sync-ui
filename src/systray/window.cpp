@@ -68,15 +68,15 @@ Window::Window()
         pollTimer->setInterval(2000);
         pollTimer->setSingleShot(true);
 
-        poller = new HTTPPoller(this);
-        connect(pollTimer, SIGNAL(timeout()), poller, SLOT(poll()));
-        connect(poller, SIGNAL(requestFinished()), pollTimer, SLOT(start()));
-        connect(poller, SIGNAL(newJob(QString, QString)), this, SLOT(onNewJob(QString, QString)));
-        connect(poller, SIGNAL(jobUpdated(QString, QString)), this, SLOT(onJobUpdated(QString, QString)));
-        connect(poller, SIGNAL(jobDeleted(QString)),this, SLOT(onJobDeleted(QString)));
-        connect(poller, SIGNAL(connectionProblem()), this, SLOT(connectionProblem()));
-        connect(poller, SIGNAL(agentReached()), this, SLOT(agentReached()));
-        connect(poller, SIGNAL(noActiveJobsAtLaunch()), this, SLOT(show()));
+        httpManager = new HTTPManager(this);
+        connect(pollTimer, SIGNAL(timeout()), httpManager, SLOT(poll()));
+        connect(httpManager, SIGNAL(requestFinished()), pollTimer, SLOT(start()));
+        connect(httpManager, SIGNAL(newJob(QString, QString)), this, SLOT(onNewJob(QString, QString)));
+        connect(httpManager, SIGNAL(jobUpdated(QString, QString)), this, SLOT(onJobUpdated(QString, QString)));
+        connect(httpManager, SIGNAL(jobDeleted(QString)),this, SLOT(onJobDeleted(QString)));
+        connect(httpManager, SIGNAL(connectionProblem()), this, SLOT(connectionProblem()));
+        connect(httpManager, SIGNAL(agentReached()), this, SLOT(agentReached()));
+        connect(httpManager, SIGNAL(noActiveJobsAtLaunch()), this, SLOT(show()));
         //connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), this, SLOT(focusChanged(QWidget*, QWidget*)));
 
         createActions();
@@ -86,8 +86,8 @@ Window::Window()
         jsDialog = new JSEventHandler(this);
 
         portConfigurer->updatePorts();
-        poller->setUrl("http://127.0.0.1:" + portConfigurer->port("flask_api"));
-        poller->poll();
+        httpManager->setUrl("http://127.0.0.1:" + portConfigurer->port("flask_api"));
+        httpManager->poll();
 
         this->setWindowFlags(Qt::Tool);
         //Qt::FramelessWindowHint);
@@ -146,11 +146,11 @@ void Window::createActions()
     noAgentAction->setDisabled(true);
 
     startAction = new QAction(tr("Start all"), this);
-    connect(startAction, SIGNAL(triggered()), poller, SLOT(start_all()));
+    connect(startAction, SIGNAL(triggered()), httpManager, SLOT(start_all()));
     pauseAction = new QAction(tr("Pause all"), this);
-    connect(pauseAction, SIGNAL(triggered()), poller, SLOT(pause_all()));
+    connect(pauseAction, SIGNAL(triggered()), httpManager, SLOT(pause_all()));
     quitAgentAction = new QAction(tr("Terminate agent"), this);
-    connect(quitAgentAction, SIGNAL(triggered()), poller, SLOT(terminateAgent()));
+    connect(quitAgentAction, SIGNAL(triggered()), httpManager, SLOT(terminateAgent()));
 
     aboutAction = new QAction(tr("About"), this);
     connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
@@ -162,22 +162,17 @@ void Window::createActions()
 void Window::createTrayIcon()
 {
     trayIconMenu = new QMenu(this);
-
     this->createLastEventsMenu();
     trayIconMenu->addSeparator();
-
     trayIconMenu->addAction(settingsAction);
-
     trayIconMenu->insertAction(settingsAction, noAgentAction);
     trayIconMenu->addSeparator();
     trayIconMenu->addAction(aboutAction);
     trayIconMenu->addAction(quitAction);
-
     trayIcon = new QSystemTrayIcon(this);
     trayIcon->setContextMenu(trayIconMenu);
     connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
             this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
-
     const QIcon& icon = QIcon(":/images/Pydio16.png");
     trayIcon->setIcon(icon);
     setWindowIcon(icon);
@@ -191,7 +186,7 @@ void Window::createLastEventsMenu()
 void Window::iconActivated(QSystemTrayIcon::ActivationReason reason)
 {
     switch (reason) {
-    case QSystemTrayIcon::Trigger:
+    case QSystemTrayIcon::Trigger:;
         break;
     default:
         ;
@@ -248,7 +243,7 @@ void Window::agentReached(){
     trayIconMenu->insertAction(settingsAction, noJobAction);
     settingsAction->setDisabled(false);
     portConfigurer->updatePorts();
-    poller->setUrl("http://127.0.0.1:" + portConfigurer->port("flask_api"));
+    httpManager->setUrl("http://127.0.0.1:" + portConfigurer->port("flask_api"));
     trayIconMenu->insertAction(aboutAction, startAction);
     trayIconMenu->insertAction(aboutAction, pauseAction);
     trayIconMenu->insertAction(aboutAction, quitAgentAction);
@@ -264,5 +259,6 @@ void Window::connectionProblem(){
     trayIconMenu->removeAction(pauseAction);
     trayIconMenu->removeAction(quitAgentAction);
 }
+
 
 #endif
