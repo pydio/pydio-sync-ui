@@ -44,12 +44,17 @@
 
 #include <QMessageBox>
 #include "window.h"
+#include <QStyleFactory>
 
 int main(int argc, char *argv[])
 {
     Q_INIT_RESOURCE(systray);
 
     QApplication app(argc, argv);
+
+    #ifdef Q_OS_WIN
+    app.setStyle(QStyleFactory::create("windows"));
+    #endif
 
     if (!QSystemTrayIcon::isSystemTrayAvailable()) {
         QMessageBox::critical(0, QObject::tr("Systray"),
@@ -81,5 +86,4 @@ int main(int argc, char *argv[])
 
     app.exec();
 }
-
 #endif
