@@ -103,6 +103,10 @@ void Window::show()
     settingsWebView->setContextMenuPolicy(Qt::NoContextMenu);
     this->setCentralWidget(settingsWebView);
 
+    #ifdef Q_OS_WIN
+    settingsWebView->setStyle(QStyleFactory::create("windows"));
+    #endif
+
     QUrl syncUrl = QUrl("http://127.0.0.1:" + portConfigurer->port("flask_api"));
     settingsWebView->load(syncUrl);
     connect(settingsWebView->page(), SIGNAL(linkClicked(QUrl)), jsDialog, SLOT(openUrl(QUrl)));

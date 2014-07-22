@@ -54,6 +54,7 @@
 #include <QDesktopWidget>
 #include <QHash>
 #include <QMessageBox>
+#include <QStyleFactory>
 
 #ifndef QT_NO_SYSTEMTRAYICON
 
