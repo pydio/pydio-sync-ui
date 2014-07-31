@@ -77,7 +77,7 @@ Window::Window()
         connect(httpManager, SIGNAL(connectionProblem()), this, SLOT(connectionProblem()));
         connect(httpManager, SIGNAL(agentReached()), this, SLOT(agentReached()));
         connect(httpManager, SIGNAL(noActiveJobsAtLaunch()), this, SLOT(show()));
-        //connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), this, SLOT(focusChanged(QWidget*, QWidget*)));
+        connect(httpManager, SIGNAL(jobsCleared()), this, SLOT(jobsCleared()));
 
         createActions();
         createTrayIcon();
@@ -90,7 +90,6 @@ Window::Window()
         httpManager->poll();
 
         this->setWindowFlags(Qt::Tool);
-        //Qt::FramelessWindowHint);
         setWindowTitle(tr("Pydio"));
     }
 }
@@ -103,13 +102,15 @@ void Window::show()
     settingsWebView->setContextMenuPolicy(Qt::NoContextMenu);
     this->setCentralWidget(settingsWebView);
 
-    #ifdef Q_OS_WIN
+#ifdef Q_OS_WIN
     settingsWebView->setStyle(QStyleFactory::create("windows"));
-    #endif
+#endif
 
     QUrl syncUrl = QUrl("http://127.0.0.1:" + portConfigurer->port("flask_api"));
     settingsWebView->load(syncUrl);
+    // allows to click link in the webview
     connect(settingsWebView->page(), SIGNAL(linkClicked(QUrl)), jsDialog, SLOT(openUrl(QUrl)));
+    // link the javascript dialog of the ui to the system FileDialog
     settingsWebView->page()->currentFrame()->addToJavaScriptWindowObject("PydioQtFileDialog", jsDialog);
 
     if(QApplication::desktop()->height() < 800){
@@ -205,13 +206,19 @@ void Window::about(){
     msgBox.exec();
 }
 
+// asks the user if python agent has to be stopped and quit
 void Window::cleanQuit(){
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Pydio UI", "Do you want to terminate the sync agent too ?",
+                                  QMessageBox::Yes|QMessageBox::No);
+    if (reply == QMessageBox::Yes) {
+        httpManager->terminateAgent();
+    }
     emit qApp->quit();
 }
 
 void Window::onNewJob(QString id, QString desc){
     trayIconMenu->removeAction(noJobAction);
-
     QAction *newAction = new QAction(desc, this);
     newAction->setDisabled(true);
     jobActions->insert(id, newAction);
@@ -222,6 +229,9 @@ void Window::onJobUpdated(QString id, QString desc){
     jobActions->operator [](id)->setText(desc);
 }
 
+/* when a job is not active anymore:
+ * remove corresponding object
+ */
 void Window::onJobDeleted(QString id){
     trayIconMenu->removeAction(jobActions->operator [](id));
     jobActions->remove(id);
@@ -232,14 +242,21 @@ void Window::onJobDeleted(QString id){
 }
 
 void Window::jobsCleared(){
-    qDebug()<<"jobs cleared";
-    foreach(const QString &k, jobActions->keys()){
-        qDebug()<<k<<"deleted";
-        trayIconMenu->removeAction(jobActions->value(k));
+    if(!jobActions->empty()){
+        foreach(const QString &k, jobActions->keys()){
+            qDebug()<<k<<"deleted";
+            trayIconMenu->removeAction(jobActions->value(k));
+        }
+        jobActions->clear();
+        qDebug()<<"jobs cleared";
     }
-    jobActions->clear();
 }
 
+
+/* when python agent is reached :
+ * clear the previous jobs in memory,
+ * provides proper UI options
+ */
 void Window::agentReached(){
     qDebug()<<"agent reached";
     this->jobsCleared();
@@ -253,6 +270,9 @@ void Window::agentReached(){
     trayIconMenu->insertAction(aboutAction, quitAgentAction);
 }
 
+/* when cannot reach the python agent :
+ * clear jobs, provides proper UI options
+ */
 void Window::connectionProblem(){
     qDebug()<<"connection problem";
     this->jobsCleared();

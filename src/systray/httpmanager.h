@@ -43,6 +43,7 @@ private:
     const static int MAX_CONNECTION_ATTEMPTS = 2;
     int failed_attempts;
     bool launch;
+    void checkNoJobAtLaunch();
 
 
 };

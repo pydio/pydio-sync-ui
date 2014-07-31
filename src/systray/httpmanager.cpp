@@ -29,6 +29,8 @@ void HTTPManager::pollingFinished(QNetworkReply* reply)
     if (reply->error() == QNetworkReply::NoError){
         //read the server response
         QString strReply = (QString)reply->readAll();
+
+        // this non-case is for when we terminate the python agent
         if(strReply != "\"success\""){
             if(failed_attempts != 0){
                 emit agentReached();
@@ -37,15 +39,13 @@ void HTTPManager::pollingFinished(QNetworkReply* reply)
 
             QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
             QJsonArray jsonJobs = jsonResponse.array();
+
             if(jsonJobs.count()==0){
-                if(launch){
-                    launch = false;
-                    emit noActiveJobsAtLaunch();
-                }
+                this->checkNoJobAtLaunch();
                 if(!jobs->empty()){
                     this->jobs->clear();
-                    emit jobsCleared();
                 }
+                emit this->jobsCleared();
             }
             else{
                 foreach(QString id, jobs->keys()){
@@ -97,10 +97,6 @@ void HTTPManager::pollingFinished(QNetworkReply* reply)
                         }
                     }
                 }
-                if(jobs->empty() && launch){
-                    launch = false;
-                    emit noActiveJobsAtLaunch();
-                }
             }
         }
     }
@@ -115,6 +111,13 @@ void HTTPManager::pollingFinished(QNetworkReply* reply)
     emit requestFinished();
 }
 
+void HTTPManager::checkNoJobAtLaunch(){
+    if(launch){
+        launch = false;
+        emit noActiveJobsAtLaunch();
+    }
+}
+
 void HTTPManager::start_all(){
     manager->get(QNetworkRequest(QUrl(this->serverUrl + "/cmd/start-all")));
 }
@@ -124,5 +127,5 @@ void HTTPManager::pause_all(){
 }
 
 void HTTPManager::terminateAgent(){
-    manager->get(QNetworkRequest(QUrl(this->serverUrl + "/cmd/quit")));
+    manager->get(QNetworkRequest(QUrl(this->serverUrl + "/cmd/exit")));
 }
