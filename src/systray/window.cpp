@@ -202,7 +202,7 @@ void Window::about(){
     QMessageBox  msgBox(this);
     msgBox.setWindowTitle("About Pydio UI");
     msgBox.setTextFormat(Qt::RichText);   //this is what makes the links clickable
-    msgBox.setText("Pydio Desktop Sync<br>v0.8 pre-alpha<br>Learn more : <a href=http://liftoff.pydio.com>http://liftoff.pydio.com</a>");
+    msgBox.setText("Pydio Desktop Sync<br>v0.9 alpha<br>Learn more : <a href=http://liftoff.pydio.com>http://liftoff.pydio.com</a>");
     msgBox.exec();
 }
 

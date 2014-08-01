@@ -1,4 +1,5 @@
 #include "JSEventHandler.h"
+#include <QDebug>
 
 JSEventHandler::JSEventHandler(QObject *parent) :
     QObject(parent)
