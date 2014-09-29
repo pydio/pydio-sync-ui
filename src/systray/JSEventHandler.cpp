@@ -8,7 +8,8 @@ JSEventHandler::JSEventHandler(QObject *parent) :
 
 QString JSEventHandler::getPath()
 {
-   return QFileDialog::getExistingDirectory(0, tr("Select local path"),"/", QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+   QString pydioDir = QDir::homePath() + "/pydio";
+   return QFileDialog::getExistingDirectory(0, tr("Select local path"), pydioDir, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 }
 
 void JSEventHandler::openUrl(QUrl toOpen)
