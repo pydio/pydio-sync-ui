@@ -98,7 +98,7 @@ private:
     QAction *settingsAction;
     QAction *quitAction;
     QAction *reconnectAction;
-    QAction *quitAgentAction;
+    //QAction *quitAgentAction;
     QAction *startAction;
     QAction *pauseAction;
     QAction *aboutAction;

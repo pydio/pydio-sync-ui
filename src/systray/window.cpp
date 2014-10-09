@@ -154,8 +154,8 @@ void Window::createActions()
     connect(startAction, SIGNAL(triggered()), httpManager, SLOT(start_all()));
     pauseAction = new QAction(tr("Pause all"), this);
     connect(pauseAction, SIGNAL(triggered()), httpManager, SLOT(pause_all()));
-    quitAgentAction = new QAction(tr("Terminate agent"), this);
-    connect(quitAgentAction, SIGNAL(triggered()), httpManager, SLOT(terminateAgent()));
+    //quitAgentAction = new QAction(tr("Terminate agent"), this);
+    //connect(quitAgentAction, SIGNAL(triggered()), httpManager, SLOT(terminateAgent()));
 
     aboutAction = new QAction(tr("About"), this);
     connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
@@ -202,18 +202,18 @@ void Window::about(){
     QMessageBox  msgBox(this);
     msgBox.setWindowTitle("About Pydio UI");
     msgBox.setTextFormat(Qt::RichText);   //this is what makes the links clickable
-    msgBox.setText("Pydio Desktop Sync<br>v0.9 alpha<br>Learn more : <a href=http://liftoff.pydio.com>http://liftoff.pydio.com</a>");
+    msgBox.setText("Pydio Desktop Sync<br>v0.9 alpha<br>Learn more :<a href=http://liftoff.pydio.com>http://liftoff.pydio.com</a>");
     msgBox.exec();
 }
 
 // asks the user if python agent has to be stopped and quit
 void Window::cleanQuit(){
-    QMessageBox::StandardButton reply;
+    /*QMessageBox::StandardButton reply;
     reply = QMessageBox::question(this, "Pydio UI", "Do you want to terminate the sync agent too ?",
                                   QMessageBox::Yes|QMessageBox::No);
     if (reply == QMessageBox::Yes) {
         httpManager->terminateAgent();
-    }
+    }*/
     emit qApp->quit();
 }
 
@@ -267,7 +267,7 @@ void Window::agentReached(){
     httpManager->setUrl("http://127.0.0.1:" + portConfigurer->port("flask_api"));
     trayIconMenu->insertAction(aboutAction, startAction);
     trayIconMenu->insertAction(aboutAction, pauseAction);
-    trayIconMenu->insertAction(aboutAction, quitAgentAction);
+    //trayIconMenu->insertAction(aboutAction, quitAgentAction);
 }
 
 /* when cannot reach the python agent :
@@ -281,7 +281,7 @@ void Window::connectionProblem(){
     settingsAction->setDisabled(true);
     trayIconMenu->removeAction(startAction);
     trayIconMenu->removeAction(pauseAction);
-    trayIconMenu->removeAction(quitAgentAction);
+    //trayIconMenu->removeAction(quitAgentAction);
 }
 
 
