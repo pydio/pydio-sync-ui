@@ -62,7 +62,7 @@ Window::Window()
     else{
         portConfigurer = new PortConfigurer(parser.value(pathArgument));
 
-        jobActions = new QHash<QString, QAction*>();
+        jobActions = new QHash<QString, jobAction*>();
 
         pollTimer = new QTimer(this);
         pollTimer->setInterval(2000);
@@ -71,8 +71,8 @@ Window::Window()
         httpManager = new HTTPManager(this);
         connect(pollTimer, SIGNAL(timeout()), httpManager, SLOT(poll()));
         connect(httpManager, SIGNAL(requestFinished()), pollTimer, SLOT(start()));
-        connect(httpManager, SIGNAL(newJob(QString, QString)), this, SLOT(onNewJob(QString, QString)));
-        connect(httpManager, SIGNAL(jobUpdated(QString, QString)), this, SLOT(onJobUpdated(QString, QString)));
+        connect(httpManager, SIGNAL(newJob(Job*)), this, SLOT(onNewJob(Job*)));
+        connect(httpManager, SIGNAL(jobUpdated(QString)), this, SLOT(onJobUpdated(QString)));
         connect(httpManager, SIGNAL(jobDeleted(QString)),this, SLOT(onJobDeleted(QString)));
         connect(httpManager, SIGNAL(connectionProblem()), this, SLOT(connectionProblem()));
         connect(httpManager, SIGNAL(agentReached()), this, SLOT(agentReached()));
@@ -150,10 +150,10 @@ void Window::createActions()
     noAgentAction = new QAction(tr("No active agent"), this);
     noAgentAction->setDisabled(true);
 
-    startAction = new QAction(tr("Start all"), this);
-    connect(startAction, SIGNAL(triggered()), httpManager, SLOT(start_all()));
-    pauseAction = new QAction(tr("Pause all"), this);
-    connect(pauseAction, SIGNAL(triggered()), httpManager, SLOT(pause_all()));
+    resumeSyncAction = new QAction(tr("Resume sync"), this);
+    connect(resumeSyncAction, SIGNAL(triggered()), httpManager, SLOT(resumeSync()));
+    pauseSyncAction = new QAction(tr("Pause sync"), this);
+    connect(pauseSyncAction, SIGNAL(triggered()), httpManager, SLOT(pauseSync()));
     //quitAgentAction = new QAction(tr("Terminate agent"), this);
     //connect(quitAgentAction, SIGNAL(triggered()), httpManager, SLOT(terminateAgent()));
 
@@ -217,16 +217,16 @@ void Window::cleanQuit(){
     emit qApp->quit();
 }
 
-void Window::onNewJob(QString id, QString desc){
+void Window::onNewJob(Job* newJob){
     trayIconMenu->removeAction(noJobAction);
-    QAction *newAction = new QAction(desc, this);
+    jobAction *newAction = new jobAction(this, newJob);
     newAction->setDisabled(true);
-    jobActions->insert(id, newAction);
+    jobActions->insert(newJob->getId(), newAction);
     trayIconMenu->insertAction(settingsAction, newAction);
 }
 
-void Window::onJobUpdated(QString id, QString desc){
-    jobActions->operator [](id)->setText(desc);
+void Window::onJobUpdated(QString id){
+    jobActions->operator [](id)->update();
 }
 
 /* when a job is not active anymore:
@@ -265,8 +265,8 @@ void Window::agentReached(){
     settingsAction->setDisabled(false);
     portConfigurer->updatePorts();
     httpManager->setUrl("http://127.0.0.1:" + portConfigurer->port("flask_api"));
-    trayIconMenu->insertAction(aboutAction, startAction);
-    trayIconMenu->insertAction(aboutAction, pauseAction);
+    trayIconMenu->insertAction(aboutAction, resumeSyncAction);
+    trayIconMenu->insertAction(aboutAction, pauseSyncAction);
     //trayIconMenu->insertAction(aboutAction, quitAgentAction);
 }
 
@@ -279,8 +279,8 @@ void Window::connectionProblem(){
     trayIconMenu->removeAction(noJobAction);
     trayIconMenu->insertAction(settingsAction, noAgentAction);
     settingsAction->setDisabled(true);
-    trayIconMenu->removeAction(startAction);
-    trayIconMenu->removeAction(pauseAction);
+    trayIconMenu->removeAction(resumeSyncAction);
+    trayIconMenu->removeAction(pauseSyncAction);
     //trayIconMenu->removeAction(quitAgentAction);
 }
 

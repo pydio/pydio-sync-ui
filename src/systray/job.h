@@ -12,9 +12,10 @@ public:
     void update(QString, bool, double, QString);
     QString getJobDescription();
     QString getId();
+    bool getStatus();
 
 signals:
-    void updated(QString id, QString desc);
+    void updated(QString id);
 
 private:
     QString name;

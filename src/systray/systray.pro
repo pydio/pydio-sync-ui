@@ -11,14 +11,16 @@ HEADERS      += window.h \
                 portconfigurer.h \
                 JSEventHandler.h \
                 job.h \
-    httpmanager.h
+    httpmanager.h \
+    jobaction.h
 SOURCES       = main.cpp \
                 window.cpp \
                 queuemenu.cpp \
                 portconfigurer.cpp \
                 JSEventHandler.cpp \
                 job.cpp \
-    httpmanager.cpp
+    httpmanager.cpp \
+    jobaction.cpp
 
 RESOURCES     = systray.qrc
 

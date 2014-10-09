@@ -81,9 +81,9 @@ void HTTPManager::pollingFinished(QNetworkReply* reply)
                         if(job["active"].toBool()){
                             // create a new active job, add it and notify the main class
                             Job *newJob = new Job(jobId, label, running, eta, lastEventMessage);
-                            connect(newJob, SIGNAL(updated(QString, QString)), this, SIGNAL(jobUpdated(QString, QString)));
+                            connect(newJob, SIGNAL(updated(QString)), this, SIGNAL(jobUpdated(QString)));
                             this->jobs->insert(jobId, newJob);
-                            emit this->newJob(newJob->getId(), newJob->getJobDescription());
+                            emit this->newJob(newJob);
                         }
                     }
                     // if job exists and is active, we update it, otherwise we delete it
@@ -118,14 +118,14 @@ void HTTPManager::checkNoJobAtLaunch(){
     }
 }
 
-void HTTPManager::start_all(){
+void HTTPManager::resumeSync(){
     manager->get(QNetworkRequest(QUrl(this->serverUrl + "/cmd/start-all")));
 }
 
-void HTTPManager::pause_all(){
+void HTTPManager::pauseSync(){
     manager->get(QNetworkRequest(QUrl(this->serverUrl + "/cmd/pause-all")));
 }
 
-void HTTPManager::terminateAgent(){
+/*void HTTPManager::terminateAgent(){
     manager->get(QNetworkRequest(QUrl(this->serverUrl + "/cmd/exit")));
-}
+}*/

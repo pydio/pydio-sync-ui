@@ -21,8 +21,8 @@ public:
 
 signals:
    void requestFinished();
-   void newJob(QString, QString);
-   void jobUpdated(QString, QString);
+   void newJob(Job*);
+   void jobUpdated(QString);
    void jobDeleted(QString);
    void connectionProblem();
    void agentReached();
@@ -32,9 +32,9 @@ signals:
 public slots:
     void poll();
     void pollingFinished(QNetworkReply*);
-    void start_all();
-    void pause_all();
-    void terminateAgent();
+    void resumeSync();
+    void pauseSync();
+    //void terminateAgent();
 
 private:
     QNetworkAccessManager *manager;

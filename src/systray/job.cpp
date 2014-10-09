@@ -35,13 +35,17 @@ void Job::update(QString newName, bool newStatus, double eta, QString lastEventM
         updated = true;
     }
     if(updated){
-        emit this->updated(this->id, this->getJobDescription());
+        emit this->updated(this->id);
     }
 }
 
 QString Job::getId()
 {
     return this->id;
+}
+
+bool Job::getStatus(){
+    return this->status;
 }
 
 QString Job::getJobDescription()
