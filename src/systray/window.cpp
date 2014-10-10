@@ -191,6 +191,7 @@ void Window::iconActivated(QSystemTrayIcon::ActivationReason reason)
 {
     switch (reason) {
     case QSystemTrayIcon::Trigger:;
+        this->trayIcon->show();
         break;
     default:
         ;
@@ -262,9 +263,7 @@ void Window::checkAllJobsStatus(){
         for(int i=0; i<jActions.size(); i++){
             Job *j = jActions[i]->getJob();
             globalRunningStatus = globalRunningStatus || j->getStatus();
-            qDebug()<<j->getId() + " is " + QString::number(j->getStatus());
         }
-        qDebug()<<"Global status is" + QString::number(globalRunningStatus);
         if(globalRunningStatus){
             resumePauseSyncAction->setText(tr("Pause sync"));
             resumePauseSyncAction->disconnect();
