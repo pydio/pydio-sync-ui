@@ -16,4 +16,3 @@ void JSEventHandler::openUrl(QUrl toOpen)
 {
     QDesktopServices::openUrl(QUrl(toOpen));
 }
-

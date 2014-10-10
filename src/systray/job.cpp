@@ -30,7 +30,7 @@ void Job::update(QString newName, bool newStatus, double eta, QString lastEventM
         this->remainingTime = eta;
         updated = true;
     }
-    if(this->lastEventMessage != lastEventMessage){
+    if((this->lastEventMessage != lastEventMessage) && lastEventMessage.contains("paused")){
         this->lastEventMessage = lastEventMessage;
         updated = true;
     }
@@ -52,7 +52,7 @@ QString Job::getJobDescription()
 {
     QString desc;
     if(this->status){
-        if(this->remainingTime < 0){
+        if(this->remainingTime <= 0){
             desc = "idle (" + this->lastEventMessage + ")";
         }
         else{
@@ -60,7 +60,7 @@ QString Job::getJobDescription()
         }
     }
     else{
-        desc = this->lastEventMessage;
+        desc = "Paused";
     }
     return this->name + " - " + desc;
 }

@@ -63,6 +63,7 @@ Window::Window()
         portConfigurer = new PortConfigurer(parser.value(pathArgument));
 
         jobActions = new QHash<QString, jobAction*>();
+        globalRunningStatus = false;
 
         pollTimer = new QTimer(this);
         pollTimer->setInterval(2000);
@@ -150,10 +151,8 @@ void Window::createActions()
     noAgentAction = new QAction(tr("No active agent"), this);
     noAgentAction->setDisabled(true);
 
-    resumeSyncAction = new QAction(tr("Resume sync"), this);
-    connect(resumeSyncAction, SIGNAL(triggered()), httpManager, SLOT(resumeSync()));
-    pauseSyncAction = new QAction(tr("Pause sync"), this);
-    connect(pauseSyncAction, SIGNAL(triggered()), httpManager, SLOT(pauseSync()));
+    resumePauseSyncAction = new QAction(tr("Pause sync"), this);
+    connect(resumePauseSyncAction, SIGNAL(triggered()), httpManager, SLOT(pauseSync()));
     //quitAgentAction = new QAction(tr("Terminate agent"), this);
     //connect(quitAgentAction, SIGNAL(triggered()), httpManager, SLOT(terminateAgent()));
 
@@ -223,10 +222,13 @@ void Window::onNewJob(Job* newJob){
     newAction->setDisabled(true);
     jobActions->insert(newJob->getId(), newAction);
     trayIconMenu->insertAction(settingsAction, newAction);
+    this->checkAllJobsStatus();
 }
 
 void Window::onJobUpdated(QString id){
     jobActions->operator [](id)->update();
+    qDebug()<<"on jobupdate";
+    this->checkAllJobsStatus();
 }
 
 /* when a job is not active anymore:
@@ -239,6 +241,7 @@ void Window::onJobDeleted(QString id){
     {
         trayIconMenu->insertAction(settingsAction, noJobAction);
     }
+    this->checkAllJobsStatus();
 }
 
 void Window::jobsCleared(){
@@ -249,6 +252,29 @@ void Window::jobsCleared(){
         }
         jobActions->clear();
         qDebug()<<"jobs cleared";
+    }
+}
+
+void Window::checkAllJobsStatus(){
+    if(!jobActions->empty()){
+        QList<jobAction*> jActions = jobActions->values();
+        globalRunningStatus = jActions[0]->getJob()->getStatus();
+        for(int i=0; i<jActions.size(); i++){
+            Job *j = jActions[i]->getJob();
+            globalRunningStatus = globalRunningStatus || j->getStatus();
+            qDebug()<<j->getId() + " is " + QString::number(j->getStatus());
+        }
+        qDebug()<<"Global status is" + QString::number(globalRunningStatus);
+        if(globalRunningStatus){
+            resumePauseSyncAction->setText(tr("Pause sync"));
+            resumePauseSyncAction->disconnect();
+            connect(resumePauseSyncAction, SIGNAL(triggered()), httpManager, SLOT(pauseSync()));
+        }
+        else{
+            resumePauseSyncAction->setText(tr("Resume sync"));
+            resumePauseSyncAction->disconnect();
+            connect(resumePauseSyncAction, SIGNAL(triggered()), httpManager, SLOT(resumeSync()));
+        }
     }
 }
 
@@ -265,8 +291,7 @@ void Window::agentReached(){
     settingsAction->setDisabled(false);
     portConfigurer->updatePorts();
     httpManager->setUrl("http://127.0.0.1:" + portConfigurer->port("flask_api"));
-    trayIconMenu->insertAction(aboutAction, resumeSyncAction);
-    trayIconMenu->insertAction(aboutAction, pauseSyncAction);
+    trayIconMenu->insertAction(aboutAction, resumePauseSyncAction);
     //trayIconMenu->insertAction(aboutAction, quitAgentAction);
 }
 
@@ -279,8 +304,7 @@ void Window::connectionProblem(){
     trayIconMenu->removeAction(noJobAction);
     trayIconMenu->insertAction(settingsAction, noAgentAction);
     settingsAction->setDisabled(true);
-    trayIconMenu->removeAction(resumeSyncAction);
-    trayIconMenu->removeAction(pauseSyncAction);
+    trayIconMenu->removeAction(resumePauseSyncAction);
     //trayIconMenu->removeAction(quitAgentAction);
 }
 

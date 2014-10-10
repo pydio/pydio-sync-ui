@@ -91,6 +91,7 @@ private:
     void createActions();
     void createTrayIcon();
     void createLastEventsMenu();
+    void checkAllJobsStatus();
 
     QWebView *settingsWebView;
 
@@ -100,10 +101,10 @@ private:
     QAction *quitAction;
     QAction *reconnectAction;
     //QAction *quitAgentAction;
-    QAction *resumeSyncAction;
-    QAction *pauseSyncAction;
+    QAction *resumePauseSyncAction;
     QAction *aboutAction;
     QHash<QString, jobAction*> *jobActions;
+    bool globalRunningStatus;
 
     QueueMenu *lastEventsMenu;
     QSystemTrayIcon *trayIcon;
