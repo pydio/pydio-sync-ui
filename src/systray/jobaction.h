@@ -13,10 +13,6 @@ public:
     void setJob(Job* newJob);
     void update();
 
-signals:
-
-public slots:
-
 private:
     Job *job;
 

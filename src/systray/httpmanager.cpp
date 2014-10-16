@@ -68,6 +68,8 @@ void HTTPManager::pollingFinished(QNetworkReply* reply)
                     QString jobId = job["id"].toString();
                     QString label = job["label"].toString();
                     QString lastEventMessage = job["last_event"].toObject().operator []("message").toString();
+                    QString local = job["directory"].toString();
+                    QString remote = job["server"].toString();
                     bool running = job["running"].toBool();
                     int queue_length = job["state"].toObject().operator []("global").toObject().operator[]("queue_length").toInt();
                     double eta = -1;
@@ -80,7 +82,7 @@ void HTTPManager::pollingFinished(QNetworkReply* reply)
                     if(!this->jobs->contains(jobId)){
                         if(job["active"].toBool()){
                             // create a new active job, add it and notify the main class
-                            Job *newJob = new Job(jobId, label, running, eta, lastEventMessage);
+                            Job *newJob = new Job(jobId, label, running, eta, lastEventMessage, local, remote);
                             connect(newJob, SIGNAL(updated(QString)), this, SIGNAL(jobUpdated(QString)));
                             this->jobs->insert(jobId, newJob);
                             emit this->newJob(newJob);
@@ -125,7 +127,3 @@ void HTTPManager::resumeSync(){
 void HTTPManager::pauseSync(){
     manager->get(QNetworkRequest(QUrl(this->serverUrl + "/cmd/pause-all")));
 }
-
-/*void HTTPManager::terminateAgent(){
-    manager->get(QNetworkRequest(QUrl(this->serverUrl + "/cmd/exit")));
-}*/

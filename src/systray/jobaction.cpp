@@ -5,7 +5,7 @@ jobAction::jobAction(QObject *parent, Job *job) :
 {
     this->job = job;
     if (this->job != NULL)
-            this->setText(job->getJobDescription());
+            this->setText(job->getName() + " - " + job->getJobDescription());
 }
 
 void jobAction::setJob(Job* newJob){
@@ -18,5 +18,5 @@ Job* jobAction::getJob(){
 
 void jobAction::update(){
     if (this->job != NULL)
-        this->setText(job->getJobDescription());
+        this->setText(job->getName() + " - " + job->getJobDescription());
 }

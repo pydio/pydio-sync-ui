@@ -56,6 +56,7 @@
 #include <QMessageBox>
 #include <QStyleFactory>
 #include <jobaction.h>
+#include <customtrayicon.h>
 
 #ifndef QT_NO_SYSTEMTRAYICON
 
@@ -80,35 +81,15 @@ private slots:
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
     void about();
     void cleanQuit();
-    void onNewJob(Job* newJob);
-    void onJobUpdated(QString jobId);
-    void onJobDeleted(QString jobId);
-    void connectionProblem();
     void agentReached();
-    void jobsCleared();
+    void createTrayIcon();
 
 private:
-    void createActions();
-    void createTrayIcon();
-    void createLastEventsMenu();
-    void checkAllJobsStatus();
-
     QWebView *settingsWebView;
 
-    QAction *noAgentAction;
-    QAction *noJobAction;
-    QAction *settingsAction;
-    QAction *quitAction;
-    QAction *reconnectAction;
-    //QAction *quitAgentAction;
-    QAction *resumePauseSyncAction;
-    QAction *aboutAction;
-    QHash<QString, jobAction*> *jobActions;
     bool globalRunningStatus;
 
-    QueueMenu *lastEventsMenu;
-    QSystemTrayIcon *trayIcon;
-    QMenu *trayIconMenu;
+    CustomTrayIcon *tray;
 
     HTTPManager *httpManager;
     QTimer *pollTimer;

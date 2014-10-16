@@ -12,7 +12,9 @@ HEADERS      += window.h \
                 JSEventHandler.h \
                 job.h \
     httpmanager.h \
-    jobaction.h
+    jobaction.h \
+    customtrayicon.h \
+    jobmenu.h
 SOURCES       = main.cpp \
                 window.cpp \
                 queuemenu.cpp \
@@ -20,7 +22,9 @@ SOURCES       = main.cpp \
                 JSEventHandler.cpp \
                 job.cpp \
     httpmanager.cpp \
-    jobaction.cpp
+    jobaction.cpp \
+    customtrayicon.cpp \
+    jobmenu.cpp
 
 RESOURCES     = systray.qrc
 

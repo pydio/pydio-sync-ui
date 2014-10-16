@@ -6,13 +6,15 @@ Job::Job(QObject *parent) :
 {
 }
 
-Job::Job(QString id, QString name, bool running, double eta, QString lastEventMessage)
+Job::Job(QString id, QString name, bool running, double eta, QString lastEventMessage, QString local, QString remote)
 {
     this->id = id;
     this->name = name;
     this->remainingTime = eta;
     this->status = running;
     this->lastEventMessage = lastEventMessage;
+    this->remote = QUrl(remote);
+    this->local = QUrl("file://" + local);
 }
 
 void Job::update(QString newName, bool newStatus, double eta, QString lastEventMessage)
@@ -30,7 +32,8 @@ void Job::update(QString newName, bool newStatus, double eta, QString lastEventM
         this->remainingTime = eta;
         updated = true;
     }
-    if((this->lastEventMessage != lastEventMessage) && lastEventMessage.contains("paused")){
+    if((this->lastEventMessage != lastEventMessage && (lastEventMessage != "Status: Paused"))){
+        qDebug()<<"LASTEVENTMESSAGE:"<<lastEventMessage;
         this->lastEventMessage = lastEventMessage;
         updated = true;
     }
@@ -48,6 +51,18 @@ bool Job::getStatus(){
     return this->status;
 }
 
+QString Job::getName(){
+    return this->name;
+}
+
+QUrl Job::getLocal(){
+    return this->local;
+}
+
+QUrl Job::getRemote(){
+    return this->remote;
+}
+
 QString Job::getJobDescription()
 {
     QString desc;
@@ -62,5 +77,5 @@ QString Job::getJobDescription()
     else{
         desc = "Paused";
     }
-    return this->name + " - " + desc;
+    return desc;
 }

@@ -27,7 +27,6 @@ void PortConfigurer::updatePorts()
 {
     portHash.clear();
     if(!configFile->open(QIODevice::ReadOnly | QIODevice::Text)){
-        qWarning("No config file detected, connecting to default port...");
         setPortsToDefault();
         return;
     }

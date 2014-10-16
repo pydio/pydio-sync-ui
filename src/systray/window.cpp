@@ -22,27 +22,26 @@ Window::Window()
     else{
         portConfigurer = new PortConfigurer(parser.value(pathArgument));
 
-        jobActions = new QHash<QString, jobAction*>();
-        globalRunningStatus = false;
-
         pollTimer = new QTimer(this);
         pollTimer->setInterval(2000);
         pollTimer->setSingleShot(true);
 
         httpManager = new HTTPManager(this);
+        this->createTrayIcon();
+        tray->show();
+
         connect(pollTimer, SIGNAL(timeout()), httpManager, SLOT(poll()));
         connect(httpManager, SIGNAL(requestFinished()), pollTimer, SLOT(start()));
-        connect(httpManager, SIGNAL(newJob(Job*)), this, SLOT(onNewJob(Job*)));
-        connect(httpManager, SIGNAL(jobUpdated(QString)), this, SLOT(onJobUpdated(QString)));
-        connect(httpManager, SIGNAL(jobDeleted(QString)),this, SLOT(onJobDeleted(QString)));
-        connect(httpManager, SIGNAL(connectionProblem()), this, SLOT(connectionProblem()));
+        connect(httpManager, SIGNAL(newJob(Job*)), tray, SLOT(onNewJob(Job*)));
+        connect(httpManager, SIGNAL(jobUpdated(QString)), tray, SLOT(onJobUpdate(QString)));
+        connect(httpManager, SIGNAL(jobDeleted(QString)), tray, SLOT(onJobDeleted(QString)));
+        connect(httpManager, SIGNAL(connectionProblem()), tray, SLOT(connectionLost()));
         connect(httpManager, SIGNAL(agentReached()), this, SLOT(agentReached()));
         connect(httpManager, SIGNAL(noActiveJobsAtLaunch()), this, SLOT(show()));
-        connect(httpManager, SIGNAL(jobsCleared()), this, SLOT(jobsCleared()));
-
-        createActions();
-        createTrayIcon();
-        trayIcon->show();
+        connect(httpManager, SIGNAL(jobsCleared()), tray, SLOT(jobsCleared()));
+        connect(tray, SIGNAL(pauseSync()), httpManager, SLOT(pauseSync()));
+        connect(tray, SIGNAL(resumeSync()), httpManager, SLOT(resumeSync()));
+        connect(tray, SIGNAL(quit()), this, SLOT(cleanQuit()));
 
         jsDialog = new JSEventHandler(this);
 
@@ -81,12 +80,12 @@ void Window::show()
         this->resize(480, 730);
     }
     this->setFixedWidth(480);
-    if(trayIcon->geometry().y() < QApplication::desktop()->height()*0.5)
+    if(tray->geometry().y() < QApplication::desktop()->height()*0.5)
     {
-        this->move(this->trayIcon->geometry().center().x() - this->width()/2, trayIcon->geometry().bottom());
+        this->move(this->tray->geometry().center().x() - this->width()/2, tray->geometry().bottom());
     }
     else{
-        this->move(this->trayIcon->geometry().center().x() - this->width()/2, QApplication::desktop()->height() - 80 - this->height());
+        this->move(this->tray->geometry().center().x() - this->width()/2, QApplication::desktop()->height() - 80 - this->height());
     }
     this->QWidget::show();
 }
@@ -99,52 +98,12 @@ void Window::closeEvent(QCloseEvent *e)
     this->close();
 }
 
-void Window::createActions()
-{
-    settingsAction = new QAction(tr("Open Pydio"), this);
-    connect(settingsAction, SIGNAL(triggered()), this, SLOT(show()));
-    settingsAction->setDisabled(true);
-
-    noJobAction = new QAction(tr("No active job"), this);
-    noJobAction->setDisabled(true);
-
-    noAgentAction = new QAction(tr("No active agent"), this);
-    noAgentAction->setDisabled(true);
-
-    resumePauseSyncAction = new QAction(tr("Pause sync"), this);
-    connect(resumePauseSyncAction, SIGNAL(triggered()), httpManager, SLOT(pauseSync()));
-    //quitAgentAction = new QAction(tr("Terminate agent"), this);
-    //connect(quitAgentAction, SIGNAL(triggered()), httpManager, SLOT(terminateAgent()));
-
-    aboutAction = new QAction(tr("About"), this);
-    connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
-
-    quitAction = new QAction(tr("&Quit"), this);
-    connect(quitAction, SIGNAL(triggered()), this, SLOT(cleanQuit()));
-}
-
 void Window::createTrayIcon()
 {
-    trayIconMenu = new QMenu(this);
-    this->createLastEventsMenu();
-    trayIconMenu->addSeparator();
-    trayIconMenu->addAction(settingsAction);
-    trayIconMenu->insertAction(settingsAction, noAgentAction);
-    trayIconMenu->addSeparator();
-    trayIconMenu->addAction(aboutAction);
-    trayIconMenu->addAction(quitAction);
-    trayIcon = new QSystemTrayIcon(this);
-    trayIcon->setContextMenu(trayIconMenu);
-    connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
+    tray = new CustomTrayIcon(this);
+    setWindowIcon(tray->icon());
+    connect(tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
             this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
-    const QIcon& icon = QIcon(":/images/Pydio16.png");
-    trayIcon->setIcon(icon);
-    setWindowIcon(icon);
-}
-
-void Window::createLastEventsMenu()
-{
-    lastEventsMenu = new QueueMenu("Last events", this);
 }
 
 void Window::iconActivated(QSystemTrayIcon::ActivationReason reason)
@@ -180,95 +139,10 @@ void Window::cleanQuit(){
     emit qApp->quit();
 }
 
-void Window::onNewJob(Job* newJob){
-    trayIconMenu->removeAction(noJobAction);
-    jobAction *newAction = new jobAction(this, newJob);
-    newAction->setDisabled(true);
-    jobActions->insert(newJob->getId(), newAction);
-    trayIconMenu->insertAction(settingsAction, newAction);
-    this->checkAllJobsStatus();
-}
-
-void Window::onJobUpdated(QString id){
-    jobActions->operator [](id)->update();
-    qDebug()<<"on jobupdate";
-    this->checkAllJobsStatus();
-}
-
-/* when a job is not active anymore:
- * remove corresponding object
- */
-void Window::onJobDeleted(QString id){
-    trayIconMenu->removeAction(jobActions->operator [](id));
-    jobActions->remove(id);
-    if(jobActions->isEmpty())
-    {
-        trayIconMenu->insertAction(settingsAction, noJobAction);
-    }
-    this->checkAllJobsStatus();
-}
-
-void Window::jobsCleared(){
-    if(!jobActions->empty()){
-        foreach(const QString &k, jobActions->keys()){
-            qDebug()<<k<<"deleted";
-            trayIconMenu->removeAction(jobActions->value(k));
-        }
-        jobActions->clear();
-        qDebug()<<"jobs cleared";
-    }
-}
-
-void Window::checkAllJobsStatus(){
-    if(!jobActions->empty()){
-        QList<jobAction*> jActions = jobActions->values();
-        globalRunningStatus = jActions[0]->getJob()->getStatus();
-        for(int i=0; i<jActions.size(); i++){
-            Job *j = jActions[i]->getJob();
-            globalRunningStatus = globalRunningStatus || j->getStatus();
-        }
-        if(globalRunningStatus){
-            resumePauseSyncAction->setText(tr("Pause sync"));
-            resumePauseSyncAction->disconnect();
-            connect(resumePauseSyncAction, SIGNAL(triggered()), httpManager, SLOT(pauseSync()));
-        }
-        else{
-            resumePauseSyncAction->setText(tr("Resume sync"));
-            resumePauseSyncAction->disconnect();
-            connect(resumePauseSyncAction, SIGNAL(triggered()), httpManager, SLOT(resumeSync()));
-        }
-    }
-}
-
-
-/* when python agent is reached :
- * clear the previous jobs in memory,
- * provides proper UI options
- */
 void Window::agentReached(){
-    qDebug()<<"agent reached";
-    this->jobsCleared();
-    trayIconMenu->removeAction(noAgentAction);
-    trayIconMenu->insertAction(settingsAction, noJobAction);
-    settingsAction->setDisabled(false);
+    tray->connectionMade();
     portConfigurer->updatePorts();
     httpManager->setUrl("http://127.0.0.1:" + portConfigurer->port("flask_api"));
-    trayIconMenu->insertAction(aboutAction, resumePauseSyncAction);
-    //trayIconMenu->insertAction(aboutAction, quitAgentAction);
 }
-
-/* when cannot reach the python agent :
- * clear jobs, provides proper UI options
- */
-void Window::connectionProblem(){
-    qDebug()<<"connection problem";
-    this->jobsCleared();
-    trayIconMenu->removeAction(noJobAction);
-    trayIconMenu->insertAction(settingsAction, noAgentAction);
-    settingsAction->setDisabled(true);
-    trayIconMenu->removeAction(resumePauseSyncAction);
-    //trayIconMenu->removeAction(quitAgentAction);
-}
-
 
 #endif
