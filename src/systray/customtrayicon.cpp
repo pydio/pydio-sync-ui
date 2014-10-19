@@ -15,6 +15,7 @@ CustomTrayIcon::CustomTrayIcon(QObject* parent) : QSystemTrayIcon(parent)
     singleJobRemote = new QAction("Open remote", this);
     singleJobRemote->setIcon(QIcon(":/images/world.png"));
     connect(singleJobRemote, SIGNAL(triggered()), this, SLOT(openSingleJobRemote()));
+    this->checkJobs();
 }
 
 void CustomTrayIcon::onNewJob(Job* job){
@@ -48,10 +49,8 @@ void CustomTrayIcon::insertNewJobMenu(Job* newJob){
 void CustomTrayIcon::onJobUpdate(QString id){
     //qDebug()<<"on jobupdate";
     if(singleJob == NULL){
-        qDebug()<<"update JobMenus";
         jobMenus->operator [](id)->update();
     } else {
-        qDebug()<<"update singleJob";
         singleJob->update();
     }
     this->checkJobs();
@@ -60,11 +59,9 @@ void CustomTrayIcon::onJobUpdate(QString id){
 void CustomTrayIcon::jobsCleared(){
     if(!jobMenus->empty()){
         foreach(const QString &k, jobMenus->keys()){
-            //qDebug()<<k<<"deleted";
             this->contextMenu()->removeAction(jobMenus->value(k)->menuAction());
         }
         jobMenus->clear();
-        //qDebug()<<"jobs cleared";
     }
     else if(singleJob != NULL){
         this->removeSingleJob();
@@ -74,8 +71,10 @@ void CustomTrayIcon::jobsCleared(){
 void CustomTrayIcon::onJobDeleted(QString id){
     if(singleJob)
     {
+        qDebug()<<"DELETE SINGLE JOB";
         this->removeSingleJob();
         this->contextMenu()->insertAction(settingsAction, noJobAction);
+        qDebug()<<"DELETED";
     }
     else if(jobMenus->size() == 2){
         this->contextMenu()->removeAction(jobMenus->value(id)->menuAction());
@@ -118,8 +117,14 @@ void CustomTrayIcon::checkJobs(){
             globalRunningStatus = globalRunningStatus || j->getStatus();
         }
     }
-    else{
+    else if(this->singleJob){
         globalRunningStatus = singleJob->getJob()->getStatus();
+    }
+    if(!this->singleJob && jobMenus->empty()){
+        resumePauseSyncAction->setDisabled(true);
+    }
+    else{
+        resumePauseSyncAction->setDisabled(false);
     }
     if(globalRunningStatus){
         resumePauseSyncAction->setText(tr("Pause sync"));
