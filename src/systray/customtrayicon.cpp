@@ -71,10 +71,8 @@ void CustomTrayIcon::jobsCleared(){
 void CustomTrayIcon::onJobDeleted(QString id){
     if(singleJob)
     {
-        qDebug()<<"DELETE SINGLE JOB";
         this->removeSingleJob();
         this->contextMenu()->insertAction(settingsAction, noJobAction);
-        qDebug()<<"DELETED";
     }
     else if(jobMenus->size() == 2){
         this->contextMenu()->removeAction(jobMenus->value(id)->menuAction());

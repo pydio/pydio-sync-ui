@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QUrl>
+#include <QDateTime>
 
 class Job : public QObject
 {

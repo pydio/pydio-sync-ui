@@ -70,7 +70,8 @@ QString Job::getJobDescription()
             desc = "idle (" + this->lastEventMessage + ")";
         }
         else{
-            desc = "syncing (" + QString::number(this->remainingTime, 'f', 1) + "s remaining)";
+            QString estimatedTime = QDateTime::fromTime_t(this->remainingTime).toUTC().toString("hh:mm:ss");
+            desc = "syncing (" + estimatedTime + " remaining)";
         }
     }
     else{

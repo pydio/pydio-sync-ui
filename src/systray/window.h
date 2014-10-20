@@ -52,7 +52,6 @@
 #include <QWebFrame>
 #include <QApplication>
 #include <QDesktopWidget>
-#include <QHash>
 #include <QMessageBox>
 #include <QStyleFactory>
 #include <jobaction.h>
