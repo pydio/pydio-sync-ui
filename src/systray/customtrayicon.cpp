@@ -2,6 +2,7 @@
 
 CustomTrayIcon::CustomTrayIcon(QObject* parent) : QSystemTrayIcon(parent)
 {
+    this->syncAgentUp = false;
     this->setIcon(QIcon(":/images/Pydio16.png"));
     this->createMainMenu();
     this->jobMenus = new QHash<QString, JobMenu*>();
@@ -19,6 +20,9 @@ CustomTrayIcon::CustomTrayIcon(QObject* parent) : QSystemTrayIcon(parent)
 }
 
 void CustomTrayIcon::onNewJob(Job* job){
+    if(!this->syncAgentUp){
+        this->connectionMade();
+    }
     //qDebug()<<"Should create job for "<<job->getName();
     if(jobMenus->empty() && singleJob == NULL){
         //qDebug()<<"SINGLE JOB";
@@ -137,19 +141,25 @@ void CustomTrayIcon::checkJobs(){
 }
 
 void CustomTrayIcon::connectionMade(){
-    this->jobsCleared();
-    this->contextMenu()->removeAction(noAgentAction);
-    this->contextMenu()->insertAction(settingsAction, noJobAction);
-    settingsAction->setDisabled(false);
-    this->contextMenu()->insertAction(aboutAction, resumePauseSyncAction);
+    if(!this->syncAgentUp){
+        this->syncAgentUp = true;
+        this->jobsCleared();
+        this->contextMenu()->removeAction(noAgentAction);
+        this->contextMenu()->insertAction(settingsAction, noJobAction);
+        settingsAction->setDisabled(false);
+        this->contextMenu()->insertAction(aboutAction, resumePauseSyncAction);
+    }
 }
 
 void CustomTrayIcon::connectionLost(){
-    this->jobsCleared();
-    this->contextMenu()->removeAction(noJobAction);
-    this->contextMenu()->insertAction(settingsAction, noAgentAction);
-    settingsAction->setDisabled(true);
-    this->contextMenu()->removeAction(resumePauseSyncAction);
+    if(this->syncAgentUp){
+        this->syncAgentUp = false;
+        this->jobsCleared();
+        this->contextMenu()->removeAction(noJobAction);
+        this->contextMenu()->insertAction(settingsAction, noAgentAction);
+        settingsAction->setDisabled(true);
+        this->contextMenu()->removeAction(resumePauseSyncAction);
+    }
 }
 
 void CustomTrayIcon::createMainMenu(){

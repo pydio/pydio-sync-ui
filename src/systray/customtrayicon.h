@@ -54,6 +54,7 @@ private:
     QAction *separatorAction;
 
     bool globalRunningStatus;
+    bool syncAgentUp;
 };
 
 #endif // CUSTOMTRAYICON_H
