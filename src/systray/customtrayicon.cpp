@@ -20,16 +20,14 @@ CustomTrayIcon::CustomTrayIcon(QObject* parent) : QSystemTrayIcon(parent)
 
 void CustomTrayIcon::onNewJob(Job* job){
     //qDebug()<<"Should create job for "<<job->getName();
-    if(jobMenus->size() == 0 && singleJob == NULL){
+    if(jobMenus->empty() && singleJob == NULL){
         //qDebug()<<"SINGLE JOB";
         this->contextMenu()->removeAction(noJobAction);
         this->insertSingleJob(job);
     }
     else if(jobMenus->size() == 0 && singleJob != NULL){
         //qDebug()<<"SHOULD DELETE SINGLEJOB AND CREATE MENUS";
-        JobMenu *newJobMenu = new JobMenu(0, singleJob->getJob());
-        jobMenus->insert(singleJob->getJob()->getId(), newJobMenu);
-        this->contextMenu()->insertMenu(settingsAction, newJobMenu);
+        this->insertNewJobMenu(singleJob->getJob());
         this->removeSingleJob();
         this->insertNewJobMenu(job);
     }
@@ -119,9 +117,11 @@ void CustomTrayIcon::checkJobs(){
         globalRunningStatus = singleJob->getJob()->getStatus();
     }
     if(!this->singleJob && jobMenus->empty()){
+        this->contextMenu()->insertAction(settingsAction,noJobAction);
         resumePauseSyncAction->setDisabled(true);
     }
     else{
+        this->contextMenu()->removeAction(noJobAction);
         resumePauseSyncAction->setDisabled(false);
     }
     if(globalRunningStatus){

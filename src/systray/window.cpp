@@ -141,8 +141,8 @@ void Window::cleanQuit(){
 
 void Window::agentReached(){
     tray->connectionMade();
-    portConfigurer->updatePorts();
-    httpManager->setUrl("http://127.0.0.1:" + portConfigurer->port("flask_api"));
+    //portConfigurer->updatePorts();
+    //httpManager->setUrl("http://127.0.0.1:" + portConfigurer->port("flask_api"));
 }
 
 #endif

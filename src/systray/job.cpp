@@ -70,12 +70,22 @@ QString Job::getJobDescription()
             desc = "idle (" + this->lastEventMessage + ")";
         }
         else{
-            QString estimatedTime = QDateTime::fromTime_t(this->remainingTime).toUTC().toString("hh:mm:ss");
-            desc = "syncing (" + estimatedTime + " remaining)";
+            desc = "syncing (" + this->remainingTimeToString() + " remaining)";
         }
     }
     else{
         desc = "Paused";
     }
     return desc;
+}
+
+QString Job::remainingTimeToString(){
+    QTime time = QDateTime::fromTime_t(this->remainingTime).toUTC().time();
+    if(time.hour() == 0){
+        if(time.minute() == 0){
+            return time.toString("ss's'");
+        }
+        return time.toString("mm'min':ss");
+    }
+    return time.toString("hh'h':mm:ss");
 }

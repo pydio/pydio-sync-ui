@@ -32,6 +32,8 @@ private:
     QUrl local;
     QUrl remote;
 
+    QString remainingTimeToString();
+
 };
 
 #endif // JOB_H
