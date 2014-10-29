@@ -34,7 +34,7 @@ public slots:
     void pollingFinished(QNetworkReply*);
     void resumeSync();
     void pauseSync();
-    //void terminateAgent();
+    void terminateAgent();
 
 private:
     QNetworkAccessManager *manager;

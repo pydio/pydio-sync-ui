@@ -13,10 +13,8 @@ public:
 
 public slots:
     QString getPath();
-    void openUrl(QUrl);
-
-signals:
-    void jsEvent();
+    void openUrl(QString);
+    //void openUrlSlot(QUrl);
 };
 
 #endif // JSEVENTHANDLER_H

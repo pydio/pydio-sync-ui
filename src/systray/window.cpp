@@ -49,7 +49,7 @@ Window::Window()
         httpManager->setUrl("http://127.0.0.1:" + portConfigurer->port("flask_api"));
         httpManager->poll();
 
-        this->setWindowFlags(Qt::Tool);
+        //this->setWindowFlags(Qt::Tool);
         setWindowTitle(tr("Pydio"));
     }
 }
@@ -69,7 +69,7 @@ void Window::show()
     QUrl syncUrl = QUrl("http://127.0.0.1:" + portConfigurer->port("flask_api"));
     settingsWebView->load(syncUrl);
     // allows to click link in the webview
-    connect(settingsWebView->page(), SIGNAL(linkClicked(QUrl)), jsDialog, SLOT(openUrl(QUrl)));
+    //connect(settingsWebView->page(), SIGNAL(linkClicked(QUrl)), jsDialog, SLOT(openUrlSlot(QUrl)));
     // link the javascript dialog of the ui to the system FileDialog
     settingsWebView->page()->currentFrame()->addToJavaScriptWindowObject("PydioQtFileDialog", jsDialog);
 
@@ -130,13 +130,21 @@ void Window::about(){
 
 // asks the user if python agent has to be stopped and quit
 void Window::cleanQuit(){
-    /*QMessageBox::StandardButton reply;
-    reply = QMessageBox::question(this, "Pydio UI", "Do you want to terminate the sync agent too ?",
-                                  QMessageBox::Yes|QMessageBox::No);
-    if (reply == QMessageBox::Yes) {
-        httpManager->terminateAgent();
-    }*/
-    emit qApp->quit();
+#ifdef Q_OS_WIN
+    httpManager->terminateAgent();
+#endif
+#ifdef Q_OS_MAC
+    QProcess process;
+    QString processName = "launchctl";
+    QStringList arguments = QStringList() << "remove"<< "PydioSync";
+    process.start(processName, arguments);
+    process.waitForStarted();
+    process.waitForFinished();
+    arguments = QStringList() << "remove"<< "PydioSyncUI";
+    process.start(processName, arguments);
+    process.waitForStarted();
+    process.waitForFinished();
+#endif
 }
 
 void Window::agentReached(){

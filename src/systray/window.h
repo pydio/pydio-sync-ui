@@ -56,6 +56,7 @@
 #include <QStyleFactory>
 #include <jobaction.h>
 #include <customtrayicon.h>
+#include <QProcess>
 
 #ifndef QT_NO_SYSTEMTRAYICON
 

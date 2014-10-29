@@ -127,3 +127,7 @@ void HTTPManager::resumeSync(){
 void HTTPManager::pauseSync(){
     manager->get(QNetworkRequest(QUrl(this->serverUrl + "/cmd/pause-all")));
 }
+
+void HTTPManager::terminateAgent(){
+    manager->get(QNetworkRequest(QUrl(this->serverUrl + "/cmd/exit")));
+}
