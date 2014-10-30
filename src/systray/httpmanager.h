@@ -37,6 +37,7 @@ public slots:
     void terminateAgent();
 
 private:
+    bool debugMode;
     QNetworkAccessManager *manager;
     QString serverUrl;
     QHash<QString, Job*> *jobs;
@@ -44,6 +45,7 @@ private:
     int failed_attempts;
     bool launch;
     void checkNoJobAtLaunch();
+    void debug(QString);
 
 
 };

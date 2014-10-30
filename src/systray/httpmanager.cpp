@@ -3,6 +3,7 @@
 HTTPManager::HTTPManager(QObject *parent) :
     QObject(parent)
 {
+    debugMode = true;
     manager = new QNetworkAccessManager(parent);
     connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(pollingFinished(QNetworkReply*)));
     serverUrl = "";
@@ -13,7 +14,7 @@ HTTPManager::HTTPManager(QObject *parent) :
 
 void HTTPManager::setUrl(QString servUrl)
 {
-    qDebug()<<"Server is"<<servUrl;
+    debug("Server is " + servUrl);
     this->serverUrl = servUrl;
     failed_attempts = -1;
     jobs->clear();
@@ -33,6 +34,7 @@ void HTTPManager::pollingFinished(QNetworkReply* reply)
         // this non-case is for when we terminate the python agent
         if(strReply != "\"success\""){
             if(failed_attempts != 0){
+                debug("-----------------------CONNECTION MADE-----------------------");
                 emit agentReached();
                 failed_attempts = 0;
             }
@@ -103,9 +105,12 @@ void HTTPManager::pollingFinished(QNetworkReply* reply)
         }
     }
     else{
-        qDebug() << "HTTP Poller Reply failure :" <<reply->errorString();
+        if(failed_attempts < MAX_CONNECTION_ATTEMPTS)
+            debug("HTTP Poller Reply : " + reply->errorString());
         ++failed_attempts;
         if(failed_attempts == MAX_CONNECTION_ATTEMPTS){
+            debug("-----------------------MAX CONNECTION ATTEMPTS REACHED, CLEARING JOBS-----------------------");
+            this->jobs->clear();
             emit connectionProblem();
         }
     }
@@ -130,4 +135,9 @@ void HTTPManager::pauseSync(){
 
 void HTTPManager::terminateAgent(){
     manager->get(QNetworkRequest(QUrl(this->serverUrl + "/cmd/exit")));
+}
+
+void HTTPManager::debug(QString s){
+    if(this->debugMode)
+        qDebug()<<"  -- HTTPMANAGER --   :    "<<s;
 }

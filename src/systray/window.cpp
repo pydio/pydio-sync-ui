@@ -145,6 +145,7 @@ void Window::cleanQuit(){
     process.waitForStarted();
     process.waitForFinished();
 #endif
+    emit qApp->quit();
 }
 
 void Window::agentReached(){

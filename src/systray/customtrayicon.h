@@ -30,6 +30,7 @@ public slots:
     void onJobUpdate(QString id);
     void openSingleJobLocal();
     void openSingleJobRemote();
+    void launchAgent();
 
 private:
     void createMainMenu();
@@ -38,6 +39,7 @@ private:
     void insertNewJobMenu(Job*);
     void removeSingleJob();
     void insertSingleJob(Job *job);
+    void debug(QString);
 
     QMenu *mainMenu;
     QHash<QString, JobMenu*> *jobMenus;
@@ -55,6 +57,7 @@ private:
 
     bool globalRunningStatus;
     bool syncAgentUp;
+    bool debugMode;
 };
 
 #endif // CUSTOMTRAYICON_H

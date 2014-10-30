@@ -14,7 +14,7 @@ QString JSEventHandler::getPath()
 
 void JSEventHandler::openUrl(QString toOpen)
 {
-    QDesktopServices::openUrl(QUrl(toOpen));
+    QDesktopServices::openUrl(QUrl::fromLocalFile(toOpen));
 }
 
 /*void JSEventHandler::openUrlSlot(QUrl toOpen){

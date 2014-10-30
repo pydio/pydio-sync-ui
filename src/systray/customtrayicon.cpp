@@ -2,6 +2,7 @@
 
 CustomTrayIcon::CustomTrayIcon(QObject* parent) : QSystemTrayIcon(parent)
 {
+    this->debugMode = true;
     this->syncAgentUp = false;
     this->setIcon(QIcon(":/images/Pydio16.png"));
     this->createMainMenu();
@@ -20,17 +21,16 @@ CustomTrayIcon::CustomTrayIcon(QObject* parent) : QSystemTrayIcon(parent)
 }
 
 void CustomTrayIcon::onNewJob(Job* job){
+    debug("Should create job for" + job->getName());
     if(!this->syncAgentUp){
         this->connectionMade();
     }
-    //qDebug()<<"Should create job for "<<job->getName();
     if(jobMenus->empty() && singleJob == NULL){
-        //qDebug()<<"SINGLE JOB";
         this->contextMenu()->removeAction(noJobAction);
         this->insertSingleJob(job);
     }
     else if(jobMenus->size() == 0 && singleJob != NULL){
-        //qDebug()<<"SHOULD DELETE SINGLEJOB AND CREATE MENUS";
+        debug("SHOULD DELETE SINGLEJOB AND CREATE MENUS");
         this->insertNewJobMenu(singleJob->getJob());
         this->removeSingleJob();
         this->insertNewJobMenu(job);
@@ -42,14 +42,14 @@ void CustomTrayIcon::onNewJob(Job* job){
 }
 
 void CustomTrayIcon::insertNewJobMenu(Job* newJob){
-    //qDebug()<<"inserting new job";
+    //debug("inserting new job");
     JobMenu *newJobMenu = new JobMenu(0, newJob);
     jobMenus->insert(newJob->getId(), newJobMenu);
     this->contextMenu()->insertMenu(settingsAction, newJobMenu);
 }
 
 void CustomTrayIcon::onJobUpdate(QString id){
-    //qDebug()<<"on jobupdate";
+    debug("SHOULD UPDATE : " + id);
     if(singleJob == NULL){
         jobMenus->operator [](id)->update();
     } else {
@@ -68,9 +68,11 @@ void CustomTrayIcon::jobsCleared(){
     else if(singleJob != NULL){
         this->removeSingleJob();
     }
+    debug("JOBS ARE CLEARED");
 }
 
 void CustomTrayIcon::onJobDeleted(QString id){
+    debug("SHOULD DELETE JOB : " + id);
     if(singleJob)
     {
         this->removeSingleJob();
@@ -142,6 +144,8 @@ void CustomTrayIcon::checkJobs(){
 
 void CustomTrayIcon::connectionMade(){
     if(!this->syncAgentUp){
+        debug("SINGLE JOB IS " + (singleJob ? singleJob->getJob()->getName() : "NULL"));
+        debug("NUMBER OF JOBS : " +  QString::number(this->jobMenus->size()));
         this->syncAgentUp = true;
         this->jobsCleared();
         this->contextMenu()->removeAction(noAgentAction);
@@ -159,6 +163,8 @@ void CustomTrayIcon::connectionLost(){
         this->contextMenu()->insertAction(settingsAction, noAgentAction);
         settingsAction->setDisabled(true);
         this->contextMenu()->removeAction(resumePauseSyncAction);
+        debug("SINGLE JOB IS " + (singleJob ? singleJob->getJob()->getName() : "NULL"));
+        debug("NUMBER OF JOBS : " +  QString::number(this->jobMenus->size()));
     }
 }
 
@@ -182,8 +188,13 @@ void CustomTrayIcon::createActions(){
     noJobAction = new QAction(tr("No active job"), this);
     noJobAction->setDisabled(true);
 
+#ifdef Q_OS_WIN
+    noAgentAction = new QAction(tr("Launch agent"), this);
+    connect(noAgentAction, SIGNAL(triggered()), this, SLOT(launchAgent()));
+#else
     noAgentAction = new QAction(tr("No active agent"), this);
     noAgentAction->setDisabled(true);
+#endif
 
     resumePauseSyncAction = new QAction(tr("Pause sync"), this);
     connect(resumePauseSyncAction, SIGNAL(triggered()), this, SIGNAL(pauseSync()));
@@ -201,4 +212,13 @@ void CustomTrayIcon::openSingleJobLocal(){
 
 void CustomTrayIcon::openSingleJobRemote(){
     QDesktopServices::openUrl(this->singleJob->getJob()->getRemote());
+}
+
+void CustomTrayIcon::launchAgent(){
+//TODO
+}
+
+void CustomTrayIcon::debug(QString s){
+    if(this->debugMode)
+        qDebug()<<"  -- JOBSMANAGER --   :    "<<s;
 }
