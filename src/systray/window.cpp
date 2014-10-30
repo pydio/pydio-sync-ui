@@ -132,6 +132,11 @@ void Window::about(){
 void Window::cleanQuit(){
 #ifdef Q_OS_WIN
     httpManager->terminateAgent();
+    QTimer *t = new QTimer(this);
+    connect(t, SIGNAL(timeout()), qApp, SLOT(quit()));
+    t->setInterval(3000);
+    t->setSingleShot(true);
+    t->start();
 #endif
 #ifdef Q_OS_MAC
     QProcess process;
@@ -144,8 +149,8 @@ void Window::cleanQuit(){
     process.start(processName, arguments);
     process.waitForStarted();
     process.waitForFinished();
-#endif
     emit qApp->quit();
+#endif
 }
 
 void Window::agentReached(){

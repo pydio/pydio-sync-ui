@@ -215,7 +215,8 @@ void CustomTrayIcon::openSingleJobRemote(){
 }
 
 void CustomTrayIcon::launchAgent(){
-//TODO
+    QString processName = "C:\\Program Files (x86)\\PydioSync\\bin\\pydio-sync-agent-win-latest.exe";
+    QProcess::startDetached(processName, QStringList());
 }
 
 void CustomTrayIcon::debug(QString s){

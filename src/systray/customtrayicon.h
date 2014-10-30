@@ -8,6 +8,7 @@
 #include <jobmenu.h>
 #include <jobaction.h>
 #include <QDebug>
+#include <QProcess>
 
 class CustomTrayIcon : public QSystemTrayIcon
 {
