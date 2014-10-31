@@ -17,7 +17,8 @@ Window::Window()
         this->pathToWinAgent = parser.value((pathToWinAgent));
     }
     else{
-        this->pathToWinAgent = "C:\\Program Files (x86)\\PydioSync\\bin\\pydio-sync-agent-win-latest.exe";
+        this->pathToWinAgent = QDir::currentPath() + "pydio-sync-agent-win-latest.exe";
+        qDebug()<<this->pathToWinAgent;
     }
 
     if(parser.isSet(dumbTestOption)){
@@ -109,7 +110,7 @@ void Window::closeEvent(QCloseEvent *e)
 
 void Window::createTrayIcon()
 {
-    tray = new CustomTrayIcon(this);
+    tray = new CustomTrayIcon(this, this->pathToWinAgent);
     setWindowIcon(tray->icon());
     connect(tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
             this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
