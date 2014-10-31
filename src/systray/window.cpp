@@ -5,11 +5,20 @@
 Window::Window()
 {
     QCommandLineParser parser;
+    QCommandLineOption pathToWinAgent("p", "Path to sync agent", "agentPath");
+    parser.addOption(pathToWinAgent);
     QCommandLineOption dumbTestOption("test", "Toggle dumb test.");
     parser.addOption(dumbTestOption);
     QCommandLineOption pathArgument("f", "Path to config file.", "filePath");
     parser.addOption(pathArgument);
     parser.process(*qApp);
+
+    if(parser.isSet((pathToWinAgent))){
+        this->pathToWinAgent = parser.value((pathToWinAgent));
+    }
+    else{
+        this->pathToWinAgent = "C:\\Program Files (x86)\\PydioSync\\bin\\pydio-sync-agent-win-latest.exe";
+    }
 
     if(parser.isSet(dumbTestOption)){
         QTimer *t = new QTimer(this);

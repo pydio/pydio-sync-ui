@@ -14,7 +14,7 @@ class CustomTrayIcon : public QSystemTrayIcon
 {
     Q_OBJECT
 public:
-    explicit CustomTrayIcon(QObject *parent = 0);
+    explicit CustomTrayIcon(QObject *parent = 0, QString pathToWinAgent=0);
 
 signals:
     void pauseSync();
@@ -59,6 +59,7 @@ private:
     bool globalRunningStatus;
     bool syncAgentUp;
     bool debugMode;
+    QString pathToWinAgent;
 };
 
 #endif // CUSTOMTRAYICON_H

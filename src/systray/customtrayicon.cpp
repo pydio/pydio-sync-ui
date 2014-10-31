@@ -1,8 +1,9 @@
 #include "customtrayicon.h"
 
-CustomTrayIcon::CustomTrayIcon(QObject* parent) : QSystemTrayIcon(parent)
+CustomTrayIcon::CustomTrayIcon(QObject* parent, QString pathToWinAgent) : QSystemTrayIcon(parent)
 {
     this->debugMode = true;
+    this->pathToWinAgent = pathToWinAgent;
     this->syncAgentUp = false;
     this->setIcon(QIcon(":/images/Pydio16.png"));
     this->createMainMenu();
@@ -215,8 +216,7 @@ void CustomTrayIcon::openSingleJobRemote(){
 }
 
 void CustomTrayIcon::launchAgent(){
-    QString processName = "C:\\Program Files (x86)\\PydioSync\\bin\\pydio-sync-agent-win-latest.exe";
-    QProcess::startDetached(processName, QStringList());
+    QProcess::startDetached(this->pathToWinAgent, QStringList());
 }
 
 void CustomTrayIcon::debug(QString s){

@@ -97,6 +97,8 @@ private:
 
     PortConfigurer *portConfigurer;
     JSEventHandler *jsDialog;
+
+    QString pathToWinAgent;
 };
 
 #endif // QT_NO_SYSTEMTRAYICON
