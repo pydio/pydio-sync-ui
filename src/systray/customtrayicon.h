@@ -25,7 +25,7 @@ signals:
 public slots:
     void connectionMade();
     void connectionLost();
-    void jobsCleared();
+    void jobsCleared(QString reason="UNKNOWN REASON");
     void onNewJob(Job *newJob);
     void onJobDeleted(QString id);
     void onJobUpdate(QString id);

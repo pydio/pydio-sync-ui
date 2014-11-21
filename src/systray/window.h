@@ -73,7 +73,7 @@ class Window : public QMainWindow
 
 public:
     Window();
-protected:
+protected slots:
     void closeEvent(QCloseEvent *);
 
 private slots:
@@ -83,6 +83,7 @@ private slots:
     void cleanQuit();
     void agentReached();
     void createTrayIcon();
+    void notFoundFromPython();
 
 private:
     QWebView *settingsWebView;

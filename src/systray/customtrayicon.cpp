@@ -59,7 +59,7 @@ void CustomTrayIcon::onJobUpdate(QString id){
     this->checkJobs();
 }
 
-void CustomTrayIcon::jobsCleared(){
+void CustomTrayIcon::jobsCleared(QString reason){
     if(!jobMenus->empty()){
         foreach(const QString &k, jobMenus->keys()){
             this->contextMenu()->removeAction(jobMenus->value(k)->menuAction());
@@ -69,7 +69,7 @@ void CustomTrayIcon::jobsCleared(){
     else if(singleJob != NULL){
         this->removeSingleJob();
     }
-    debug("JOBS ARE CLEARED");
+    debug("JOBS ARE CLEARED, REASON : " + reason);
 }
 
 void CustomTrayIcon::onJobDeleted(QString id){
@@ -148,7 +148,7 @@ void CustomTrayIcon::connectionMade(){
         debug("SINGLE JOB IS " + (singleJob ? singleJob->getJob()->getName() : "NULL"));
         debug("NUMBER OF JOBS : " +  QString::number(this->jobMenus->size()));
         this->syncAgentUp = true;
-        this->jobsCleared();
+        this->jobsCleared("Connection Made");
         this->contextMenu()->removeAction(noAgentAction);
         this->contextMenu()->insertAction(settingsAction, noJobAction);
         settingsAction->setDisabled(false);
@@ -159,7 +159,7 @@ void CustomTrayIcon::connectionMade(){
 void CustomTrayIcon::connectionLost(){
     if(this->syncAgentUp){
         this->syncAgentUp = false;
-        this->jobsCleared();
+        this->jobsCleared("CONNECTION LOST");
         this->contextMenu()->removeAction(noJobAction);
         this->contextMenu()->insertAction(settingsAction, noAgentAction);
         settingsAction->setDisabled(true);

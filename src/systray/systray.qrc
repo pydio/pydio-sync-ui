@@ -2,7 +2,7 @@
     <qresource prefix="/">
         <file>images/Icon-16.png</file>
         <file>images/Pydio16.png</file>
-        <file>webkit-sources/test.html</file>
+        <file>webkit-sources/reload_python.html</file>
         <file>images/folder.png</file>
         <file>images/refresh.png</file>
         <file>images/world.png</file>

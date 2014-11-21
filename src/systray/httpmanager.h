@@ -18,6 +18,7 @@ class HTTPManager : public QObject
 public:
     explicit HTTPManager(QObject *parent = 0);
     void setUrl(QString);
+    void testWebView();
 
 signals:
    void requestFinished();
@@ -28,6 +29,7 @@ signals:
    void agentReached();
    void noActiveJobsAtLaunch();
    void jobsCleared();
+   void webUI404();
 
 public slots:
     void poll();

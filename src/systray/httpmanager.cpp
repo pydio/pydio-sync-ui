@@ -42,67 +42,73 @@ void HTTPManager::pollingFinished(QNetworkReply* reply)
             QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
             QJsonArray jsonJobs = jsonResponse.array();
 
-            if(jsonJobs.count()==0){
-                this->checkNoJobAtLaunch();
-                if(!jobs->empty()){
-                    this->jobs->clear();
+            if(!jsonResponse.isEmpty()){
+                if(jsonJobs.count()==0){
+                    this->checkNoJobAtLaunch();
+                    if(!jobs->empty()){
+                        this->jobs->clear();
+                    }
+                    this->debug("JSON JOBS EMPTY");
+                    emit this->jobsCleared();
                 }
-                emit this->jobsCleared();
-            }
-            else{
-                foreach(QString id, jobs->keys()){
-                    bool present = false;
+                else{
+                    foreach(QString id, jobs->keys()){
+                        bool present = false;
+                        foreach(QJsonValue jsonJob, jsonJobs){
+                            QJsonObject job = jsonJob.toObject();
+                            QString jobId = job["id"].toString();
+                            if(jobId == id){
+                                present = true;
+                            }
+                        }
+                        if(present == false){
+                            this->jobs->remove(id);
+                            emit jobDeleted(id);
+                        }
+                    }
+
                     foreach(QJsonValue jsonJob, jsonJobs){
                         QJsonObject job = jsonJob.toObject();
                         QString jobId = job["id"].toString();
-                        if(jobId == id){
-                            present = true;
+                        QString label = job["label"].toString();
+                        QString lastEventMessage = job["last_event"].toObject().operator []("message").toString();
+                        QString local = job["directory"].toString();
+                        QString remote = job["server"].toString();
+                        bool running = job["running"].toBool();
+                        int queue_length = job["state"].toObject().operator []("global").toObject().operator[]("queue_length").toInt();
+                        double eta = -1;
+                        // if job has pending tasks we update it
+                        if(queue_length > 0){
+                            eta = job["state"].toObject().operator []("global").toObject().operator[]("eta").toDouble();
                         }
-                    }
-                    if(present == false){
-                        this->jobs->remove(id);
-                        emit jobDeleted(id);
-                    }
-                }
 
-                foreach(QJsonValue jsonJob, jsonJobs){
-                    QJsonObject job = jsonJob.toObject();
-                    QString jobId = job["id"].toString();
-                    QString label = job["label"].toString();
-                    QString lastEventMessage = job["last_event"].toObject().operator []("message").toString();
-                    QString local = job["directory"].toString();
-                    QString remote = job["server"].toString();
-                    bool running = job["running"].toBool();
-                    int queue_length = job["state"].toObject().operator []("global").toObject().operator[]("queue_length").toInt();
-                    double eta = -1;
-                    // if job has pending tasks we update it
-                    if(queue_length > 0){
-                        eta = job["state"].toObject().operator []("global").toObject().operator[]("eta").toDouble();
-                    }
-
-                    // if jobs doesn't exist here, we create it
-                    if(!this->jobs->contains(jobId)){
-                        if(job["active"].toBool()){
-                            // create a new active job, add it and notify the main class
-                            Job *newJob = new Job(jobId, label, running, eta, lastEventMessage, local, remote);
-                            connect(newJob, SIGNAL(updated(QString)), this, SIGNAL(jobUpdated(QString)));
-                            this->jobs->insert(jobId, newJob);
-                            emit this->newJob(newJob);
+                        // if jobs doesn't exist here, we create it
+                        if(!this->jobs->contains(jobId)){
+                            if(job["active"].toBool()){
+                                // create a new active job, add it and notify the main class
+                                Job *newJob = new Job(jobId, label, running, eta, lastEventMessage, local, remote);
+                                connect(newJob, SIGNAL(updated(QString)), this, SIGNAL(jobUpdated(QString)));
+                                this->jobs->insert(jobId, newJob);
+                                emit this->newJob(newJob);
+                            }
                         }
-                    }
-                    // if job exists and is active, we update it, otherwise we delete it
-                    else{
-                        if(!job["active"].toBool()){
-                            this->jobs->remove(jobId);
-                            emit jobDeleted(jobId);
-                        }
+                        // if job exists and is active, we update it, otherwise we delete it
                         else{
-                            jobs->value(jobId)->update(label, running, eta, lastEventMessage);
+                            if(!job["active"].toBool()){
+                                this->jobs->remove(jobId);
+                                emit jobDeleted(jobId);
+                            }
+                            else{
+                                jobs->value(jobId)->update(label, running, eta, lastEventMessage);
+                            }
                         }
                     }
                 }
             }
         }
+    }
+    else if(reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 404){
+        emit webUI404();
     }
     else{
         if(failed_attempts < MAX_CONNECTION_ATTEMPTS)
@@ -123,6 +129,10 @@ void HTTPManager::checkNoJobAtLaunch(){
         launch = false;
         emit noActiveJobsAtLaunch();
     }
+}
+
+void HTTPManager::testWebView(){
+    manager->get(QNetworkRequest(QUrl(this->serverUrl + "/res/index.html")));
 }
 
 void HTTPManager::resumeSync(){

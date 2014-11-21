@@ -57,6 +57,15 @@ int main(int argc, char *argv[])
                                           "on this system."));
         return 1;
     }
+    QTranslator qtTranslator;
+    qtTranslator.load("qt_" + QLocale::system().name(),
+                      QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+    app.installTranslator(&qtTranslator);
+
+    QTranslator myappTranslator;
+    myappTranslator.load("myapp_" + QLocale::system().name());
+    app.installTranslator(&myappTranslator);
+
     QApplication::setQuitOnLastWindowClosed(false);
 
     Window window;

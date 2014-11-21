@@ -49,6 +49,7 @@ Window::Window()
         connect(httpManager, SIGNAL(agentReached()), this, SLOT(agentReached()));
         connect(httpManager, SIGNAL(noActiveJobsAtLaunch()), this, SLOT(show()));
         connect(httpManager, SIGNAL(jobsCleared()), tray, SLOT(jobsCleared()));
+        connect(httpManager, SIGNAL(webUI404()), this, SLOT(notFoundFromPython()));
         connect(tray, SIGNAL(pauseSync()), httpManager, SLOT(pauseSync()));
         connect(tray, SIGNAL(resumeSync()), httpManager, SLOT(resumeSync()));
         connect(tray, SIGNAL(quit()), this, SLOT(cleanQuit()));
@@ -77,14 +78,15 @@ void Window::show()
 #endif
 
     QUrl syncUrl = QUrl("http://127.0.0.1:" + portConfigurer->port("flask_api"));
+
+    httpManager->testWebView();
     settingsWebView->load(syncUrl);
-    // allows to click link in the webview
-    //connect(settingsWebView->page(), SIGNAL(linkClicked(QUrl)), jsDialog, SLOT(openUrlSlot(QUrl)));
+
     // link the javascript dialog of the ui to the system FileDialog
     settingsWebView->page()->currentFrame()->addToJavaScriptWindowObject("PydioQtFileDialog", jsDialog);
 
     if(QApplication::desktop()->height() < 800){
-        this->resize(480, QApplication::desktop()->height() - 100);
+        this->resize(480, QApplication::desktop()->height() - 105);
     }
     else{
         this->resize(480, 730);
@@ -97,7 +99,9 @@ void Window::show()
     else{
         this->move(this->tray->geometry().center().x() - this->width()/2, QApplication::desktop()->height() - 80 - this->height());
     }
-    this->QWidget::show();
+
+    this->raise();
+    this->showNormal();
 }
 
 void Window::closeEvent(QCloseEvent *e)
@@ -142,6 +146,7 @@ void Window::about(){
 void Window::cleanQuit(){
 #ifdef Q_OS_WIN
     httpManager->terminateAgent();
+    //wait for agent to terminate
     QTimer *t = new QTimer(this);
     connect(t, SIGNAL(timeout()), qApp, SLOT(quit()));
     t->setInterval(3000);
@@ -167,6 +172,28 @@ void Window::agentReached(){
     tray->connectionMade();
     //portConfigurer->updatePorts();
     //httpManager->setUrl("http://127.0.0.1:" + portConfigurer->port("flask_api"));
+}
+
+void Window::notFoundFromPython(){
+#ifdef Q_OS_MAC
+    qDebug()<<"WILL LOAD PYTHON";
+    settingsWebView->load(QUrl("qrc:/webkit-sources/reload_python.html"));
+    QProcess process;
+    QString processName = "launchctl";
+    QStringList arguments = QStringList() << "remove"<< "PydioSync";
+    process.start(processName, arguments);
+    process.waitForStarted();
+    process.waitForFinished();
+    arguments = QStringList()<<"load"<<"-w"<<"/library/LaunchAgents/io.pyd.sync.launcher.plist";
+    process.start(processName, arguments);
+    process.waitForStarted();
+    process.waitForFinished();
+    QTimer *t = new QTimer(this);
+    connect(t, SIGNAL(timeout()), this, SLOT(show()));
+    t->setInterval(5000);
+    t->setSingleShot(true);
+    t->start();
+#endif
 }
 
 #endif
