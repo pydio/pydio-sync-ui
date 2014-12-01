@@ -137,7 +137,7 @@ void Window::iconActivated(QSystemTrayIcon::ActivationReason reason)
 void Window::about(){
     QMessageBox  msgBox(this);
     msgBox.setWindowTitle("About Pydio UI");
-    msgBox.setTextFormat(Qt::RichText);   //this is what makes the links clickable
+    msgBox.setTextFormat(Qt::RichText);
     msgBox.setText("Pydio Desktop Sync<br>v0.9 alpha<br>Learn more :<a href=http://liftoff.pydio.com>http://liftoff.pydio.com</a>");
     msgBox.exec();
 }

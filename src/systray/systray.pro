@@ -28,6 +28,8 @@ SOURCES       = main.cpp \
 
 RESOURCES     = systray.qrc
 
+TRANSLATIONS += languages/pydioUI_fr_FR.ts
+
 # install
  target.path = ./
  INSTALLS += target

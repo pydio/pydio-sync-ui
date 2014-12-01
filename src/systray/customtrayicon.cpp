@@ -12,10 +12,10 @@ CustomTrayIcon::CustomTrayIcon(QObject* parent, QString pathToWinAgent) : QSyste
     this->singleJob = NULL;
     separatorAction = new QAction(this);
     separatorAction->setSeparator(true);
-    singleJobLocal = new QAction("Open local folder", this);
+    singleJobLocal = new QAction(tr("Open local folder"), this);
     singleJobLocal->setIcon(QIcon(":/images/folder.png"));
     connect(singleJobLocal, SIGNAL(triggered()), this, SLOT(openSingleJobLocal()));
-    singleJobRemote = new QAction("Open remote", this);
+    singleJobRemote = new QAction(tr("Open remote"), this);
     singleJobRemote->setIcon(QIcon(":/images/world.png"));
     connect(singleJobRemote, SIGNAL(triggered()), this, SLOT(openSingleJobRemote()));
     this->checkJobs();
