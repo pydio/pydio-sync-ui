@@ -14,7 +14,8 @@ HEADERS      += window.h \
     httpmanager.h \
     jobaction.h \
     customtrayicon.h \
-    jobmenu.h
+    jobmenu.h \
+    cmdhelper.h
 SOURCES       = main.cpp \
                 window.cpp \
                 queuemenu.cpp \
@@ -24,7 +25,8 @@ SOURCES       = main.cpp \
     httpmanager.cpp \
     jobaction.cpp \
     customtrayicon.cpp \
-    jobmenu.cpp
+    jobmenu.cpp \
+    cmdhelper.cpp
 
 RESOURCES     = systray.qrc
 

@@ -44,19 +44,20 @@
 #include <QMainWindow>
 #include <QSystemTrayIcon>
 #include <QtWebKit>
-#include <queuemenu.h>
-#include <portconfigurer.h>
 #include <QWebView>
-#include <JSEventHandler.h>
-#include <httpmanager.h>
 #include <QWebFrame>
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QMessageBox>
 #include <QStyleFactory>
+
+#include <queuemenu.h>
+#include <portconfigurer.h>
+#include <JSEventHandler.h>
+#include <httpmanager.h>
 #include <jobaction.h>
 #include <customtrayicon.h>
-#include <QProcess>
+#include <cmdhelper.h>
 
 #ifndef QT_NO_SYSTEMTRAYICON
 
@@ -95,9 +96,14 @@ private:
     HTTPManager *httpManager;
     QTimer *pollTimer;
 
+    const int POLL_TIME_AFTER_404 = 5000;
+    const int POLL_INTERVAL = 2000;
+    const QString AGENT_SERVER_URL = "http://127.0.0.1:";
+    const QString AGENT_FILE_NAME_WIN = "pydio-sync-agent-win-latest.exe";
 
     PortConfigurer *portConfigurer;
     JSEventHandler *jsDialog;
+    CmdHelper *cmdHelper;
 
     QString pathToWinAgent;
 };

@@ -5,19 +5,19 @@
 Window::Window()
 {
     QCommandLineParser parser;
-    QCommandLineOption pathToWinAgent("p", "Path to sync agent", "agentPath");
-    parser.addOption(pathToWinAgent);
+    QCommandLineOption pathToWinAgentOption("p", "Path to sync agent", "agentPath");
+    parser.addOption(pathToWinAgentOption);
     QCommandLineOption dumbTestOption("test", "Toggle dumb test.");
     parser.addOption(dumbTestOption);
     QCommandLineOption pathArgument("f", "Path to config file.", "filePath");
     parser.addOption(pathArgument);
     parser.process(*qApp);
 
-    if(parser.isSet((pathToWinAgent))){
-        this->pathToWinAgent = parser.value((pathToWinAgent));
+    if(parser.isSet((pathToWinAgentOption))){
+        this->pathToWinAgent = parser.value((pathToWinAgentOption));
     }
     else{
-        this->pathToWinAgent = QDir::currentPath() + "pydio-sync-agent-win-latest.exe";
+        this->pathToWinAgent = QDir::currentPath() + AGENT_FILE_NAME_WIN;
         qDebug()<<this->pathToWinAgent;
     }
 
@@ -33,11 +33,12 @@ Window::Window()
         portConfigurer = new PortConfigurer(parser.value(pathArgument));
 
         pollTimer = new QTimer(this);
-        pollTimer->setInterval(2000);
+        pollTimer->setInterval(POLL_INTERVAL);
         pollTimer->setSingleShot(true);
 
         httpManager = new HTTPManager(this);
         this->createTrayIcon();
+        cmdHelper = new CmdHelper(this, pathToWinAgent);
         tray->show();
 
         connect(pollTimer, SIGNAL(timeout()), httpManager, SLOT(poll()));
@@ -53,11 +54,12 @@ Window::Window()
         connect(tray, SIGNAL(pauseSync()), httpManager, SLOT(pauseSync()));
         connect(tray, SIGNAL(resumeSync()), httpManager, SLOT(resumeSync()));
         connect(tray, SIGNAL(quit()), this, SLOT(cleanQuit()));
+        connect(tray, SIGNAL(launchAgentSignal()), cmdHelper, SLOT(launchAgentWin()));
 
         jsDialog = new JSEventHandler(this);
 
         portConfigurer->updatePorts();
-        httpManager->setUrl("http://127.0.0.1:" + portConfigurer->port("flask_api"));
+        httpManager->setUrl(AGENT_SERVER_URL + portConfigurer->port("flask_api"));
         httpManager->poll();
 
         //this->setWindowFlags(Qt::Tool);
@@ -77,7 +79,7 @@ void Window::show()
     settingsWebView->setStyle(QStyleFactory::create("windows"));
 #endif
 
-    QUrl syncUrl = QUrl("http://127.0.0.1:" + portConfigurer->port("flask_api"));
+    QUrl syncUrl = QUrl(AGENT_SERVER_URL + portConfigurer->port("flask_api"));
 
     httpManager->testWebView();
     settingsWebView->load(syncUrl);
@@ -114,7 +116,7 @@ void Window::closeEvent(QCloseEvent *e)
 
 void Window::createTrayIcon()
 {
-    tray = new CustomTrayIcon(this, this->pathToWinAgent);
+    tray = new CustomTrayIcon(this);
     setWindowIcon(tray->icon());
     connect(tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
             this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
@@ -154,16 +156,7 @@ void Window::cleanQuit(){
     t->start();
 #endif
 #ifdef Q_OS_MAC
-    QProcess process;
-    QString processName = "launchctl";
-    QStringList arguments = QStringList() << "remove"<< "PydioSync";
-    process.start(processName, arguments);
-    process.waitForStarted();
-    process.waitForFinished();
-    arguments = QStringList() << "remove"<< "PydioSyncUI";
-    process.start(processName, arguments);
-    process.waitForStarted();
-    process.waitForFinished();
+    cmdHelper->stopAgentMac();
     emit qApp->quit();
 #endif
 }
@@ -171,26 +164,18 @@ void Window::cleanQuit(){
 void Window::agentReached(){
     tray->connectionMade();
     //portConfigurer->updatePorts();
-    //httpManager->setUrl("http://127.0.0.1:" + portConfigurer->port("flask_api"));
+    //httpManager->setUrl(AGENT_SERVER_URL + portConfigurer->port("flask_api"));
 }
 
 void Window::notFoundFromPython(){
 #ifdef Q_OS_MAC
     qDebug()<<"WILL LOAD PYTHON";
     settingsWebView->load(QUrl("qrc:/webkit-sources/reload_python.html"));
-    QProcess process;
-    QString processName = "launchctl";
-    QStringList arguments = QStringList() << "remove"<< "PydioSync";
-    process.start(processName, arguments);
-    process.waitForStarted();
-    process.waitForFinished();
-    arguments = QStringList()<<"load"<<"-w"<<"/library/LaunchAgents/io.pyd.sync.launcher.plist";
-    process.start(processName, arguments);
-    process.waitForStarted();
-    process.waitForFinished();
+    cmdHelper->launchAgentMac();
+    // will retry loading ui from agent in 5 seconds
     QTimer *t = new QTimer(this);
     connect(t, SIGNAL(timeout()), this, SLOT(show()));
-    t->setInterval(5000);
+    t->setInterval(POLL_TIME_AFTER_404);
     t->setSingleShot(true);
     t->start();
 #endif

@@ -1,6 +1,6 @@
 #include "customtrayicon.h"
 
-CustomTrayIcon::CustomTrayIcon(QObject* parent, QString pathToWinAgent) : QSystemTrayIcon(parent)
+CustomTrayIcon::CustomTrayIcon(QObject* parent) : QSystemTrayIcon(parent)
 {
     this->debugMode = true;
     this->pathToWinAgent = pathToWinAgent;
@@ -216,7 +216,7 @@ void CustomTrayIcon::openSingleJobRemote(){
 }
 
 void CustomTrayIcon::launchAgent(){
-    QProcess::startDetached(this->pathToWinAgent, QStringList());
+    emit launchAgentSignal();
 }
 
 void CustomTrayIcon::debug(QString s){
