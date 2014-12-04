@@ -21,6 +21,7 @@ void CmdHelper::launchAgentMac(){
 
 void CmdHelper::launchAgentWin(){
     QProcess::startDetached(pathToWinAgent, QStringList());
+    QTimer::singleShot(1500, this, SIGNAL(winAgentLaunched()));
 }
 
 void CmdHelper::stopAgentMac(){

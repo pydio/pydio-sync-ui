@@ -55,6 +55,7 @@ Window::Window()
         connect(tray, SIGNAL(resumeSync()), httpManager, SLOT(resumeSync()));
         connect(tray, SIGNAL(quit()), this, SLOT(cleanQuit()));
         connect(tray, SIGNAL(launchAgentSignal()), cmdHelper, SLOT(launchAgentWin()));
+        connect(cmdHelper, SIGNAL(winAgentLaunched()), this, SLOT(show()));
 
         jsDialog = new JSEventHandler(this);
 

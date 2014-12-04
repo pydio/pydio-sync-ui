@@ -9,10 +9,10 @@ JobMenu::JobMenu(QWidget *parent, Job *job) :
     }
     status = new QAction(job->getJobDescription(), this);
     status->setDisabled(true);
-    openLocalAction = new QAction("Open local folder", this);
+    openLocalAction = new QAction(tr("Open local folder"), this);
     openLocalAction->setIcon(QIcon(":/images/folder.png"));
     connect(openLocalAction, SIGNAL(triggered()), this, SLOT(openLocal()));
-    openRemoteAction = new QAction("Open remote", this);
+    openRemoteAction = new QAction(tr("Open remote"), this);
     openRemoteAction->setIcon(QIcon(":/images/world.png"));
     connect(openRemoteAction, SIGNAL(triggered()), this, SLOT(openRemote()));
 
