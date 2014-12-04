@@ -14,7 +14,7 @@ HTTPManager::HTTPManager(QObject *parent) :
 
 void HTTPManager::setUrl(QString servUrl)
 {
-    debug("Server is " + servUrl);
+    debug("Server set to " + servUrl);
     this->serverUrl = servUrl;
     failed_attempts = -1;
     jobs->clear();

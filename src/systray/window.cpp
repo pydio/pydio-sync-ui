@@ -88,19 +88,29 @@ void Window::show()
     // link the javascript dialog of the ui to the system FileDialog
     settingsWebView->page()->currentFrame()->addToJavaScriptWindowObject("PydioQtFileDialog", jsDialog);
 
-    if(QApplication::desktop()->height() < 800){
-        this->resize(480, QApplication::desktop()->height() - 105);
+    int desktopHeight = QApplication::desktop()->height();
+    int desktopWidth = QApplication::desktop()->width();
+    int tray_x = this->tray->geometry().center().x();
+
+    if(desktopHeight < 800){
+        this->resize(WIDTH, desktopHeight - 105);
     }
     else{
-        this->resize(480, 730);
+        this->resize(WIDTH, HEIGHT);
     }
-    this->setFixedWidth(480);
-    if(tray->geometry().y() < QApplication::desktop()->height()*0.5)
+    this->setFixedWidth(WIDTH);
+    if(tray->geometry().y() < desktopHeight*0.5)
     {
-        this->move(this->tray->geometry().center().x() - this->width()/2, tray->geometry().bottom());
+        // MacOS case
+        this->move(tray_x - this->width()/2, tray->geometry().bottom());
     }
     else{
-        this->move(this->tray->geometry().center().x() - this->width()/2, QApplication::desktop()->height() - 80 - this->height());
+        // Win case
+        if(tray_x > (desktopWidth - this->width())/2){
+            this->move(desktopWidth - this->width() - WIDTH_OFFSET_WIN, desktopHeight - HEIGHT_OFFSET_WIN - this->height());
+        }
+        else
+            this->move(this->tray->geometry().center().x() - this->width()/2, desktopHeight - 80 - this->height());
     }
 
     this->raise();
