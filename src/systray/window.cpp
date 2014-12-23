@@ -60,6 +60,9 @@ Window::Window()
         jsDialog = new JSEventHandler(this);
 
         portConfigurer->updatePorts();
+
+        cmdHelper->launchAgentMac();
+
         httpManager->setUrl(AGENT_SERVER_URL + portConfigurer->port("flask_api"));
         httpManager->poll();
 
@@ -182,7 +185,7 @@ void Window::notFoundFromPython(){
 #ifdef Q_OS_MAC
     qDebug()<<"WILL LOAD PYTHON";
     settingsWebView->load(QUrl("qrc:/webkit-sources/reload_python.html"));
-    cmdHelper->launchAgentMac();
+    cmdHelper->launchAgentMac(true);
     // will retry loading ui from agent in 5 seconds
     QTimer *t = new QTimer(this);
     connect(t, SIGNAL(timeout()), this, SLOT(show()));

@@ -6,13 +6,16 @@ CmdHelper::CmdHelper(QObject *parent, QString path) :
     this->pathToWinAgent = path;
 }
 
-void CmdHelper::launchAgentMac(){
+void CmdHelper::launchAgentMac(bool stopBeforeLaunch){
     QProcess process;
     QString processName = "launchctl";
-    QStringList arguments = QStringList() << "remove"<< "PydioSync";
-    process.start(processName, arguments);
-    process.waitForStarted();
-    process.waitForFinished();
+    QStringList arguments;
+    if(stopBeforeLaunch){
+        arguments = QStringList() << "remove"<< "PydioSync";
+        process.start(processName, arguments);
+        process.waitForStarted();
+        process.waitForFinished();
+    }
     arguments = QStringList()<<"load"<<"-w"<<"/library/LaunchAgents/io.pyd.sync.launcher.plist";
     process.start(processName, arguments);
     process.waitForStarted();

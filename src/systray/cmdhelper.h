@@ -16,7 +16,7 @@ signals:
     void winAgentLaunched();
 
 public slots:
-    void launchAgentMac();
+    void launchAgentMac(bool stopBeforeLaunch = false);
     void launchAgentWin();
     void stopAgentMac();
 
