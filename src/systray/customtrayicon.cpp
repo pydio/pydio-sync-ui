@@ -5,11 +5,18 @@ CustomTrayIcon::CustomTrayIcon(QObject* parent) : QSystemTrayIcon(parent)
     this->debugMode = true;
     this->pathToWinAgent = pathToWinAgent;
     this->syncAgentUp = false;
-    this->setIcon(QIcon(":/images/Pydio16.png"));
+    this->setIcon(QIcon(":/images/Pydio16-inactive.png"));
     this->createMainMenu();
     this->jobMenus = new QHash<QString, JobMenu*>();
     this->globalRunningStatus = false;
     this->singleJob = NULL;
+    this->working = false;
+    this->animationOn = false;
+    this->normalIcon = false;
+
+    this->animationTimer = new QTimer(this);
+    this->animationTimer->setInterval(1500);
+    connect(animationTimer, SIGNAL(timeout()), this, SLOT(changeIcon()));
     separatorAction = new QAction(this);
     separatorAction->setSeparator(true);
     singleJobLocal = new QAction(tr("Open local folder"), this);
@@ -115,13 +122,16 @@ void CustomTrayIcon::checkJobs(){
     if(!jobMenus->empty()){
         QList<JobMenu*> jMenus = jobMenus->values();
         globalRunningStatus = jMenus[0]->getJob()->getStatus();
+        working = false;
         for(int i=0; i<jMenus.size(); i++){
             Job *j = jMenus[i]->getJob();
             globalRunningStatus = globalRunningStatus || j->getStatus();
+            working = working || j->isSyncing();
         }
     }
     else if(this->singleJob){
         globalRunningStatus = singleJob->getJob()->getStatus();
+        working = singleJob->getJob()->isSyncing();
     }
     if(!this->singleJob && jobMenus->empty()){
         this->contextMenu()->insertAction(settingsAction,noJobAction);
@@ -141,6 +151,12 @@ void CustomTrayIcon::checkJobs(){
         resumePauseSyncAction->disconnect();
         connect(resumePauseSyncAction, SIGNAL(triggered()), this, SIGNAL(resumeSync()));
     }
+    if(working){
+        this->workOccuring();
+    }
+    else{
+        this->workDone();
+    }
 }
 
 void CustomTrayIcon::connectionMade(){
@@ -148,6 +164,8 @@ void CustomTrayIcon::connectionMade(){
         debug("SINGLE JOB IS " + (singleJob ? singleJob->getJob()->getName() : "NULL"));
         debug("NUMBER OF JOBS : " +  QString::number(this->jobMenus->size()));
         this->syncAgentUp = true;
+        this->setIcon(QIcon(":/images/Pydio16.png"));
+        this->normalIcon = true;
         this->jobsCleared("Connection Made");
         this->contextMenu()->removeAction(noAgentAction);
         this->contextMenu()->insertAction(settingsAction, noJobAction);
@@ -158,8 +176,14 @@ void CustomTrayIcon::connectionMade(){
 
 void CustomTrayIcon::connectionLost(){
     if(this->syncAgentUp){
+        working = false;
+        animationTimer->stop();
+        animationOn = false;
         this->syncAgentUp = false;
+        this->setIcon(QIcon(":/images/Pydio16-inactive.png"));
+        this->normalIcon = false;
         this->jobsCleared("CONNECTION LOST");
+        debug("Working status : Off / Animation : Off / Normal Icon : on");
         this->contextMenu()->removeAction(noJobAction);
         this->contextMenu()->insertAction(settingsAction, noAgentAction);
         settingsAction->setDisabled(true);
@@ -217,6 +241,32 @@ void CustomTrayIcon::openSingleJobRemote(){
 
 void CustomTrayIcon::launchAgent(){
     emit launchAgentSignal();
+}
+
+void CustomTrayIcon::workOccuring(){
+    if(!animationOn){
+        animationTimer->start();
+        animationOn = true;
+    }
+}
+
+void CustomTrayIcon::workDone(){
+    if(animationOn){
+        animationTimer->stop();
+        animationOn = false;
+        this->setIcon(QIcon(":/images/Pydio16.png"));
+        normalIcon = true;
+    }
+}
+
+void CustomTrayIcon::changeIcon(){
+    if(normalIcon){
+        this->setIcon(QIcon(":/images/Pydio16-inactive.png"));
+        normalIcon = false;
+    }else{
+        this->setIcon(QIcon(":/images/Pydio16.png"));
+        normalIcon = true;
+    }
 }
 
 void CustomTrayIcon::debug(QString s){

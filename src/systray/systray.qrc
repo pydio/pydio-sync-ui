@@ -7,5 +7,6 @@
         <file>images/refresh.png</file>
         <file>images/world.png</file>
         <file>languages/pydioUI_fr_FR.qm</file>
+        <file>images/Pydio16-inactive.png</file>
     </qresource>
 </RCC>

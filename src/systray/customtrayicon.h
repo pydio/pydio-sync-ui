@@ -8,7 +8,7 @@
 #include <jobmenu.h>
 #include <jobaction.h>
 #include <QDebug>
-#include <QProcess>
+#include <QTimer>
 
 class CustomTrayIcon : public QSystemTrayIcon
 {
@@ -33,6 +33,7 @@ public slots:
     void openSingleJobLocal();
     void openSingleJobRemote();
     void launchAgent();
+    void changeIcon();
 
 private:
     void createMainMenu();
@@ -42,7 +43,10 @@ private:
     void removeSingleJob();
     void insertSingleJob(Job *job);
     void debug(QString);
+    void workOccuring();
+    void workDone();
 
+    QTimer *animationTimer;
     QMenu *mainMenu;
     QHash<QString, JobMenu*> *jobMenus;
     QAction *noAgentAction;
@@ -59,6 +63,9 @@ private:
 
     bool globalRunningStatus;
     bool syncAgentUp;
+    bool working;
+    bool animationOn;
+    bool normalIcon;
     bool debugMode;
     QString pathToWinAgent;
 };

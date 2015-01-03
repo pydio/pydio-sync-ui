@@ -18,13 +18,14 @@ public:
     QString getName();
     QUrl getLocal();
     QUrl getRemote();
+    bool isSyncing();
 
 signals:
     void updated(QString id);
 
 private:
     QString name;
-    bool idle;
+    bool hasWork;
     bool status;
     double remainingTime;
     QString id;

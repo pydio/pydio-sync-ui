@@ -14,6 +14,7 @@ Job::Job(QString id, QString name, bool running, double eta, QString lastEventMe
     this->status = running;
     this->lastEventMessage = lastEventMessage;
     this->remote = QUrl(remote);
+    this->hasWork = false;
     this->local = QUrl::fromLocalFile(local);
 }
 
@@ -30,6 +31,13 @@ void Job::update(QString newName, bool newStatus, double eta, QString lastEventM
     }
     if(this->remainingTime != eta){
         this->remainingTime = eta;
+        QTime time = QDateTime::fromTime_t(this->remainingTime).toUTC().time();
+        if(time.second() == 0){
+            this->hasWork = false;
+        }
+        else{
+            this->hasWork = true;
+        }
         updated = true;
     }
     if((this->lastEventMessage != lastEventMessage && (lastEventMessage != "Status: Paused"))){
@@ -60,6 +68,10 @@ QUrl Job::getLocal(){
 
 QUrl Job::getRemote(){
     return this->remote;
+}
+
+bool Job::isSyncing(){
+    return (hasWork && status);
 }
 
 QString Job::getJobDescription()
