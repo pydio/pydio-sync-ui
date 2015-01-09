@@ -7,7 +7,6 @@ RCC_DIR = $${DESTDIR}/.rcc
 UI_DIR = $$DESTDIR/.ui
 
 HEADERS      += window.h \
-                queuemenu.h \
                 portconfigurer.h \
                 JSEventHandler.h \
                 job.h \
@@ -18,7 +17,6 @@ HEADERS      += window.h \
     cmdhelper.h
 SOURCES       = main.cpp \
                 window.cpp \
-                queuemenu.cpp \
                 portconfigurer.cpp \
                 JSEventHandler.cpp \
                 job.cpp \

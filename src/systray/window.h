@@ -48,10 +48,9 @@
 #include <QWebFrame>
 #include <QApplication>
 #include <QDesktopWidget>
-#include <QMessageBox>
 #include <QStyleFactory>
+#include <QMessageBox>
 
-#include <queuemenu.h>
 #include <portconfigurer.h>
 #include <JSEventHandler.h>
 #include <httpmanager.h>

@@ -51,6 +51,7 @@ Window::Window()
         connect(httpManager, SIGNAL(noActiveJobsAtLaunch()), this, SLOT(show()));
         connect(httpManager, SIGNAL(jobsCleared()), tray, SLOT(jobsCleared()));
         connect(httpManager, SIGNAL(webUI404()), this, SLOT(notFoundFromPython()));
+        connect(tray, SIGNAL(about()), this, SLOT(about()));
         connect(tray, SIGNAL(pauseSync()), httpManager, SLOT(pauseSync()));
         connect(tray, SIGNAL(resumeSync()), httpManager, SLOT(resumeSync()));
         connect(tray, SIGNAL(quit()), this, SLOT(cleanQuit()));
@@ -158,7 +159,6 @@ void Window::about(){
     msgBox.exec();
 }
 
-// asks the user if python agent has to be stopped and quit
 void Window::cleanQuit(){
 #ifdef Q_OS_WIN
     httpManager->terminateAgent();
