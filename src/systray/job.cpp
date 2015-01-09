@@ -6,7 +6,7 @@ Job::Job(QObject *parent) :
 {
 }
 
-Job::Job(QString id, QString name, bool running, double eta, QString lastEventMessage, QString local, QString remote)
+Job::Job(QString id, QString name, bool running, bool hasWork, double eta, QString lastEventMessage, QString local, QString remote)
 {
     this->id = id;
     this->name = name;
@@ -14,11 +14,11 @@ Job::Job(QString id, QString name, bool running, double eta, QString lastEventMe
     this->status = running;
     this->lastEventMessage = lastEventMessage;
     this->remote = QUrl(remote);
-    this->hasWork = false;
+    this->hasWork = hasWork;
     this->local = QUrl::fromLocalFile(local);
 }
 
-void Job::update(QString newName, bool newStatus, double eta, QString lastEventMessage)
+void Job::update(QString newName, bool newStatus, bool hasWork, double eta, QString lastEventMessage)
 {
     bool updated = false;
     if(this->name != newName){
@@ -31,14 +31,11 @@ void Job::update(QString newName, bool newStatus, double eta, QString lastEventM
     }
     if(this->remainingTime != eta){
         this->remainingTime = eta;
-        QTime time = QDateTime::fromTime_t(this->remainingTime).toUTC().time();
-        if(time.second() == 0){
-            this->hasWork = false;
-        }
-        else{
-            this->hasWork = true;
-        }
         updated = true;
+    }
+    if(this->hasWork != hasWork){
+        this->hasWork = hasWork;
+        emit this->updated(this->id);
     }
     if((this->lastEventMessage != lastEventMessage && (lastEventMessage != "Status: Paused"))){
         this->lastEventMessage = lastEventMessage;

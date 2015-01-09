@@ -84,7 +84,6 @@ void CustomTrayIcon::onJobDeleted(QString id){
     if(singleJob)
     {
         this->removeSingleJob();
-        this->contextMenu()->insertAction(settingsAction, noJobAction);
     }
     else if(jobMenus->size() == 2){
         this->contextMenu()->removeAction(jobMenus->value(id)->menuAction());
@@ -104,6 +103,7 @@ void CustomTrayIcon::onJobDeleted(QString id){
 void CustomTrayIcon::insertSingleJob(Job *job){
     singleJob = new jobAction(this, job);
     singleJob->setDisabled(true);
+    this->contextMenu()->removeAction(noJobAction);
     this->contextMenu()->insertAction(settingsAction, singleJob);
     this->contextMenu()->insertAction(settingsAction, singleJobLocal);
     this->contextMenu()->insertAction(settingsAction, singleJobRemote);
@@ -116,6 +116,7 @@ void CustomTrayIcon::removeSingleJob(){
     this->contextMenu()->removeAction(singleJobRemote);
     this->contextMenu()->removeAction(separatorAction);
     singleJob = NULL;
+    checkJobs();
 }
 
 void CustomTrayIcon::checkJobs(){

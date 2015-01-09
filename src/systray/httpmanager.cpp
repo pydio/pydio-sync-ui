@@ -75,18 +75,20 @@ void HTTPManager::pollingFinished(QNetworkReply* reply)
                         QString local = job["directory"].toString();
                         QString remote = job["server"].toString();
                         bool running = job["running"].toBool();
-                        int queue_length = job["state"].toObject().operator []("global").toObject().operator[]("queue_length").toInt();
+                        int total_tasks = job["state"].toObject().operator []("tasks").toObject().operator[]("total").toInt();
                         double eta = -1;
+                        bool hasWork = false;
                         // if job has pending tasks we update it
-                        if(queue_length > 0){
+                        if(total_tasks > 0){
                             eta = job["state"].toObject().operator []("global").toObject().operator[]("eta").toDouble();
+                            hasWork = true;
                         }
 
                         // if jobs doesn't exist here, we create it
                         if(!this->jobs->contains(jobId)){
                             if(job["active"].toBool()){
                                 // create a new active job, add it and notify the main class
-                                Job *newJob = new Job(jobId, label, running, eta, lastEventMessage, local, remote);
+                                Job *newJob = new Job(jobId, label, running, hasWork, eta, lastEventMessage, local, remote);
                                 connect(newJob, SIGNAL(updated(QString)), this, SIGNAL(jobUpdated(QString)));
                                 this->jobs->insert(jobId, newJob);
                                 emit this->newJob(newJob);
@@ -99,7 +101,7 @@ void HTTPManager::pollingFinished(QNetworkReply* reply)
                                 emit jobDeleted(jobId);
                             }
                             else{
-                                jobs->value(jobId)->update(label, running, eta, lastEventMessage);
+                                jobs->value(jobId)->update(label, running, hasWork, eta, lastEventMessage);
                             }
                         }
                     }
