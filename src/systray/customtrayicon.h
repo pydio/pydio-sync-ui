@@ -34,6 +34,8 @@ public slots:
     void openSingleJobRemote();
     void launchAgent();
     void changeIcon();
+    void noInternetConnection();
+    void internetConnectionOk();
 
 private:
     void createMainMenu();
@@ -51,6 +53,7 @@ private:
     QHash<QString, JobMenu*> *jobMenus;
     QAction *noAgentAction;
     QAction *noJobAction;
+    QAction *noInternetAction;
     QAction *settingsAction;
     QAction *quitAction;
     QAction *reconnectAction;
@@ -63,6 +66,7 @@ private:
 
     bool globalRunningStatus;
     bool syncAgentUp;
+    bool agentConnectedToInternet;
     bool working;
     bool animationOn;
     bool normalIcon;

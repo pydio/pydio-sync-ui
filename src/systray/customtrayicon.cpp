@@ -13,9 +13,10 @@ CustomTrayIcon::CustomTrayIcon(QObject* parent) : QSystemTrayIcon(parent)
     this->working = false;
     this->animationOn = false;
     this->normalIcon = false;
+    this->agentConnectedToInternet = true;
 
     this->animationTimer = new QTimer(this);
-    this->animationTimer->setInterval(1500);
+    this->animationTimer->setInterval(1100);
     connect(animationTimer, SIGNAL(timeout()), this, SLOT(changeIcon()));
     separatorAction = new QAction(this);
     separatorAction->setSeparator(true);
@@ -194,6 +195,22 @@ void CustomTrayIcon::connectionLost(){
     }
 }
 
+void CustomTrayIcon::noInternetConnection(){
+    if(agentConnectedToInternet){
+        this->setIcon(QIcon(":/images/Pydio16-inactive.png"));
+        this->contextMenu()->insertAction(settingsAction, noInternetAction);
+        agentConnectedToInternet = false;
+    }
+}
+
+void CustomTrayIcon::internetConnectionOk(){
+    if(!agentConnectedToInternet){
+        this->setIcon(QIcon(":/images/Pydio16.png"));
+        this->contextMenu()->removeAction(noInternetAction);
+        agentConnectedToInternet = true;
+    }
+}
+
 void CustomTrayIcon::createMainMenu(){
     this->createActions();
     mainMenu = new QMenu(0);
@@ -214,13 +231,17 @@ void CustomTrayIcon::createActions(){
     noJobAction = new QAction(tr("No active job"), this);
     noJobAction->setDisabled(true);
 
+    /*
 #ifdef Q_OS_WIN
     noAgentAction = new QAction(tr("Launch agent"), this);
     connect(noAgentAction, SIGNAL(triggered()), this, SLOT(launchAgent()));
 #else
+*/
     noAgentAction = new QAction(tr("No active agent"), this);
     noAgentAction->setDisabled(true);
-#endif
+
+    noInternetAction = new QAction(tr("Agent can't connect to the internet"), this);
+    noInternetAction->setDisabled(true);
 
     resumePauseSyncAction = new QAction(tr("Pause sync"), this);
     connect(resumePauseSyncAction, SIGNAL(triggered()), this, SIGNAL(pauseSync()));
@@ -262,10 +283,12 @@ void CustomTrayIcon::workDone(){
 
 void CustomTrayIcon::changeIcon(){
     if(normalIcon){
-        this->setIcon(QIcon(":/images/Pydio16-inactive.png"));
+        this->setIcon(QIcon(":/images/Pydio16-busy.png"));
+        this->animationTimer->setInterval(300);
         normalIcon = false;
     }else{
         this->setIcon(QIcon(":/images/Pydio16.png"));
+        this->animationTimer->setInterval(1100);
         normalIcon = true;
     }
 }

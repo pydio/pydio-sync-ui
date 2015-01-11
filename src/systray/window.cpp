@@ -51,6 +51,8 @@ Window::Window()
         connect(httpManager, SIGNAL(noActiveJobsAtLaunch()), this, SLOT(show()));
         connect(httpManager, SIGNAL(jobsCleared()), tray, SLOT(jobsCleared()));
         connect(httpManager, SIGNAL(webUI404()), this, SLOT(notFoundFromPython()));
+        connect(httpManager, SIGNAL(noInternetConnection()), tray, SLOT(noInternetConnection()));
+        connect(httpManager, SIGNAL(internetConnectionOk()), tray, SLOT(internetConnectionOk()));
         connect(tray, SIGNAL(about()), this, SLOT(about()));
         connect(tray, SIGNAL(pauseSync()), httpManager, SLOT(pauseSync()));
         connect(tray, SIGNAL(resumeSync()), httpManager, SLOT(resumeSync()));
@@ -62,7 +64,12 @@ Window::Window()
 
         portConfigurer->updatePorts();
 
+#ifdef Q_OS_WIN
+        cmdHelper->launchAgentWin();
+#endif
+#ifdef Q_OS_MAC
         cmdHelper->launchAgentMac();
+#endif
 
         httpManager->setUrl(AGENT_SERVER_URL + portConfigurer->port("flask_api"));
         httpManager->poll();
@@ -165,7 +172,7 @@ void Window::cleanQuit(){
     //wait for agent to terminate
     QTimer *t = new QTimer(this);
     connect(t, SIGNAL(timeout()), qApp, SLOT(quit()));
-    t->setInterval(3000);
+    t->setInterval(1500);
     t->setSingleShot(true);
     t->start();
 #endif

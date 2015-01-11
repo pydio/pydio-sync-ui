@@ -22,7 +22,7 @@ void HTTPManager::setUrl(QString servUrl)
 
 void HTTPManager::poll()
 {
-    manager->get(QNetworkRequest(QUrl(this->serverUrl + "/jobs")));
+    manager->get(QNetworkRequest(QUrl(this->serverUrl + "/jobs-status")));
 }
 
 void HTTPManager::pollingFinished(QNetworkReply* reply)
@@ -39,9 +39,19 @@ void HTTPManager::pollingFinished(QNetworkReply* reply)
                 failed_attempts = 0;
             }
 
-            QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
-            QJsonArray jsonJobs = jsonResponse.array();
+            // parse JSON response
 
+            QJsonObject jsonResponse = QJsonDocument::fromJson(strReply.toUtf8()).object();
+            QJsonValue value = jsonResponse.value("jobs");
+            QJsonArray jsonJobs = value.toArray();
+            bool agentInternetStatus = jsonResponse.value("is_connected_to_internet").toBool();
+
+            if(!agentInternetStatus){
+                emit noInternetConnection();
+            }else{
+                emit internetConnectionOk();
+            }
+            // process response
             if(!jsonResponse.isEmpty()){
                 if(jsonJobs.count()==0){
                     this->checkNoJobAtLaunch();
@@ -68,6 +78,7 @@ void HTTPManager::pollingFinished(QNetworkReply* reply)
                     }
 
                     foreach(QJsonValue jsonJob, jsonJobs){
+                        // parse job objects
                         QJsonObject job = jsonJob.toObject();
                         QString jobId = job["id"].toString();
                         QString label = job["label"].toString();

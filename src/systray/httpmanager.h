@@ -30,6 +30,8 @@ signals:
    void noActiveJobsAtLaunch();
    void jobsCleared();
    void webUI404();
+   void noInternetConnection();
+   void internetConnectionOk();
 
 public slots:
     void poll();
