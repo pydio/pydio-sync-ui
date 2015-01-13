@@ -9,16 +9,16 @@ class PortConfigurer
 {
 public:
     PortConfigurer(QString pathToFile);
-    QString port(QString socketName);
-    QString address(QString socketName);
+    QString port();
+    QString address();
     void updatePorts();
 
 private:
     void setPortsToDefault();
-    QHash<QString, QString> portHash;
     QString ipAddress;
     const static int DEFAULT_PORT = 5556;
     QFile *configFile;
+    QString api_port;
 };
 
 #endif // PORTCONFIGURER_H

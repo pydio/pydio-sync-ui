@@ -9,8 +9,6 @@ Window::Window()
     parser.addOption(pathToWinAgentOption);
     QCommandLineOption dumbTestOption("test", "Toggle dumb test.");
     parser.addOption(dumbTestOption);
-    QCommandLineOption pathArgument("f", "Path to config file.", "filePath");
-    parser.addOption(pathArgument);
     parser.process(*qApp);
 
     if(parser.isSet((pathToWinAgentOption))){
@@ -30,7 +28,7 @@ Window::Window()
         qDebug()<<"Dumb test, will exit in 5 seconds...";
     }
     else{
-        portConfigurer = new PortConfigurer(parser.value(pathArgument));
+        portConfigurer = new PortConfigurer(QDir::homePath() + "/.pydio_data/ports_config");
 
         pollTimer = new QTimer(this);
         pollTimer->setInterval(POLL_INTERVAL);
@@ -71,7 +69,7 @@ Window::Window()
         cmdHelper->launchAgentMac();
 #endif
 
-        httpManager->setUrl(AGENT_SERVER_URL + portConfigurer->port("flask_api"));
+        httpManager->setUrl(AGENT_SERVER_URL + portConfigurer->port());
         httpManager->poll();
 
         //this->setWindowFlags(Qt::Tool);
@@ -91,7 +89,7 @@ void Window::show()
     settingsWebView->setStyle(QStyleFactory::create("windows"));
 #endif
 
-    QUrl syncUrl = QUrl(AGENT_SERVER_URL + portConfigurer->port("flask_api"));
+    QUrl syncUrl = QUrl(AGENT_SERVER_URL + portConfigurer->port());
 
     httpManager->testWebView();
     settingsWebView->load(syncUrl);
@@ -184,8 +182,8 @@ void Window::cleanQuit(){
 
 void Window::agentReached(){
     tray->connectionMade();
-    //portConfigurer->updatePorts();
-    //httpManager->setUrl(AGENT_SERVER_URL + portConfigurer->port("flask_api"));
+    portConfigurer->updatePorts();
+    httpManager->setUrl(AGENT_SERVER_URL + portConfigurer->port());
 }
 
 void Window::notFoundFromPython(){

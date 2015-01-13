@@ -9,23 +9,21 @@ PortConfigurer::PortConfigurer(QString pathToFile)
 
 void PortConfigurer::setPortsToDefault()
 {
-    portHash.clear();
-    portHash["flask_api"] = QString::number(DEFAULT_PORT);
+    api_port = QString::number(DEFAULT_PORT);
 }
 
-QString PortConfigurer::port(QString socketName)
+QString PortConfigurer::port()
 {
-    return portHash[socketName];
+    return this->api_port;
 }
 
-QString PortConfigurer::address(QString socketName)
+QString PortConfigurer::address()
 {
-    return ipAddress + port(socketName);
+    return ipAddress + port();
 }
 
 void PortConfigurer::updatePorts()
 {
-    portHash.clear();
     if(!configFile->open(QIODevice::ReadOnly | QIODevice::Text)){
         setPortsToDefault();
         return;
@@ -38,7 +36,7 @@ void PortConfigurer::updatePorts()
     }
     while(!in.atEnd()){
         QStringList line = in.readLine().split(":", QString::SkipEmptyParts);
-        portHash[line[0]] = line[1];
+        api_port = line[1];
     }
     configFile->close();
 }
