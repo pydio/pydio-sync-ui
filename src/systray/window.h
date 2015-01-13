@@ -84,6 +84,7 @@ private slots:
     void agentReached();
     void createTrayIcon();
     void notFoundFromPython();
+    void connectionLost();
 
 private:
     QWebView *settingsWebView;

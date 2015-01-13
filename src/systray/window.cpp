@@ -28,15 +28,21 @@ Window::Window()
         qDebug()<<"Dumb test, will exit in 5 seconds...";
     }
     else{
-        portConfigurer = new PortConfigurer(QDir::homePath() + "/.pydio_data/ports_config");
+        cmdHelper = new CmdHelper(this, pathToWinAgent);
+#ifdef Q_OS_WIN
+        cmdHelper->launchAgentWin();
+#endif
+#ifdef Q_OS_MAC
+        cmdHelper->launchAgentMac();
+#endif
 
+        portConfigurer = new PortConfigurer(QDir::homePath() + "/.pydio_data/ports_config");
         pollTimer = new QTimer(this);
         pollTimer->setInterval(POLL_INTERVAL);
         pollTimer->setSingleShot(true);
 
         httpManager = new HTTPManager(this);
         this->createTrayIcon();
-        cmdHelper = new CmdHelper(this, pathToWinAgent);
         tray->show();
 
         connect(pollTimer, SIGNAL(timeout()), httpManager, SLOT(poll()));
@@ -51,6 +57,8 @@ Window::Window()
         connect(httpManager, SIGNAL(webUI404()), this, SLOT(notFoundFromPython()));
         connect(httpManager, SIGNAL(noInternetConnection()), tray, SLOT(noInternetConnection()));
         connect(httpManager, SIGNAL(internetConnectionOk()), tray, SLOT(internetConnectionOk()));
+        connect(httpManager, SIGNAL(connectionProblem()), this, SLOT(connectionLost()));
+
         connect(tray, SIGNAL(about()), this, SLOT(about()));
         connect(tray, SIGNAL(pauseSync()), httpManager, SLOT(pauseSync()));
         connect(tray, SIGNAL(resumeSync()), httpManager, SLOT(resumeSync()));
@@ -61,14 +69,6 @@ Window::Window()
         jsDialog = new JSEventHandler(this);
 
         portConfigurer->updatePorts();
-
-#ifdef Q_OS_WIN
-        cmdHelper->launchAgentWin();
-#endif
-#ifdef Q_OS_MAC
-        cmdHelper->launchAgentMac();
-#endif
-
         httpManager->setUrl(AGENT_SERVER_URL + portConfigurer->port());
         httpManager->poll();
 
@@ -182,6 +182,10 @@ void Window::cleanQuit(){
 
 void Window::agentReached(){
     tray->connectionMade();
+}
+
+void Window::connectionLost(){
+    qDebug()<<"UPDATING PORTS FROM CONFIG FILE";
     portConfigurer->updatePorts();
     httpManager->setUrl(AGENT_SERVER_URL + portConfigurer->port());
 }

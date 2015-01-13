@@ -22,6 +22,7 @@ signals:
     void resumeSync();
     void about();
     void quit();
+    void connectionLostSignal();
 
 public slots:
     void connectionMade();
