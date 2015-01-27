@@ -104,7 +104,7 @@ private:
     const int POLL_TIME_AFTER_404 = 5000;
     const int POLL_INTERVAL = 2000;
     const QString AGENT_SERVER_URL = "http://127.0.0.1:";
-    const QString AGENT_FILE_NAME_WIN = "/pydio-sync-agent-win-latest.exe";
+    const QString AGENT_FILE_NAME_WIN = "/pydio-agent.exe";
     const QString ABOUT_PAGE_PATH = "/res/index.html#/about";
 
     PortConfigurer *portConfigurer;
