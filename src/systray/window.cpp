@@ -45,6 +45,8 @@ Window::Window()
         this->createTrayIcon();
         tray->show();
 
+        aboutDialog = new AboutDialog(this);
+
         connect(pollTimer, SIGNAL(timeout()), httpManager, SLOT(poll()));
         connect(httpManager, SIGNAL(requestFinished()), pollTimer, SLOT(start()));
         connect(httpManager, SIGNAL(newJob(Job*)), tray, SLOT(onNewJob(Job*)));
@@ -66,6 +68,8 @@ Window::Window()
         connect(tray, SIGNAL(launchAgentSignal()), cmdHelper, SLOT(launchAgentWin()));
         connect(cmdHelper, SIGNAL(winAgentLaunched()), this, SLOT(show()));
 
+        settingsWebView = new QWebView();
+
         jsDialog = new JSEventHandler(this);
 
         portConfigurer->updatePorts();
@@ -80,7 +84,7 @@ Window::Window()
 void Window::show()
 {
     settingsWebView = new QWebView();
-    settingsWebView->settings()->setAttribute( QWebSettings::JavascriptEnabled, true);
+    settingsWebView->settings()->setAttribute(QWebSettings::JavascriptEnabled, true);
     settingsWebView->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
     settingsWebView->setContextMenuPolicy(Qt::NoContextMenu);
     this->setCentralWidget(settingsWebView);
@@ -129,7 +133,6 @@ void Window::show()
 void Window::closeEvent(QCloseEvent *e)
 {
     settingsWebView->stop();
-    settingsWebView->disconnect();
     settingsWebView->deleteLater();
     this->close();
 }
@@ -157,11 +160,13 @@ void Window::iconActivated(QSystemTrayIcon::ActivationReason reason)
 }
 
 void Window::about(){
-    QMessageBox  msgBox(this);
-    msgBox.setWindowTitle("About Pydio UI");
-    msgBox.setTextFormat(Qt::RichText);
-    msgBox.setText("Pydio Desktop Sync<br>v0.9 alpha<br>Learn more :<a href=http://liftoff.pydio.com>http://liftoff.pydio.com</a>");
-    msgBox.exec();
+    if(tray->agentUp()){
+        this->show();
+        settingsWebView->load(QUrl(AGENT_SERVER_URL + portConfigurer->port() + ABOUT_PAGE_PATH));
+    }/*
+    else{
+        this->aboutDialog->show();
+    }*/
 }
 
 void Window::cleanQuit(){

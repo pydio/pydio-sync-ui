@@ -17,7 +17,8 @@ void JSEventHandler::openUrl(QString toOpen)
     QDesktopServices::openUrl(QUrl::fromLocalFile(toOpen));
 }
 
-/*void JSEventHandler::openUrlSlot(QUrl toOpen){
-    qDebug()<<"trying to open in slot"<<toOpen;
-    QDesktopServices::openUrl(toOpen);
-}*/
+void JSEventHandler::openLogs(){
+    QString logDir = QDir::homePath() + "/.pydio_data";
+    qDebug()<<logDir;
+    QDesktopServices::openUrl(QUrl::fromLocalFile(logDir));
+}

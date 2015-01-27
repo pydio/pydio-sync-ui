@@ -293,6 +293,10 @@ void CustomTrayIcon::changeIcon(){
     }
 }
 
+bool CustomTrayIcon::agentUp(){
+    return this->syncAgentUp;
+}
+
 void CustomTrayIcon::debug(QString s){
     if(this->debugMode)
         qDebug()<<"  -- JOBSMANAGER --   :    "<<s;

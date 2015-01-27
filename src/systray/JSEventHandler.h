@@ -14,7 +14,7 @@ public:
 public slots:
     QString getPath();
     void openUrl(QString);
-    //void openUrlSlot(QUrl);
+    void openLogs();
 };
 
 #endif // JSEVENTHANDLER_H

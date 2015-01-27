@@ -9,5 +9,6 @@
         <file>languages/pydioUI_fr_FR.qm</file>
         <file>images/Pydio16-inactive.png</file>
         <file>images/Pydio16-busy.png</file>
+        <file>webkit-sources/about.html</file>
     </qresource>
 </RCC>

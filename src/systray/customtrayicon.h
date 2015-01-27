@@ -15,7 +15,7 @@ class CustomTrayIcon : public QSystemTrayIcon
     Q_OBJECT
 public:
     explicit CustomTrayIcon(QObject *parent = 0);
-
+    bool agentUp();
 signals:
     void launchAgentSignal();
     void pauseSync();

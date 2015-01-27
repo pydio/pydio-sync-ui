@@ -57,6 +57,7 @@
 #include <jobaction.h>
 #include <customtrayicon.h>
 #include <cmdhelper.h>
+#include <aboutdialog.h>
 
 #ifndef QT_NO_SYSTEMTRAYICON
 
@@ -79,12 +80,12 @@ protected slots:
 private slots:
     void show();
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
-    void about();
     void cleanQuit();
     void agentReached();
     void createTrayIcon();
     void notFoundFromPython();
     void connectionLost();
+    void about();
 
 private:
     QWebView *settingsWebView;
@@ -104,10 +105,13 @@ private:
     const int POLL_INTERVAL = 2000;
     const QString AGENT_SERVER_URL = "http://127.0.0.1:";
     const QString AGENT_FILE_NAME_WIN = "/pydio-sync-agent-win-latest.exe";
+    const QString ABOUT_PAGE_PATH = "/res/index.html#/about";
 
     PortConfigurer *portConfigurer;
     JSEventHandler *jsDialog;
     CmdHelper *cmdHelper;
+
+    AboutDialog *aboutDialog;
 
     QString pathToWinAgent;
 };

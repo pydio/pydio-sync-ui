@@ -14,7 +14,8 @@ HEADERS      += window.h \
     jobaction.h \
     customtrayicon.h \
     jobmenu.h \
-    cmdhelper.h
+    cmdhelper.h \
+    aboutdialog.h
 SOURCES       = main.cpp \
                 window.cpp \
                 portconfigurer.cpp \
@@ -24,7 +25,8 @@ SOURCES       = main.cpp \
     jobaction.cpp \
     customtrayicon.cpp \
     jobmenu.cpp \
-    cmdhelper.cpp
+    cmdhelper.cpp \
+    aboutdialog.cpp
 
 RESOURCES     = systray.qrc
 
