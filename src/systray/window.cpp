@@ -33,7 +33,7 @@ Window::Window()
         cmdHelper->launchAgentWin();
 #endif
 #ifdef Q_OS_MAC
-        cmdHelper->launchAgentMac();
+        //cmdHelper->launchAgentMac();
 #endif
 
         portConfigurer = new PortConfigurer(QDir::homePath() + "/.pydio_data/ports_config");
@@ -45,7 +45,7 @@ Window::Window()
         this->createTrayIcon();
         tray->show();
 
-        aboutDialog = new AboutDialog(this);
+        aboutDialog = new AboutDialog(this, WIDTH, HEIGHT);
 
         connect(pollTimer, SIGNAL(timeout()), httpManager, SLOT(poll()));
         connect(httpManager, SIGNAL(requestFinished()), pollTimer, SLOT(start()));
@@ -86,6 +86,7 @@ void Window::show()
     settingsWebView = new QWebView();
     settingsWebView->settings()->setAttribute(QWebSettings::JavascriptEnabled, true);
     settingsWebView->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
+    connect(settingsWebView, SIGNAL(linkClicked(QUrl)), this, SLOT(openLink(QUrl)) );
     settingsWebView->setContextMenuPolicy(Qt::NoContextMenu);
     this->setCentralWidget(settingsWebView);
 
@@ -163,10 +164,11 @@ void Window::about(){
     if(tray->agentUp()){
         this->show();
         settingsWebView->load(QUrl(AGENT_SERVER_URL + portConfigurer->port() + ABOUT_PAGE_PATH));
-    }/*
+    }
     else{
         this->aboutDialog->show();
-    }*/
+        aboutDialog->aboutWebView->page()->currentFrame()->addToJavaScriptWindowObject("PydioQtFileDialog", jsDialog);
+    }
 }
 
 void Window::cleanQuit(){
@@ -207,6 +209,10 @@ void Window::notFoundFromPython(){
     t->setSingleShot(true);
     t->start();
 #endif
+}
+
+void Window::openLink(QUrl link){
+    QDesktopServices::openUrl(link);
 }
 
 #endif

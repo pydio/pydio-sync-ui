@@ -86,6 +86,7 @@ private slots:
     void notFoundFromPython();
     void connectionLost();
     void about();
+    void openLink(QUrl);
 
 private:
     QWebView *settingsWebView;
