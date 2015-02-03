@@ -20,8 +20,9 @@ const QString PORT_CONFIG_FILE_NAME = "ports_config";
 const QString PYDIO_DATA_DIR = "/Pydio";
 
 const QString PYDIO_VERSION = "##VERSION##";
-const QString COMMIT_ID = "##COMMIT##";
 const QString VERSION_DATE = "##VERSION_DATE##";
 const QString BUILD_CHANNEL = "##BUILD_CHANNEL##";
+
+const QString UPDATE_URL = "https://pyd.io/update/?package=pydio-sync&channel=develop&version=0.8.10&arch=macos";
 
 #endif // GLOBALS_H

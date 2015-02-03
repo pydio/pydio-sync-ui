@@ -60,6 +60,8 @@
 #include <cmdhelper.h>
 #include <aboutdialog.h>
 #include <globals.h>
+#include <pydioupdatepinger.h>
+#include <updatedownloader.h>
 
 
 #ifndef QT_NO_SYSTEMTRAYICON
@@ -101,6 +103,9 @@ private:
     CmdHelper *cmdHelper;
 
     AboutDialog *aboutDialog;
+
+    PydioUpdatePinger* updatePinger;
+    UpdateDownloader* updateDownloader;
 
     QString pathToWinAgent;
 };

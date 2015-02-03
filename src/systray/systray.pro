@@ -16,7 +16,9 @@ HEADERS      += window.h \
     jobmenu.h \
     cmdhelper.h \
     aboutdialog.h \
-    globals.h
+    globals.h \
+    pydioupdatepinger.h \
+    updatedownloader.h
 SOURCES       = main.cpp \
                 window.cpp \
                 portconfigurer.cpp \
@@ -27,7 +29,9 @@ SOURCES       = main.cpp \
     customtrayicon.cpp \
     jobmenu.cpp \
     aboutdialog.cpp \
-    cmdhelper.cpp
+    cmdhelper.cpp \
+    pydioupdatepinger.cpp \
+    updatedownloader.cpp
 
 RESOURCES     = systray.qrc
 

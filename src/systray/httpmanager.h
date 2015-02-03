@@ -51,8 +51,6 @@ private:
     bool launch;
     void checkNoJobAtLaunch();
     void debug(QString);
-
-
 };
 
 #endif // HTTPManager_H
