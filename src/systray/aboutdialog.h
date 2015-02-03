@@ -5,12 +5,13 @@
 #include <QWebView>
 #include <QApplication>
 #include <QDesktopServices>
+#include <globals.h>
 
 class AboutDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit AboutDialog(QWidget *parent = 0, int width=0, int height=0);
+    explicit AboutDialog(QWidget *parent = 0);
     void show();
     QWebView *aboutWebView;
 

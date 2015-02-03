@@ -11,6 +11,8 @@
 #include <QJsonValue>
 #include <job.h>
 #include <QHash>
+#include <globals.h>
+
 
 class HTTPManager : public QObject
 {
@@ -45,7 +47,6 @@ private:
     QNetworkAccessManager *manager;
     QString serverUrl;
     QHash<QString, Job*> *jobs;
-    const static int MAX_CONNECTION_ATTEMPTS = 2;
     int failed_attempts;
     bool launch;
     void checkNoJobAtLaunch();

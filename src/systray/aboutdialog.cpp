@@ -1,11 +1,11 @@
 #include "aboutdialog.h"
 
-AboutDialog::AboutDialog(QWidget *parent, int width, int height) :
+AboutDialog::AboutDialog(QWidget *parent) :
     QDialog(parent)
 {
     aboutWebView = new QWebView(this);
     aboutWebView->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
-    this->resize(width, height);
+    this->resize(WIDTH, HEIGHT);
 }
 
 void AboutDialog::show(){

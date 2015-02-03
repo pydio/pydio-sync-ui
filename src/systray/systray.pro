@@ -15,7 +15,8 @@ HEADERS      += window.h \
     customtrayicon.h \
     jobmenu.h \
     cmdhelper.h \
-    aboutdialog.h
+    aboutdialog.h \
+    globals.h
 SOURCES       = main.cpp \
                 window.cpp \
                 portconfigurer.cpp \

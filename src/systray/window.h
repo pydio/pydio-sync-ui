@@ -58,15 +58,12 @@
 #include <customtrayicon.h>
 #include <cmdhelper.h>
 #include <aboutdialog.h>
+#include <globals.h>
+
 
 #ifndef QT_NO_SYSTEMTRAYICON
 
 #include <QDialog>
-
-QT_BEGIN_NAMESPACE
-class QAction;
-class QMenu;
-QT_END_NAMESPACE
 
 class Window : public QMainWindow
 {
@@ -75,7 +72,7 @@ class Window : public QMainWindow
 public:
     Window();
 protected slots:
-    void closeEvent(QCloseEvent *);
+   void closeEvent(QCloseEvent *);
 
 private slots:
     void show();
@@ -97,16 +94,6 @@ private:
 
     HTTPManager *httpManager;
     QTimer *pollTimer;
-
-    const int WIDTH = 480;
-    const int HEIGHT = 700;
-    const int WIDTH_OFFSET_WIN = 15;
-    const int HEIGHT_OFFSET_WIN = 80;
-    const int POLL_TIME_AFTER_404 = 5000;
-    const int POLL_INTERVAL = 2000;
-    const QString AGENT_SERVER_URL = "http://127.0.0.1:";
-    const QString AGENT_FILE_NAME_WIN = "/pydio-agent.exe";
-    const QString ABOUT_PAGE_PATH = "/res/index.html#/about";
 
     PortConfigurer *portConfigurer;
     JSEventHandler *jsDialog;

@@ -9,6 +9,8 @@
 #include <jobaction.h>
 #include <QDebug>
 #include <QTimer>
+#include <globals.h>
+
 
 class CustomTrayIcon : public QSystemTrayIcon
 {

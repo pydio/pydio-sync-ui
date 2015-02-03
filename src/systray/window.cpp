@@ -33,7 +33,7 @@ Window::Window()
         cmdHelper->launchAgentWin();
 #endif
 #ifdef Q_OS_MAC
-        //cmdHelper->launchAgentMac();
+        cmdHelper->launchAgentMac();
 #endif
 
         portConfigurer = new PortConfigurer(QDir::homePath() + "/.pydio_data/ports_config");
@@ -45,7 +45,7 @@ Window::Window()
         this->createTrayIcon();
         tray->show();
 
-        aboutDialog = new AboutDialog(this, WIDTH, HEIGHT);
+        aboutDialog = new AboutDialog(this);
 
         connect(pollTimer, SIGNAL(timeout()), httpManager, SLOT(poll()));
         connect(httpManager, SIGNAL(requestFinished()), pollTimer, SLOT(start()));
@@ -130,6 +130,7 @@ void Window::show()
     this->raise();
     this->showNormal();
 }
+
 
 void Window::closeEvent(QCloseEvent *e)
 {

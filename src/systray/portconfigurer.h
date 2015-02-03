@@ -4,6 +4,8 @@
 #include <QHash>
 #include <QFile>
 #include <QTextStream>
+#include <globals.h>
+
 
 class PortConfigurer
 {
@@ -16,7 +18,6 @@ public:
 private:
     void setPortsToDefault();
     QString ipAddress;
-    const static int DEFAULT_PORT = 5556;
     QFile *configFile;
     QString api_port;
 };

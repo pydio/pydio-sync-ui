@@ -224,7 +224,7 @@ void CustomTrayIcon::createMainMenu(){
 }
 
 void CustomTrayIcon::createActions(){
-    settingsAction = new QAction(tr("Open Pydio"), this);
+    settingsAction = new QAction(tr("Settings"), this);
     connect(settingsAction, SIGNAL(triggered()), this->parent(), SLOT(show()));
     settingsAction->setDisabled(true);
 

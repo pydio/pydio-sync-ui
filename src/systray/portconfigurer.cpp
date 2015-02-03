@@ -2,9 +2,8 @@
 
 PortConfigurer::PortConfigurer(QString pathToFile)
 {
-    ipAddress = "http://127.0.0.1:";
+    ipAddress = AGENT_SERVER_URL;
     configFile = new QFile(pathToFile);
-
 }
 
 void PortConfigurer::setPortsToDefault()
