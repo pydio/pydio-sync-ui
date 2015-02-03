@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QFileDialog>
 #include <QDesktopServices>
+#include <cmdhelper.h>
 
 class JSEventHandler : public QObject
 {

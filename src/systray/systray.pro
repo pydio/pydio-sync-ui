@@ -26,8 +26,8 @@ SOURCES       = main.cpp \
     jobaction.cpp \
     customtrayicon.cpp \
     jobmenu.cpp \
-    cmdhelper.cpp \
-    aboutdialog.cpp
+    aboutdialog.cpp \
+    cmdhelper.cpp
 
 RESOURCES     = systray.qrc
 

@@ -18,6 +18,6 @@ void JSEventHandler::openUrl(QString toOpen)
 }
 
 void JSEventHandler::openLogs(){
-    QString logDir = QDir::homePath() + "/.pydio_data";
+    QString logDir = CmdHelper::getAppDataDir();
     QDesktopServices::openUrl(QUrl::fromLocalFile(logDir));
 }

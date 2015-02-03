@@ -50,6 +50,7 @@
 #include <QDesktopWidget>
 #include <QStyleFactory>
 #include <QMessageBox>
+#include <QStandardPaths>
 
 #include <portconfigurer.h>
 #include <JSEventHandler.h>

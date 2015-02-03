@@ -16,6 +16,12 @@ const QString AGENT_SERVER_URL = "http://127.0.0.1:";
 const static int DEFAULT_PORT = 5556;
 const QString AGENT_FILE_NAME_WIN = "/pydio-agent.exe";
 const QString ABOUT_PAGE_PATH = "/res/index.html#/about";
+const QString PORT_CONFIG_FILE_NAME = "ports_config";
+const QString PYDIO_DATA_DIR = "/Pydio";
 
+const QString PYDIO_VERSION = "##VERSION##";
+const QString COMMIT_ID = "##COMMIT##";
+const QString VERSION_DATE = "##VERSION_DATE##";
+const QString BUILD_CHANNEL = "##BUILD_CHANNEL##";
 
 #endif // GLOBALS_H

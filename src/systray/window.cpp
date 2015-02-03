@@ -36,7 +36,7 @@ Window::Window()
         cmdHelper->launchAgentMac();
 #endif
 
-        portConfigurer = new PortConfigurer(QDir::homePath() + "/.pydio_data/ports_config");
+        portConfigurer = new PortConfigurer(CmdHelper::getAppDataDir() +'/'+ PORT_CONFIG_FILE_NAME);
         pollTimer = new QTimer(this);
         pollTimer->setInterval(POLL_INTERVAL);
         pollTimer->setSingleShot(true);
