@@ -16,8 +16,9 @@ public:
     explicit CmdHelper(QObject *parent = 0, QString path = "");
     static QString getAppDataDir(){
         #ifdef Q_OS_WIN
-            return "Pydio";
-            //return QFileInfo(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).path() + PYDIO_DATA_DIR;
+            QProcessEnvironment a = QProcessEnvironment::systemEnvironment();
+            return a.value("APPDATA") + '\\' + PYDIO_DATA_DIR;
+        //return QFileInfo(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).path() + PYDIO_DATA_DIR;
         #endif
         #ifdef Q_OS_MAC
             return QFileInfo(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)).path() + PYDIO_DATA_DIR;
