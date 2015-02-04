@@ -28,8 +28,16 @@ PydioUpdatePinger::PydioUpdatePinger(QObject *parent) :
     connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(requestFinished(QNetworkReply*)));
 }
 
-void PydioUpdatePinger::lookForUpdate(){
-    manager->get(QNetworkRequest(QUrl(UPDATE_URL)));
+void PydioUpdatePinger::lookForUpdate(){    
+    if(BUILD_CHANNEL == "##BUILD_CHANNEL##") {
+        // We are on develop mode, let's do nothing
+        return;
+    }
+    QString url = UPDATE_URL+"?package=pydio-sync"
+                             "&channel="+BUILD_CHANNEL+"&version="+PYDIO_VERSION+"&"
+                             "arch="+PYDIO_BUILD_ARCH+"&version_date="+VERSION_DATE;
+    //qDebug()<<url;
+    manager->get(QNetworkRequest(QUrl(url)));
 }
 
 void PydioUpdatePinger::requestFinished(QNetworkReply* reply){

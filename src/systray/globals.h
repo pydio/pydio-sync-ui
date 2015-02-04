@@ -43,7 +43,8 @@ const QString PYDIO_DATA_DIR = "/Pydio";
 const QString PYDIO_VERSION = "##VERSION##";
 const QString VERSION_DATE = "##VERSION_DATE##";
 const QString BUILD_CHANNEL = "##BUILD_CHANNEL##";
+const QString PYDIO_BUILD_ARCH = "##BUILD_ARCH##";
 
-const QString UPDATE_URL = "https://pyd.io/update/?package=pydio-sync&channel=develop&version=0.8.10&arch=macos";
+const QString UPDATE_URL = "https://pyd.io/update/";
 
 #endif // GLOBALS_H
