@@ -33,6 +33,7 @@
 #include <job.h>
 #include <QHash>
 #include <globals.h>
+#include <QTimer>
 
 
 class HTTPManager : public QObject

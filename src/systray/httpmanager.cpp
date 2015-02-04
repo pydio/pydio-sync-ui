@@ -161,7 +161,11 @@ void HTTPManager::pollingFinished(QNetworkReply* reply)
 void HTTPManager::checkNoJobAtLaunch(){
     if(launch){
         launch = false;
-        emit noActiveJobsAtLaunch();
+        QTimer *t = new QTimer(this);
+        connect(t, SIGNAL(timeout()), this, SIGNAL(noActiveJobsAtLaunch()));
+        t->setInterval(2000);
+        t->setSingleShot(true);
+        t->start();
     }
 }
 
