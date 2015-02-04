@@ -61,7 +61,7 @@
 #include <aboutdialog.h>
 #include <globals.h>
 #include <pydioupdatepinger.h>
-#include <updatedownloader.h>
+#include <updatedialog.h>
 
 
 #ifndef QT_NO_SYSTEMTRAYICON
@@ -105,7 +105,7 @@ private:
     AboutDialog *aboutDialog;
 
     PydioUpdatePinger* updatePinger;
-    UpdateDownloader* updateDownloader;
+    UpdateDialog* updateDialog;
 
     QString pathToWinAgent;
 };

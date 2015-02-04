@@ -18,7 +18,7 @@ HEADERS      += window.h \
     aboutdialog.h \
     globals.h \
     pydioupdatepinger.h \
-    updatedownloader.h
+    updatedialog.h
 SOURCES       = main.cpp \
                 window.cpp \
                 portconfigurer.cpp \
@@ -31,7 +31,7 @@ SOURCES       = main.cpp \
     aboutdialog.cpp \
     cmdhelper.cpp \
     pydioupdatepinger.cpp \
-    updatedownloader.cpp
+    updatedialog.cpp
 
 RESOURCES     = systray.qrc
 

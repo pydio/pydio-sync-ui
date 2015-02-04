@@ -36,12 +36,11 @@ Window::Window()
         cmdHelper->launchAgentMac();
 #endif
 
+        updateDialog = new UpdateDialog(this);
         updatePinger = new PydioUpdatePinger(this);
-        /*updateDownloader = new UpdateDownloader(this);
         connect(updatePinger, SIGNAL(updateFound(QString,QString,QString,QString)),
-                updateDownloader,SLOT(proposeDownload(QString,QString,QString,QString)));
+                updateDialog, SLOT(proposeDownload(QString,QString,QString,QString)));
         updatePinger->lookForUpdate();
-        */
 
         portConfigurer = new PortConfigurer(CmdHelper::getAppDataDir() +'/'+ PORT_CONFIG_FILE_NAME);
         pollTimer = new QTimer(this);
