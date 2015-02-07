@@ -28,12 +28,18 @@ Window::Window()
     QCommandLineParser parser;
     QCommandLineOption pathToWinAgentOption("p", "Path to sync agent", "agentPath");
     parser.addOption(pathToWinAgentOption);
-    QCommandLineOption dumbTestOption("test", "Toggle dumb test.");
+    QCommandLineOption skipAgentStartOption("s", "Do not try to start agent on start up", "skipAgentStart");
+    parser.addOption(skipAgentStartOption);
+    QCommandLineOption dumbTestOption("test", "Super simple start/stop test.");
     parser.addOption(dumbTestOption);
     parser.process(*qApp);
+    bool startAgent = true;
+    if(parser.isSet(skipAgentStartOption) && parser.value(skipAgentStartOption) == "true"){
+        startAgent = false;
+    }
 
-    if(parser.isSet((pathToWinAgentOption))){
-        this->pathToWinAgent = parser.value((pathToWinAgentOption));
+    if(parser.isSet(pathToWinAgentOption)){
+        this->pathToWinAgent = parser.value(pathToWinAgentOption);
     }
     else{
         this->pathToWinAgent = QDir::currentPath() + AGENT_FILE_NAME_WIN;
@@ -50,12 +56,15 @@ Window::Window()
     }
     else{
         cmdHelper = new CmdHelper(this, pathToWinAgent);
+        if(startAgent){
+            qDebug()<<"Trying to start agent";
 #ifdef Q_OS_WIN
         cmdHelper->launchAgentWin();
 #endif
 #ifdef Q_OS_MAC
         cmdHelper->launchAgentMac();
 #endif
+        }
 
         updateDialog = new UpdateDialog(this);
         updatePinger = new PydioUpdatePinger(this);
