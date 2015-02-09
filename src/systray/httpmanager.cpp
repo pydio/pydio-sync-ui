@@ -21,6 +21,7 @@
 ****************************************************************************/
 #include "httpmanager.h"
 #include <QAuthenticator>
+#include <QNetworkProxy>
 
 HTTPManager::HTTPManager(QObject *parent) :
     QObject(parent)
@@ -30,6 +31,13 @@ HTTPManager::HTTPManager(QObject *parent) :
     connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(pollingFinished(QNetworkReply*)));
     connect(manager, SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)),
                 SLOT(provideAuthentication(QNetworkReply*,QAuthenticator*)));
+    // HACK FOR AUTHENTICATION / MACOS / KEYCHAIN ON MACOS
+#ifdef Q_OS_MAC
+    QNetworkProxy proxy = manager->proxy();
+    proxy.setHostName(" ");
+    manager->setProxy(proxy);
+#endif
+
     serverUrl = "";
     this->serverUsername = "";
     jobs = new QHash<QString, Job*>();
@@ -57,11 +65,16 @@ void HTTPManager::poll()
 
 void HTTPManager::provideAuthentication(QNetworkReply *reply, QAuthenticator *authenticator)
 {
-    //qDebug() << reply->readAll(); // this is just to see what we received
+    //qDebug() << reply->error(); // this is just to see what we received
+    if(failed_attempts > 3){
+        debug("Skipping authentication with name " + this->serverUsername);
+        return;
+    }
     if(this->serverUsername != ""){
         debug("Providing authentication with name " + this->serverUsername);
         authenticator->setUser(this->serverUsername);
         authenticator->setPassword(this->serverPassword);
+        failed_attempts ++;
     }
 }
 
