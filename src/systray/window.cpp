@@ -109,7 +109,7 @@ Window::Window()
         jsDialog = new JSEventHandler(this);
 
         portConfigurer->updatePorts();
-        httpManager->setUrl(AGENT_SERVER_URL + portConfigurer->port());
+        httpManager->setUrl(AGENT_SERVER_URL + portConfigurer->port(), portConfigurer->username(), portConfigurer->password());
         httpManager->poll();
 
         //this->setWindowFlags(Qt::Tool);
@@ -126,6 +126,7 @@ void Window::show()
     settingsWebView->setContextMenuPolicy(Qt::NoContextMenu);
     this->setCentralWidget(settingsWebView);
 
+
 #ifdef Q_OS_WIN
     settingsWebView->setStyle(QStyleFactory::create("windows"));
 #endif
@@ -133,6 +134,11 @@ void Window::show()
     QUrl syncUrl = QUrl(AGENT_SERVER_URL + portConfigurer->port());
 
     httpManager->testWebView();
+
+    QNetworkAccessManager * nam = settingsWebView->page()->networkAccessManager();
+    connect(nam, SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)), httpManager,
+                SLOT(provideAuthentication(QNetworkReply*,QAuthenticator*)));
+
     settingsWebView->load(syncUrl);
 
     // link the javascript dialog of the ui to the system FileDialog
@@ -231,7 +237,7 @@ void Window::agentReached(){
 void Window::connectionLost(){
     qDebug()<<"UPDATING PORTS FROM CONFIG FILE";
     portConfigurer->updatePorts();
-    httpManager->setUrl(AGENT_SERVER_URL + portConfigurer->port());
+    httpManager->setUrl(AGENT_SERVER_URL + portConfigurer->port(), portConfigurer->username(), portConfigurer->password());
 }
 
 void Window::notFoundFromPython(){

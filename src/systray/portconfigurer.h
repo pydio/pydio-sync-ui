@@ -34,6 +34,8 @@ public:
     PortConfigurer(QString pathToFile);
     QString port();
     QString address();
+    QString username();
+    QString password();
     void updatePorts();
 
 private:
@@ -41,6 +43,8 @@ private:
     QString ipAddress;
     QFile *configFile;
     QString api_port;
+    QString api_username;
+    QString api_password;
 };
 
 #endif // PORTCONFIGURER_H

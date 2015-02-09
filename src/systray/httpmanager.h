@@ -41,7 +41,7 @@ class HTTPManager : public QObject
     Q_OBJECT
 public:
     explicit HTTPManager(QObject *parent = 0);
-    void setUrl(QString);
+    void setUrl(QString, QString, QString);
     void testWebView();
 
 signals:
@@ -63,11 +63,14 @@ public slots:
     void resumeSync();
     void pauseSync();
     void terminateAgent();
+    void provideAuthentication(QNetworkReply *, QAuthenticator *);
 
 private:
     bool debugMode;
     QNetworkAccessManager *manager;
     QString serverUrl;
+    QString serverUsername;
+    QString serverPassword;
     QHash<QString, Job*> *jobs;
     int failed_attempts;
     bool launch;

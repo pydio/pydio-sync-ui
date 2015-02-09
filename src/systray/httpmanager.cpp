@@ -20,6 +20,7 @@
 **
 ****************************************************************************/
 #include "httpmanager.h"
+#include <QAuthenticator>
 
 HTTPManager::HTTPManager(QObject *parent) :
     QObject(parent)
@@ -27,16 +28,21 @@ HTTPManager::HTTPManager(QObject *parent) :
     debugMode = true;
     manager = new QNetworkAccessManager(parent);
     connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(pollingFinished(QNetworkReply*)));
+    connect(manager, SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)),
+                SLOT(provideAuthentication(QNetworkReply*,QAuthenticator*)));
     serverUrl = "";
+    this->serverUsername = "";
     jobs = new QHash<QString, Job*>();
     failed_attempts = -1;
     launch = true;
 }
 
-void HTTPManager::setUrl(QString servUrl)
+void HTTPManager::setUrl(QString servUrl, QString username, QString password)
 {
     debug("Server set to " + servUrl);
     this->serverUrl = servUrl;
+    this->serverUsername = username;
+    this->serverPassword = password;
     failed_attempts = -1;
     jobs->clear();
 }
@@ -44,6 +50,15 @@ void HTTPManager::setUrl(QString servUrl)
 void HTTPManager::poll()
 {
     manager->get(QNetworkRequest(QUrl(this->serverUrl + "/jobs-status")));
+}
+
+void HTTPManager::provideAuthentication(QNetworkReply *reply, QAuthenticator *authenticator)
+{
+    //qDebug() << reply->readAll(); // this is just to see what we received
+    if(this->serverUsername != ""){
+        authenticator->setUser(this->serverUsername);
+        authenticator->setPassword(this->serverPassword);
+    }
 }
 
 void HTTPManager::pollingFinished(QNetworkReply* reply)
@@ -148,7 +163,7 @@ void HTTPManager::pollingFinished(QNetworkReply* reply)
         if(failed_attempts < MAX_CONNECTION_ATTEMPTS)
             debug("HTTP Poller Reply : " + reply->errorString());
         ++failed_attempts;
-        if(failed_attempts == MAX_CONNECTION_ATTEMPTS){
+        if(failed_attempts >= MAX_CONNECTION_ATTEMPTS){
             debug("-----------------------MAX CONNECTION ATTEMPTS REACHED, CLEARING JOBS-----------------------");
             this->jobs->clear();
             emit connectionProblem();

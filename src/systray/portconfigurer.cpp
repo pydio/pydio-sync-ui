@@ -25,6 +25,8 @@ PortConfigurer::PortConfigurer(QString pathToFile)
 {
     ipAddress = AGENT_SERVER_URL;
     configFile = new QFile(pathToFile);
+    api_username = "";
+    api_password = "";
 }
 
 void PortConfigurer::setPortsToDefault()
@@ -35,6 +37,16 @@ void PortConfigurer::setPortsToDefault()
 QString PortConfigurer::port()
 {
     return this->api_port;
+}
+
+QString PortConfigurer::username()
+{
+    return this->api_username;
+}
+
+QString PortConfigurer::password()
+{
+    return this->api_password;
 }
 
 QString PortConfigurer::address()
@@ -55,8 +67,13 @@ void PortConfigurer::updatePorts()
         return;
     }
     while(!in.atEnd()){
+        // line is pydio:PORT:USER:PASSWORD
         QStringList line = in.readLine().split(":", QString::SkipEmptyParts);
         api_port = line[1];
+        if(line.size() == 4){
+            api_username = line[2];
+            api_password = line[3];
+        }
     }
     configFile->close();
 }
