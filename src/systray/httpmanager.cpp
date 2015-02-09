@@ -58,9 +58,8 @@ void HTTPManager::setUrl(QString servUrl, QString username, QString password)
 
 void HTTPManager::poll()
 {
-    QNetworkRequest q = QNetworkRequest(QUrl(this->serverUrl + "/jobs-status"));
-//    q.setAttribute(QNetworkRequest::AuthenticationReuseAttribute, QNetworkRequest::Manual);
-    manager->get(q);
+    manager->clearAccessCache();
+    manager->get(QNetworkRequest(QUrl(this->serverUrl + "/jobs-status")));
 }
 
 void HTTPManager::provideAuthentication(QNetworkReply *reply, QAuthenticator *authenticator)
@@ -202,6 +201,7 @@ void HTTPManager::checkNoJobAtLaunch(){
 }
 
 void HTTPManager::testWebView(){
+    manager->clearAccessCache();
     manager->get(QNetworkRequest(QUrl(this->serverUrl + "/res/index.html")));
 }
 

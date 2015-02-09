@@ -136,6 +136,7 @@ void Window::show()
     httpManager->testWebView();
 
     QNetworkAccessManager * nam = settingsWebView->page()->networkAccessManager();
+//    nam->clearAccessCache();
     connect(nam, SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)), httpManager,
                 SLOT(provideAuthentication(QNetworkReply*,QAuthenticator*)));
 
