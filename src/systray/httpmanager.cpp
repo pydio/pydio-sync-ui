@@ -43,19 +43,23 @@ void HTTPManager::setUrl(QString servUrl, QString username, QString password)
     this->serverUrl = servUrl;
     this->serverUsername = username;
     this->serverPassword = password;
+    debug("Username set to " + username);
     failed_attempts = -1;
     jobs->clear();
 }
 
 void HTTPManager::poll()
 {
-    manager->get(QNetworkRequest(QUrl(this->serverUrl + "/jobs-status")));
+    QNetworkRequest q = QNetworkRequest(QUrl(this->serverUrl + "/jobs-status"));
+//    q.setAttribute(QNetworkRequest::AuthenticationReuseAttribute, QNetworkRequest::Manual);
+    manager->get(q);
 }
 
 void HTTPManager::provideAuthentication(QNetworkReply *reply, QAuthenticator *authenticator)
 {
     //qDebug() << reply->readAll(); // this is just to see what we received
     if(this->serverUsername != ""){
+        debug("Providing authentication with name " + this->serverUsername);
         authenticator->setUser(this->serverUsername);
         authenticator->setPassword(this->serverPassword);
     }
