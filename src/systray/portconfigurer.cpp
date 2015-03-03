@@ -20,11 +20,12 @@
 **
 ****************************************************************************/
 #include "portconfigurer.h"
+#include <QDebug>
 
 PortConfigurer::PortConfigurer(QString pathToFile)
 {
     ipAddress = AGENT_SERVER_URL;
-    qDebug()<<"Will look for ports config in " + pathToFile;
+    qDebug()<<pathToFile;
     configFile = new QFile(pathToFile);
     api_username = "";
     api_password = "";
