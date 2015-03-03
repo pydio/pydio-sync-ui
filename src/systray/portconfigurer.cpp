@@ -24,6 +24,7 @@
 PortConfigurer::PortConfigurer(QString pathToFile)
 {
     ipAddress = AGENT_SERVER_URL;
+    qDebug()<<"Will look for ports config in " + pathToFile;
     configFile = new QFile(pathToFile);
     api_username = "";
     api_password = "";
