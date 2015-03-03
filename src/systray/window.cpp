@@ -66,13 +66,20 @@ Window::Window()
 #endif
         }
 
+        qDebug()<<"Init update dialog";
         updateDialog = new UpdateDialog(this);
+        qDebug()<<"Init update pinger";
         updatePinger = new PydioUpdatePinger(this);
+        qDebug()<<"Connect update pinger";
         connect(updatePinger, SIGNAL(updateFound(QString,QString,QString,QString)),
                 updateDialog, SLOT(proposeDownload(QString,QString,QString,QString)));
+        qDebug()<<"Looking for update";
         updatePinger->lookForUpdate();
 
-        portConfigurer = new PortConfigurer(CmdHelper::getAppDataDir() +'/'+ PORT_CONFIG_FILE_NAME);
+        qDebug()<<"Loading dataDir";
+        QString dataDir = CmdHelper::getAppDataDir() +'/'+ PORT_CONFIG_FILE_NAME;
+        qDebug()<<"Init port configured with dataDir "+dataDir;
+        portConfigurer = new PortConfigurer(dataDir);
         pollTimer = new QTimer(this);
         pollTimer->setInterval(POLL_INTERVAL);
         pollTimer->setSingleShot(true);
