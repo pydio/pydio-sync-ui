@@ -30,6 +30,7 @@
 #include <QFileInfo>
 #include <QCoreApplication>
 #include <QDebug>
+#include <QDir>
 #include <globals.h>
 
 class CmdHelper : public QObject
