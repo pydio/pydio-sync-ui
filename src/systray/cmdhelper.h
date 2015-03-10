@@ -28,6 +28,8 @@
 #include <QTimer>
 #include <QStandardPaths>
 #include <QFileInfo>
+#include <QCoreApplication>
+#include <QDebug>
 #include <globals.h>
 
 class CmdHelper : public QObject
