@@ -88,7 +88,6 @@ private:
     PydioUpdatePinger* updatePinger;
     UpdateDialog* updateDialog;
 
-    QString pathToWinAgent;
 };
 
 #endif // QT_NO_SYSTEMTRAYICON

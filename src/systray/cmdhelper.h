@@ -48,11 +48,11 @@ signals:
 
 public slots:
     void launchAgentMac(bool stopBeforeLaunch = false);
-    void launchAgentWin();
+    void launchAgentProcess();
     void stopAgentMac();
 
 private:
-    QString pathToWinAgent;
+    QString pathToAgent;
 };
 
 #endif // CMDHELPER_H

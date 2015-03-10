@@ -26,8 +26,8 @@
 Window::Window()
 {
     QCommandLineParser parser;
-    QCommandLineOption pathToWinAgentOption("p", "Path to sync agent", "agentPath");
-    parser.addOption(pathToWinAgentOption);
+    QCommandLineOption pathToAgentOption("p", "Path to sync agent", "agentPath");
+    parser.addOption(pathToAgentOption);
     QCommandLineOption skipAgentStartOption("s", "Do not try to start agent on start up", "skipAgentStart");
     parser.addOption(skipAgentStartOption);
     QCommandLineOption dumbTestOption("test", "Super simple start/stop test.");
@@ -37,15 +37,7 @@ Window::Window()
     if(parser.isSet(skipAgentStartOption) && parser.value(skipAgentStartOption) == "true"){
         startAgent = false;
     }
-
-    if(parser.isSet(pathToWinAgentOption)){
-        this->pathToWinAgent = parser.value(pathToWinAgentOption);
-    }
-    else{
-        this->pathToWinAgent = QDir::currentPath() + AGENT_FILE_NAME_WIN;
-        qDebug()<<this->pathToWinAgent;
-    }
-
+    cmdHelper = new CmdHelper(this, (parser.isSet(pathToAgentOption))?parser.value(pathToAgentOption):"");
     if(parser.isSet(dumbTestOption)){
         QTimer *t = new QTimer(this);
         connect(t, SIGNAL(timeout()), qApp, SLOT(quit()));
@@ -55,15 +47,14 @@ Window::Window()
         qDebug()<<"Dumb test, will exit in 5 seconds...";
     }
     else{
-        cmdHelper = new CmdHelper(this, pathToWinAgent);
         if(startAgent){
-            qDebug()<<"Trying to start agent";
-#ifdef Q_OS_WIN
-        cmdHelper->launchAgentWin();
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+            cmdHelper->launchAgentProcess();
+#elif defined(Q_OS_MAC)
+            qDebug()<<"Starting agent via launchctl command.";
+            cmdHelper->launchAgentMac();
 #endif
-#ifdef Q_OS_MAC
-        cmdHelper->launchAgentMac();
-#endif
+
         }
 
         updateDialog = new UpdateDialog(this);
@@ -102,7 +93,7 @@ Window::Window()
         connect(tray, SIGNAL(pauseSync()), httpManager, SLOT(pauseSync()));
         connect(tray, SIGNAL(resumeSync()), httpManager, SLOT(resumeSync()));
         connect(tray, SIGNAL(quit()), this, SLOT(cleanQuit()));
-        connect(tray, SIGNAL(launchAgentSignal()), cmdHelper, SLOT(launchAgentWin()));
+        connect(tray, SIGNAL(launchAgentSignal()), cmdHelper, SLOT(launchAgentProcess()));
 //        connect(cmdHelper, SIGNAL(winAgentLaunched()), this, SLOT(show()));
 
         settingsWebView = new QWebView();
@@ -217,7 +208,7 @@ void Window::about(){
 }
 
 void Window::cleanQuit(){
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     httpManager->terminateAgent();
     //wait for agent to terminate
     QTimer *t = new QTimer(this);

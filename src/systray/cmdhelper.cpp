@@ -24,7 +24,28 @@
 CmdHelper::CmdHelper(QObject *parent, QString path) :
     QObject(parent)
 {
-    this->pathToWinAgent = path;
+    this->pathToAgent = path;
+#ifdef Q_OS_WIN
+            QString agentPath = QDir::currentPath() + AGENT_FILE_NAME_WIN;
+            if(path != ""){
+                agentPath = path;
+            }
+            qDebug()<<"Agent process will be launched at" + agentPath;
+            this->pathToAgent = agentPath;
+#endif
+#ifdef Q_OS_LINUX
+            QString agentPath = QFileInfo( QCoreApplication::applicationFilePath() ).dir().path()  + AGENT_FILE_NAME_LINUX;
+            if(path != ""){
+                agentPath = path;
+            }
+            QFileInfo checkPath(agentPath);
+            if(checkPath.exists() && checkPath.isFile()){
+                qDebug()<<"Should try to start agent at " + agentPath;
+                this->pathToAgent = agentPath;
+            }else{
+                qDebug()<<"Cannot find file " + agentPath + ", please start agent manually.";
+            }
+#endif
 }
 
 void CmdHelper::launchAgentMac(bool stopBeforeLaunch){
@@ -43,9 +64,11 @@ void CmdHelper::launchAgentMac(bool stopBeforeLaunch){
     process.waitForFinished();
 }
 
-void CmdHelper::launchAgentWin(){
-    QProcess::startDetached(pathToWinAgent, QStringList());
-    QTimer::singleShot(1500, this, SIGNAL(winAgentLaunched()));
+void CmdHelper::launchAgentProcess(){
+    if(this->pathToAgent != ""){
+        QProcess::startDetached(pathToAgent, QStringList());
+        QTimer::singleShot(1500, this, SIGNAL(winAgentLaunched()));
+    }
 }
 
 void CmdHelper::stopAgentMac(){
