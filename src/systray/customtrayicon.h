@@ -72,6 +72,9 @@ private:
     void debug(QString);
     void workOccuring();
     void workDone();
+    void setIconNormal();
+    void setIconBusy();
+    void setIconInactive();
 
     QTimer *animationTimer;
     QMenu *mainMenu;

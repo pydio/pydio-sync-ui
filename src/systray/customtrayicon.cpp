@@ -26,7 +26,7 @@ CustomTrayIcon::CustomTrayIcon(QObject* parent) : QSystemTrayIcon(parent)
     this->debugMode = true;
     this->pathToWinAgent = pathToWinAgent;
     this->syncAgentUp = false;
-    this->setIcon(QIcon(":/images/Pydio16-inactive.png"));
+    this->setIconNormal();
     this->createMainMenu();
     this->jobMenus = new QHash<QString, JobMenu*>();
     this->globalRunningStatus = false;
@@ -42,7 +42,7 @@ CustomTrayIcon::CustomTrayIcon(QObject* parent) : QSystemTrayIcon(parent)
     separatorAction = new QAction(this);
     separatorAction->setSeparator(true);
     singleJobLocal = new QAction(tr("Open local folder"), this);
-    singleJobLocal->setIcon(QIcon(":/images/folder.png"));
+    singleJobLocal->setIcon(QIcon(":/images/folder-32.png"));
     connect(singleJobLocal, SIGNAL(triggered()), this, SLOT(openSingleJobLocal()));
     singleJobRemote = new QAction(tr("Open remote"), this);
     singleJobRemote->setIcon(QIcon(":/images/world.png"));
@@ -187,7 +187,7 @@ void CustomTrayIcon::connectionMade(){
         debug("SINGLE JOB IS " + (singleJob ? singleJob->getJob()->getName() : "NULL"));
         debug("NUMBER OF JOBS : " +  QString::number(this->jobMenus->size()));
         this->syncAgentUp = true;
-        this->setIcon(QIcon(":/images/Pydio16.png"));
+        this->setIcon(QIcon(":/images/PydioSync-Systray-Mac.png"));
         this->normalIcon = true;
         this->jobsCleared("Connection Made");
         this->contextMenu()->removeAction(noAgentAction);
@@ -203,7 +203,7 @@ void CustomTrayIcon::connectionLost(){
         animationTimer->stop();
         animationOn = false;
         this->syncAgentUp = false;
-        this->setIcon(QIcon(":/images/Pydio16-inactive.png"));
+        this->setIconInactive();
         this->normalIcon = false;
         this->jobsCleared("CONNECTION LOST");
         debug("Working status : Off / Animation : Off / Normal Icon : on");
@@ -218,7 +218,7 @@ void CustomTrayIcon::connectionLost(){
 
 void CustomTrayIcon::noInternetConnection(){
     if(agentConnectedToInternet){
-        this->setIcon(QIcon(":/images/Pydio16-inactive.png"));
+        this->setIconInactive();
         this->contextMenu()->insertAction(settingsAction, noInternetAction);
         agentConnectedToInternet = false;
     }
@@ -226,7 +226,7 @@ void CustomTrayIcon::noInternetConnection(){
 
 void CustomTrayIcon::internetConnectionOk(){
     if(!agentConnectedToInternet){
-        this->setIcon(QIcon(":/images/Pydio16.png"));
+        this->setIconNormal();
         this->contextMenu()->removeAction(noInternetAction);
         agentConnectedToInternet = true;
     }
@@ -308,22 +308,35 @@ void CustomTrayIcon::workDone(){
     if(animationOn){
         animationTimer->stop();
         animationOn = false;
-        this->setIcon(QIcon(":/images/Pydio16.png"));
+        this->setIconNormal();
         normalIcon = true;
     }
 }
 
 void CustomTrayIcon::changeIcon(){
     if(normalIcon){
-        this->setIcon(QIcon(":/images/Pydio16-busy.png"));
-        this->animationTimer->setInterval(300);
+        this->setIconBusy();
+        this->animationTimer->setInterval(700);
         normalIcon = false;
     }else{
-        this->setIcon(QIcon(":/images/Pydio16.png"));
-        this->animationTimer->setInterval(1100);
+        this->setIconNormal();
+        this->animationTimer->setInterval(800);
         normalIcon = true;
     }
 }
+
+void CustomTrayIcon::setIconNormal(){
+    this->setIcon(QIcon(":/images/PydioSync-Systray-Mac.png"));
+}
+
+void CustomTrayIcon::setIconBusy(){
+    this->setIcon(QIcon(":/images/PydioSync-Systray-Mac-Transfer.png"));
+}
+
+void CustomTrayIcon::setIconInactive(){
+    this->setIcon(QIcon(":/images/PydioSync-Systray-Mac-Inactive.png"));
+}
+
 
 bool CustomTrayIcon::agentUp(){
     return this->syncAgentUp;

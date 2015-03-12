@@ -10,5 +10,11 @@
         <file>images/Pydio16-inactive.png</file>
         <file>images/Pydio16-busy.png</file>
         <file>webkit-sources/about.html</file>
+        <file>images/PydioSync-Systray-Mac-Transfer.png</file>
+        <file>images/PydioSync-Systray-Mac.png</file>
+        <file>images/PydioSync-Systray-Windows-Transfer.png</file>
+        <file>images/PydioSync-SysTray-Windows.png</file>
+        <file>images/PydioSync-Systray-Mac-Inactive.png</file>
+        <file>images/folder-32.png</file>
     </qresource>
 </RCC>
