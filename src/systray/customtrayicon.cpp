@@ -327,7 +327,7 @@ void CustomTrayIcon::changeIcon(){
 
 void CustomTrayIcon::setIconNormal(){
 #ifdef Q_OS_WIN
-    this->setIcon(QIcon(":/images/PydioSync-Systray-Windows.png"));
+    this->setIcon(QIcon(":/images/PydioSync-Systray-Mac.png"));
 #else
     this->setIcon(QIcon(":/images/PydioSync-Systray-Mac.png"));
 #endif
@@ -335,7 +335,7 @@ void CustomTrayIcon::setIconNormal(){
 
 void CustomTrayIcon::setIconBusy(){
 #ifdef Q_OS_WIN
-    this->setIcon(QIcon(":/images/PydioSync-Systray-Windows-Transfer.png"));
+    this->setIcon(QIcon(":/images/PydioSync-Systray-Mac-Transfer.png"));
 #else
     this->setIcon(QIcon(":/images/PydioSync-Systray-Mac-Transfer.png"));
 #endif
