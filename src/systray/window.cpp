@@ -107,6 +107,7 @@ Window::Window()
 
         //this->setWindowFlags(Qt::Tool);
         setWindowTitle(tr("Pydio"));
+        setWindowIcon(QIcon(":/images/PydioSync-Systray-Mac.png"));
     }
 }
 

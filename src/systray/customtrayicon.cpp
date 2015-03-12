@@ -187,7 +187,7 @@ void CustomTrayIcon::connectionMade(){
         debug("SINGLE JOB IS " + (singleJob ? singleJob->getJob()->getName() : "NULL"));
         debug("NUMBER OF JOBS : " +  QString::number(this->jobMenus->size()));
         this->syncAgentUp = true;
-        this->setIcon(QIcon(":/images/PydioSync-Systray-Mac.png"));
+        this->setIconNormal();
         this->normalIcon = true;
         this->jobsCleared("Connection Made");
         this->contextMenu()->removeAction(noAgentAction);
