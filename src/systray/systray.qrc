@@ -13,8 +13,8 @@
         <file>images/PydioSync-Systray-Mac-Transfer.png</file>
         <file>images/PydioSync-Systray-Mac.png</file>
         <file>images/PydioSync-Systray-Windows-Transfer.png</file>
-        <file>images/PydioSync-Systray-Windows.png</file>
         <file>images/PydioSync-Systray-Mac-Inactive.png</file>
         <file>images/folder-32.png</file>
+        <file>images/PydioSync-Systray-Windows.png</file>
     </qresource>
 </RCC>
