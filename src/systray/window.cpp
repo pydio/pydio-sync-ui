@@ -88,6 +88,7 @@ Window::Window()
         connect(httpManager, SIGNAL(noInternetConnection()), tray, SLOT(noInternetConnection()));
         connect(httpManager, SIGNAL(internetConnectionOk()), tray, SLOT(internetConnectionOk()));
         connect(httpManager, SIGNAL(connectionProblem()), this, SLOT(connectionLost()));
+        connect(httpManager, SIGNAL(jobNotifyMessage(QString,QString,QString)), tray, SLOT(notificationReceived(QString,QString,QString)));
 
         connect(tray, SIGNAL(about()), this, SLOT(about()));
         connect(tray, SIGNAL(pauseSync()), httpManager, SLOT(pauseSync()));

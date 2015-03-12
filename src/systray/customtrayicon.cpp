@@ -232,6 +232,11 @@ void CustomTrayIcon::internetConnectionOk(){
     }
 }
 
+void CustomTrayIcon::notificationReceived(QString jobId, QString type, QString message){
+    debug("NOTIFICATION RECEIVED: " + message);
+    this->showMessage("Notification Received!", message);
+}
+
 void CustomTrayIcon::createMainMenu(){
     this->createActions();
     mainMenu = new QMenu(0);

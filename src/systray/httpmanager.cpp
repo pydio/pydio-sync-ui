@@ -135,6 +135,10 @@ void HTTPManager::pollingFinished(QNetworkReply* reply)
                         QString jobId = job["id"].toString();
                         QString label = job["label"].toString();
                         QString lastEventMessage = job["last_event"].toObject().operator []("message").toString();
+                        if(job.contains("notification")){
+                            QString notification = job["notification"].toObject().operator []("message").toString();
+                            this->jobNotifyMessage(jobId, "sync", notification);
+                        }
                         QString local = job["directory"].toString();
                         QString remote = job["server"].toString();
                         bool running = job["running"].toBool();

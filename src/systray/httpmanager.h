@@ -56,6 +56,7 @@ signals:
    void webUI404();
    void noInternetConnection();
    void internetConnectionOk();
+   void jobNotifyMessage(QString,QString,QString);
 
 public slots:
     void poll();

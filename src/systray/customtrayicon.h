@@ -60,6 +60,7 @@ public slots:
     void changeIcon();
     void noInternetConnection();
     void internetConnectionOk();
+    void notificationReceived(QString jobId, QString type, QString message);
 
 private:
     void createMainMenu();
