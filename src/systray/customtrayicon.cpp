@@ -233,8 +233,14 @@ void CustomTrayIcon::internetConnectionOk(){
 }
 
 void CustomTrayIcon::notificationReceived(QString jobId, QString type, QString message){
-    debug("NOTIFICATION RECEIVED: " + message);
-    this->showMessage("Notification Received!", message);
+    QString jobTitle;
+    if(singleJob == NULL && jobMenus->contains(jobId)){
+        jobTitle = jobMenus->value(jobId)->getJob()->getName();
+    } else {
+        jobTitle = singleJob->getJob()->getName();
+    }
+    debug("NOTIFICATION RECEIVED: " + jobTitle + " - " + message);
+    this->showMessage(jobTitle, message);
 }
 
 void CustomTrayIcon::createMainMenu(){
