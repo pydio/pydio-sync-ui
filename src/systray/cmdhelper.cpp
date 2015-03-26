@@ -53,12 +53,12 @@ void CmdHelper::launchAgentMac(bool stopBeforeLaunch){
     QString processName = "launchctl";
     QStringList arguments;
     if(stopBeforeLaunch){
-        arguments = QStringList() << "remove"<< "PydioSync";
+        arguments = QStringList() << "remove"<< MAC_SERVICE_NAME_AGENT;
         process.start(processName, arguments);
         process.waitForStarted();
         process.waitForFinished();
     }
-    arguments = QStringList()<<"load"<<"-w"<<"/library/LaunchAgents/io.pyd.sync.launcher.plist";
+    arguments = QStringList()<<"load"<<"-w"<<"/Library/LaunchAgents/"+MAC_SERVICE_FILE_AGENT;
     process.start(processName, arguments);
     process.waitForStarted();
     process.waitForFinished();
@@ -74,11 +74,11 @@ void CmdHelper::launchAgentProcess(){
 void CmdHelper::stopAgentMac(){
     QProcess process;
     QString processName = "launchctl";
-    QStringList arguments = QStringList() << "remove"<< "PydioSync";
+    QStringList arguments = QStringList() << "remove"<< MAC_SERVICE_NAME_AGENT;
     process.start(processName, arguments);
     process.waitForStarted();
     process.waitForFinished();
-    arguments = QStringList() << "remove"<< "PydioSyncUI";
+    arguments = QStringList() << "remove"<< MAC_SERVICE_NAME_UI;
     process.start(processName, arguments);
     process.waitForStarted();
     process.waitForFinished();
