@@ -20,6 +20,7 @@
 **
 ****************************************************************************/
 #include "JSEventHandler.h"
+#include "globals.h"
 #include <QDebug>
 
 JSEventHandler::JSEventHandler(QObject *parent) :
@@ -29,7 +30,7 @@ JSEventHandler::JSEventHandler(QObject *parent) :
 
 QString JSEventHandler::getPath()
 {
-   QString pydioDir = QDir::homePath() + "/pydio";
+   QString pydioDir = QDir::homePath() + "/" + PYDIO_DATA_DIR;
    return QFileDialog::getExistingDirectory(0, tr("Select local path"), pydioDir, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 }
 
