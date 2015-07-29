@@ -50,5 +50,6 @@ const QString BUILD_CHANNEL = "##BUILD_CHANNEL##";
 const QString PYDIO_BUILD_ARCH = "##BUILD_ARCH##";
 
 const QString UPDATE_URL = "https://pyd.io/update/";
+const bool CHECK_FOR_UPDATE = true;
 
 #endif // GLOBALS_H
