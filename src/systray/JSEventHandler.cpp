@@ -22,6 +22,7 @@
 #include "JSEventHandler.h"
 #include "globals.h"
 #include <QDebug>
+//#include <localserver.h>
 
 JSEventHandler::JSEventHandler(QObject *parent) :
     QObject(parent)
@@ -42,4 +43,27 @@ void JSEventHandler::openUrl(QString toOpen)
 void JSEventHandler::openLogs(){
     QString logDir = CmdHelper::getAppDataDir();
     QDesktopServices::openUrl(QUrl::fromLocalFile(logDir));
+}
+
+QString JSEventHandler::getFilePath()
+{
+   QString pydioDir = QDir::homePath() + "/" + PYDIO_DATA_DIR;
+   return QFileDialog::getOpenFileName(0, tr("Select local path"), pydioDir,0);
+}
+
+QString JSEventHandler::getShareName()
+{
+   shareFileName = "hello";
+   return shareFileName;
+}
+QString JSEventHandler::getShareJobId()
+{
+   shareFileJobId = "54.154.218.27-my-files";
+   return shareFileJobId;
+}
+
+void JSEventHandler::setFileName(QList<QString> value)
+{
+    shareFileName = value[1];
+    shareFileJobId = value[0];
 }

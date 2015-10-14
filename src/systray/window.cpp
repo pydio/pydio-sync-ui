@@ -57,6 +57,7 @@ Window::Window()
 
         }
 
+        localServer = new LocalServer(this);
         if(CHECK_FOR_UPDATE){
             updateDialog = new UpdateDialog(this);
             updatePinger = new PydioUpdatePinger(this);
@@ -76,6 +77,7 @@ Window::Window()
         tray->show();
 
         aboutDialog = new AboutDialog(this);
+        shareFile = new ShareFile(this);
 
         connect(pollTimer, SIGNAL(timeout()), httpManager, SLOT(poll()));
         connect(httpManager, SIGNAL(requestFinished()), pollTimer, SLOT(start()));
@@ -93,6 +95,7 @@ Window::Window()
         connect(httpManager, SIGNAL(jobNotifyMessage(QString,QString,QString)), tray, SLOT(notificationReceived(QString,QString,QString)));
 
         connect(tray, SIGNAL(about()), this, SLOT(about()));
+        connect(tray, SIGNAL(share()), this, SLOT(share()));
         connect(tray, SIGNAL(pauseSync()), httpManager, SLOT(pauseSync()));
         connect(tray, SIGNAL(resumeSync()), httpManager, SLOT(resumeSync()));
         connect(tray, SIGNAL(quit()), this, SLOT(cleanQuit()));
@@ -103,6 +106,7 @@ Window::Window()
 
         jsDialog = new JSEventHandler(this);
 
+        connect(localServer, SIGNAL(OnFileNameChanged(QList<QString>)), jsDialog, SLOT(setFileName(QList<QString>)));
         portConfigurer->updatePorts();
         httpManager->setUrl(AGENT_SERVER_URL + portConfigurer->port(), portConfigurer->username(), portConfigurer->password());
         httpManager->poll();
@@ -208,6 +212,17 @@ void Window::about(){
     else{
         this->aboutDialog->show();
         aboutDialog->aboutWebView->page()->currentFrame()->addToJavaScriptWindowObject("PydioQtFileDialog", jsDialog);
+    }
+}
+
+void Window::share(){
+    if(tray->agentUp()){
+        this->show();
+        settingsWebView->load(QUrl(AGENT_SERVER_URL + portConfigurer->port() + SHARE_PAGE_PATH));        
+    }
+    else{
+        this->shareFile->show();
+        shareFile->shareWebView->page()->currentFrame()->addToJavaScriptWindowObject("PydioQtFileDialog", jsDialog);
     }
 }
 

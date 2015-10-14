@@ -46,6 +46,7 @@ signals:
     void about();
     void quit();
     void connectionLostSignal();
+    void share();
 
 public slots:
     void connectionMade();
@@ -91,6 +92,7 @@ private:
     QAction *singleJobLocal;
     QAction *singleJobRemote;
     QAction *separatorAction;
+    QAction *shareAction;
 
     bool globalRunningStatus;
     bool syncAgentUp;
