@@ -18,7 +18,9 @@ HEADERS      += window.h \
     aboutdialog.h \
     globals.h \
     pydioupdatepinger.h \
-    updatedialog.h
+    updatedialog.h \
+    sharefile.h \
+    localserver.h
 SOURCES       = main.cpp \
                 window.cpp \
                 portconfigurer.cpp \
@@ -31,7 +33,9 @@ SOURCES       = main.cpp \
     aboutdialog.cpp \
     cmdhelper.cpp \
     pydioupdatepinger.cpp \
-    updatedialog.cpp
+    updatedialog.cpp \
+    sharefile.cpp \
+    localserver.cpp
 
 RESOURCES     = systray.qrc
 
@@ -56,3 +60,5 @@ QMAKE_LIBDIR += \
 
 
 QMAKE_INFO_PLIST = ../../deploy/macos/info.plist
+
+FORMS +=
