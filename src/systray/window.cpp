@@ -56,17 +56,20 @@ Window::Window()
 #endif
 
         }
-
+		
+		QString dataDir = CmdHelper::getAppDataDir() +'/'+ PORT_CONFIG_FILE_NAME;
+        portConfigurer = new PortConfigurer(dataDir);
+        portConfigurer->updatePorts();
+		
+		
         if(CHECK_FOR_UPDATE){
             updateDialog = new UpdateDialog(this);
             updatePinger = new PydioUpdatePinger(this);
             connect(updatePinger, SIGNAL(updateFound(QString,QString,QString,QString)),
                     updateDialog, SLOT(proposeDownload(QString,QString,QString,QString)));
-            updatePinger->lookForUpdate();
+            updatePinger->lookForUpdate(AGENT_SERVER_URL + portConfigurer->port(), portConfigurer->username(), portConfigurer->password());
         }
-
-        QString dataDir = CmdHelper::getAppDataDir() +'/'+ PORT_CONFIG_FILE_NAME;
-        portConfigurer = new PortConfigurer(dataDir);
+        
         pollTimer = new QTimer(this);
         pollTimer->setInterval(POLL_INTERVAL);
         pollTimer->setSingleShot(true);
@@ -103,7 +106,6 @@ Window::Window()
 
         jsDialog = new JSEventHandler(this);
 
-        portConfigurer->updatePorts();
         httpManager->setUrl(AGENT_SERVER_URL + portConfigurer->port(), portConfigurer->username(), portConfigurer->password());
         httpManager->poll();
 

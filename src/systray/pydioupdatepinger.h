@@ -31,6 +31,9 @@
 #include <QJsonArray>
 #include <QJsonValue>
 #include <QUrl>
+#include <portconfigurer.h>
+#include <QApplication>
+#include <QDesktopServices>
 
 #include <globals.h>
 
@@ -39,16 +42,24 @@ class PydioUpdatePinger : public QObject
     Q_OBJECT
 public:
     explicit PydioUpdatePinger(QObject *parent = 0);
-    void lookForUpdate();
+    void lookForUpdate(QString servUrl, QString username, QString password);
 
 private:
+    bool debugMode;
     QNetworkAccessManager *manager;
+    PortConfigurer *portConfigurer;
+    QString serverUrl;
+    QString serverUsername;
+    QString serverPassword;
+    int failed_attempts;
+    void debug(QString);
 
 signals:
     void updateFound(QString, QString, QString, QString);
 
 public slots:
     void requestFinished(QNetworkReply*);
+    void provideAuthentication(QNetworkReply *, QAuthenticator *);
 };
 
 #endif // PYDIOUPDATEPINGER_H
