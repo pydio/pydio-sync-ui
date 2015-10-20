@@ -145,8 +145,9 @@ void Window::show()
     // link the javascript dialog of the ui to the system FileDialog
     settingsWebView->page()->currentFrame()->addToJavaScriptWindowObject("PydioQtFileDialog", jsDialog);
 
-    int desktopHeight = QApplication::desktop()->height();
-    int desktopWidth = QApplication::desktop()->width();
+    QRect rec = QApplication::desktop()->screenGeometry();
+    int desktopHeight = rec.height();
+    int desktopWidth = rec.width();
     int tray_x = this->tray->geometry().center().x();
 
     if(desktopHeight < 800){
