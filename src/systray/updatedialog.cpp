@@ -47,6 +47,5 @@ void UpdateDialog::proposeDownload(QString package, QString version, QString rel
 }
 
 void UpdateDialog::download(){
-    //manager->get(QNetworkRequest(QUrl(url)));
     QDesktopServices::openUrl(url);
 }

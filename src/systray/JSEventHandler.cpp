@@ -53,12 +53,10 @@ QString JSEventHandler::getFilePath()
 
 QString JSEventHandler::getShareName()
 {
-   shareFileName = "hello";
    return shareFileName;
 }
 QString JSEventHandler::getShareJobId()
 {
-   shareFileJobId = "54.154.218.27-my-files";
    return shareFileJobId;
 }
 

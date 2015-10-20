@@ -56,17 +56,12 @@ Window::Window()
 #endif
 
         }
-<<<<<<< HEAD
 
-        localServer = new LocalServer(this);
-=======
-		
-		QString dataDir = CmdHelper::getAppDataDir() +'/'+ PORT_CONFIG_FILE_NAME;
+        QString dataDir = CmdHelper::getAppDataDir() +'/'+ PORT_CONFIG_FILE_NAME;
         portConfigurer = new PortConfigurer(dataDir);
         portConfigurer->updatePorts();
-		
-		
->>>>>>> refs/remotes/origin/master
+
+        localServer = new LocalServer(this);
         if(CHECK_FOR_UPDATE){
             updateDialog = new UpdateDialog(this);
             updatePinger = new PydioUpdatePinger(this);
@@ -74,7 +69,7 @@ Window::Window()
                     updateDialog, SLOT(proposeDownload(QString,QString,QString,QString)));
             updatePinger->lookForUpdate(AGENT_SERVER_URL + portConfigurer->port(), portConfigurer->username(), portConfigurer->password());
         }
-        
+
         pollTimer = new QTimer(this);
         pollTimer->setInterval(POLL_INTERVAL);
         pollTimer->setSingleShot(true);
@@ -113,11 +108,7 @@ Window::Window()
 
         jsDialog = new JSEventHandler(this);
 
-<<<<<<< HEAD
         connect(localServer, SIGNAL(OnFileNameChanged(QList<QString>)), jsDialog, SLOT(setFileName(QList<QString>)));
-        portConfigurer->updatePorts();
-=======
->>>>>>> refs/remotes/origin/master
         httpManager->setUrl(AGENT_SERVER_URL + portConfigurer->port(), portConfigurer->username(), portConfigurer->password());
         httpManager->poll();
 
@@ -280,5 +271,4 @@ void Window::notFoundFromPython(){
 void Window::openLink(QUrl link){
     QDesktopServices::openUrl(link);
 }
-
 #endif

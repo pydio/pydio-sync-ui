@@ -19,7 +19,7 @@ signals:
 
 public slots:
     void openLink(QUrl);
-
+	
 };
 
 #endif // SHAREFILE
