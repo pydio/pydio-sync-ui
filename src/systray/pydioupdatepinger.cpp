@@ -20,24 +20,35 @@
 **
 ****************************************************************************/
 #include "pydioupdatepinger.h"
+#include <QAuthenticator>
 
 PydioUpdatePinger::PydioUpdatePinger(QObject *parent) :
     QObject(parent)
 {
     manager = new QNetworkAccessManager(parent);
     connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(requestFinished(QNetworkReply*)));
+    connect(manager, SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)), this,
+                SLOT(provideAuthentication(QNetworkReply*,QAuthenticator*)));
+    this->serverUsername = "";
+    failed_attempts = -1;
 }
 
-void PydioUpdatePinger::lookForUpdate(){    
+void PydioUpdatePinger::lookForUpdate(QString servUrl, QString username, QString password){
+
     if(BUILD_CHANNEL == "##BUILD_CHANNEL##") {
         // We are on develop mode, let's do nothing
         return;
     }
+
     QString url = UPDATE_URL+"?package=pydio-sync"
                              "&channel="+BUILD_CHANNEL+"&version="+PYDIO_VERSION+"&"
                              "arch="+PYDIO_BUILD_ARCH+"&version_date="+VERSION_DATE;
-    //qDebug()<<url;
-    manager->get(QNetworkRequest(QUrl(url)));
+
+    this->serverUrl = servUrl;
+    this->serverUsername = username;
+    this->serverPassword = password;
+
+    manager->get(QNetworkRequest(QUrl(this->serverUrl + "/url/" + url)));
 }
 
 void PydioUpdatePinger::requestFinished(QNetworkReply* reply){
@@ -64,3 +75,23 @@ void PydioUpdatePinger::requestFinished(QNetworkReply* reply){
     }
     reply->deleteLater();
 }
+
+void PydioUpdatePinger::provideAuthentication(QNetworkReply *reply, QAuthenticator *authenticator)
+{
+    if(failed_attempts > 3){
+        debug("Skipping authentication with name " + this->serverUsername);
+        return;
+    }
+    if(this->serverUsername != ""){
+        debug("Providing authentication with name " + this->serverUsername);
+        authenticator->setUser(this->serverUsername);
+        authenticator->setPassword(this->serverPassword);
+        failed_attempts ++;
+    }
+}
+
+void PydioUpdatePinger::debug(QString s){
+    if(this->debugMode)
+        qDebug()<<"  -- PydioUpdatePinger --   :    "<<s;
+}
+
