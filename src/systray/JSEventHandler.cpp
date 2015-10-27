@@ -22,7 +22,8 @@
 #include "JSEventHandler.h"
 #include "globals.h"
 #include <QDebug>
-//#include <localserver.h>
+#include <QApplication>
+#include <QClipboard>
 
 JSEventHandler::JSEventHandler(QObject *parent) :
     QObject(parent)
@@ -60,8 +61,21 @@ QString JSEventHandler::getShareJobId()
    return shareFileJobId;
 }
 
+QString JSEventHandler::getItemType()
+{
+    return ItemType;
+}
+
 void JSEventHandler::setFileName(QList<QString> value)
 {
     shareFileName = value[1];
     shareFileJobId = value[0];
+    ItemType = value[2];
 }
+
+void JSEventHandler::copyToClipBoard(QString value)
+{
+   QClipboard *clipboard = QApplication::clipboard();
+   clipboard->setText(value);
+}
+

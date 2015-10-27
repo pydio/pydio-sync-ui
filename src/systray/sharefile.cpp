@@ -13,6 +13,8 @@ void ShareFile::show(){
     shareWebView->load(QUrl("qrc:/webkit-sources/share.html"));
     connect(shareWebView, SIGNAL(linkClicked(QUrl)), this, SLOT(openLink(QUrl)));
     this->showNormal();
+    this->raise();
+    this->activateWindow();
     shareWebView->resize(this->width(), shareWebView->height());
     this->adjustSize();
 }

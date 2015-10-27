@@ -219,12 +219,13 @@ void Window::about(){
 
 void Window::share(){
     if(tray->agentUp()){
+        //this->close();
         this->show();
         settingsWebView->load(QUrl(AGENT_SERVER_URL + portConfigurer->port() + SHARE_PAGE_PATH));        
     }
     else{
-        this->shareFile->show();
-        shareFile->shareWebView->page()->currentFrame()->addToJavaScriptWindowObject("PydioQtFileDialog", jsDialog);
+        //this->shareFile->show();
+        //shareFile->shareWebView->page()->currentFrame()->addToJavaScriptWindowObject("PydioQtFileDialog", jsDialog);
     }
 }
 
