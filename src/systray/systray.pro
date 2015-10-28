@@ -19,7 +19,6 @@ HEADERS      += window.h \
     globals.h \
     pydioupdatepinger.h \
     updatedialog.h \
-    sharefile.h \
     localserver.h
 SOURCES       = main.cpp \
                 window.cpp \
@@ -34,7 +33,6 @@ SOURCES       = main.cpp \
     cmdhelper.cpp \
     pydioupdatepinger.cpp \
     updatedialog.cpp \
-    sharefile.cpp \
     localserver.cpp
 
 RESOURCES     = systray.qrc

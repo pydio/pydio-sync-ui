@@ -79,7 +79,6 @@ Window::Window()
         tray->show();
 
         aboutDialog = new AboutDialog(this);
-        shareFile = new ShareFile(this);
 
         connect(pollTimer, SIGNAL(timeout()), httpManager, SLOT(poll()));
         connect(httpManager, SIGNAL(requestFinished()), pollTimer, SLOT(start()));
@@ -222,10 +221,6 @@ void Window::share(){
         //this->close();
         this->show();
         settingsWebView->load(QUrl(AGENT_SERVER_URL + portConfigurer->port() + SHARE_PAGE_PATH));        
-    }
-    else{
-        //this->shareFile->show();
-        //shareFile->shareWebView->page()->currentFrame()->addToJavaScriptWindowObject("PydioQtFileDialog", jsDialog);
     }
 }
 

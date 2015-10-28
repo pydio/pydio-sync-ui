@@ -43,7 +43,6 @@
 #include <globals.h>
 #include <pydioupdatepinger.h>
 #include <updatedialog.h>
-#include <sharefile.h>
 #include <localserver.h>
 
 
@@ -87,7 +86,6 @@ private:
     CmdHelper *cmdHelper;
 
     AboutDialog *aboutDialog;
-    ShareFile *shareFile;
 
     PydioUpdatePinger* updatePinger;
     UpdateDialog* updateDialog;
