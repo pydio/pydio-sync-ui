@@ -193,7 +193,8 @@ void CustomTrayIcon::connectionMade(){
         this->contextMenu()->removeAction(noAgentAction);
         this->contextMenu()->insertAction(settingsAction, noJobAction);
         settingsAction->setDisabled(false);
-        this->contextMenu()->insertAction(aboutAction, resumePauseSyncAction);
+        //shareAction->setDisabled(false);
+        this->contextMenu()->insertAction(aboutAction, resumePauseSyncAction);        
     }
 }
 
@@ -210,6 +211,7 @@ void CustomTrayIcon::connectionLost(){
         this->contextMenu()->removeAction(noJobAction);
         this->contextMenu()->insertAction(settingsAction, noAgentAction);
         settingsAction->setDisabled(true);
+        //shareAction->setDisabled(true);
         this->contextMenu()->removeAction(resumePauseSyncAction);
         debug("SINGLE JOB IS " + (singleJob ? singleJob->getJob()->getName() : "NULL"));
         debug("NUMBER OF JOBS : " +  QString::number(this->jobMenus->size()));
@@ -249,8 +251,9 @@ void CustomTrayIcon::createMainMenu(){
     mainMenu->addSeparator();
     mainMenu->addAction(settingsAction);
     mainMenu->insertAction(settingsAction, noAgentAction);
+    //mainMenu->addAction(shareAction);
     mainMenu->addSeparator();
-    mainMenu->addAction(aboutAction);
+    mainMenu->addAction(aboutAction);    
     mainMenu->addAction(quitAction);
     this->setContextMenu(mainMenu);
 }
@@ -280,6 +283,10 @@ void CustomTrayIcon::createActions(){
 
     aboutAction = new QAction(tr("About"), this);
     connect(aboutAction, SIGNAL(triggered()), this, SIGNAL(about()));
+
+    //shareAction = new QAction(tr("Share"), this);
+    //connect(shareAction, SIGNAL(triggered()), this, SIGNAL(share()));
+    //shareAction->setDisabled(true);
 
     quitAction = new QAction(tr("&Quit"), this);
     connect(quitAction, SIGNAL(triggered()), this, SIGNAL(quit()));

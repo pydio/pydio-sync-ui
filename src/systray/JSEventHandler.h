@@ -30,13 +30,21 @@
 class JSEventHandler : public QObject
 {
     Q_OBJECT
+
 public:
     explicit JSEventHandler(QObject *parent = 0);
+    QString shareFileName;
+    QString shareFileJobId;
 
 public slots:
     QString getPath();
+    QString getFilePath();
     void openUrl(QString);
     void openLogs();
+    void setFileName(QList<QString> value);
+    QString getShareName();
+    QString getShareJobId();
 };
+
 
 #endif // JSEVENTHANDLER_H

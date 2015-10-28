@@ -43,6 +43,7 @@
 #include <globals.h>
 #include <pydioupdatepinger.h>
 #include <updatedialog.h>
+#include <localserver.h>
 
 
 #ifndef QT_NO_SYSTEMTRAYICON
@@ -67,6 +68,7 @@ private slots:
     void notFoundFromPython();
     void connectionLost();
     void about();
+    void share();
     void openLink(QUrl);
 
 private:
@@ -88,6 +90,7 @@ private:
     PydioUpdatePinger* updatePinger;
     UpdateDialog* updateDialog;
 
+    QObject* localServer;
 };
 
 #endif // QT_NO_SYSTEMTRAYICON

@@ -56,12 +56,12 @@ Window::Window()
 #endif
 
         }
-		
-		QString dataDir = CmdHelper::getAppDataDir() +'/'+ PORT_CONFIG_FILE_NAME;
+
+        QString dataDir = CmdHelper::getAppDataDir() +'/'+ PORT_CONFIG_FILE_NAME;
         portConfigurer = new PortConfigurer(dataDir);
         portConfigurer->updatePorts();
-		
-		
+
+        localServer = new LocalServer(this);
         if(CHECK_FOR_UPDATE){
             updateDialog = new UpdateDialog(this);
             updatePinger = new PydioUpdatePinger(this);
@@ -69,7 +69,7 @@ Window::Window()
                     updateDialog, SLOT(proposeDownload(QString,QString,QString,QString)));
             updatePinger->lookForUpdate(AGENT_SERVER_URL + portConfigurer->port(), portConfigurer->username(), portConfigurer->password());
         }
-        
+
         pollTimer = new QTimer(this);
         pollTimer->setInterval(POLL_INTERVAL);
         pollTimer->setSingleShot(true);
@@ -96,6 +96,7 @@ Window::Window()
         connect(httpManager, SIGNAL(jobNotifyMessage(QString,QString,QString)), tray, SLOT(notificationReceived(QString,QString,QString)));
 
         connect(tray, SIGNAL(about()), this, SLOT(about()));
+        connect(tray, SIGNAL(share()), this, SLOT(share()));
         connect(tray, SIGNAL(pauseSync()), httpManager, SLOT(pauseSync()));
         connect(tray, SIGNAL(resumeSync()), httpManager, SLOT(resumeSync()));
         connect(tray, SIGNAL(quit()), this, SLOT(cleanQuit()));
@@ -106,6 +107,7 @@ Window::Window()
 
         jsDialog = new JSEventHandler(this);
 
+        connect(localServer, SIGNAL(OnFileNameChanged(QList<QString>)), jsDialog, SLOT(setFileName(QList<QString>)));
         httpManager->setUrl(AGENT_SERVER_URL + portConfigurer->port(), portConfigurer->username(), portConfigurer->password());
         httpManager->poll();
 
@@ -214,6 +216,14 @@ void Window::about(){
     }
 }
 
+void Window::share(){
+    if(tray->agentUp()){
+        //this->close();
+        this->show();
+        settingsWebView->load(QUrl(AGENT_SERVER_URL + portConfigurer->port() + SHARE_PAGE_PATH));        
+    }
+}
+
 void Window::cleanQuit(){
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     httpManager->terminateAgent();
@@ -257,5 +267,4 @@ void Window::notFoundFromPython(){
 void Window::openLink(QUrl link){
     QDesktopServices::openUrl(link);
 }
-
 #endif

@@ -41,15 +41,18 @@ const QString MAC_SERVICE_FILE_AGENT = "io.pyd.sync.launcher.plist";
 const QString MAC_SERVICE_NAME_AGENT = "PydioSync";
 const QString MAC_SERVICE_NAME_UI = "PydioSyncUI";
 const QString ABOUT_PAGE_PATH = "/res/index.html#/about";
+const QString SHARE_PAGE_PATH = "/res/index.html#/share";
 const QString PORT_CONFIG_FILE_NAME = "ports_config";
 const QString PYDIO_DATA_DIR = "Pydio";
 
 const QString PYDIO_VERSION = "##VERSION##";
 const QString VERSION_DATE = "##VERSION_DATE##";
 const QString BUILD_CHANNEL = "##BUILD_CHANNEL##";
+
 const QString PYDIO_BUILD_ARCH = "##BUILD_ARCH##";
 
 const QString UPDATE_URL = "https://pyd.io/update/";
 const bool CHECK_FOR_UPDATE = true;
+
 
 #endif // GLOBALS_H
