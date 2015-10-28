@@ -41,7 +41,7 @@ void LocalServer::GenerateLink()
     QJsonObject jsonObject = jsonResponse.object();
 
     QList<QString> ShareContent;
-    ShareContent << jsonObject["JobId"].toString() << jsonObject["RelativePath"].toString();
+    ShareContent << jsonObject["JobId"].toString() << jsonObject["RelativePath"].toString() << jsonObject["itemType"].toString();
     emit OnFileNameChanged(ShareContent);
 
     clientConnection->disconnectFromServer();

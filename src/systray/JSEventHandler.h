@@ -35,6 +35,7 @@ public:
     explicit JSEventHandler(QObject *parent = 0);
     QString shareFileName;
     QString shareFileJobId;
+    QString ItemType;
 
 public slots:
     QString getPath();
@@ -44,6 +45,8 @@ public slots:
     void setFileName(QList<QString> value);
     QString getShareName();
     QString getShareJobId();
+    QString getItemType();
+    void copyToClipBoard(QString value);
 };
 
 
