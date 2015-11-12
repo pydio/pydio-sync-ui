@@ -218,7 +218,7 @@ void Window::about(){
 
 void Window::share(){
     if(tray->agentUp()){
-        //this->close();
+        this->close();
         this->show();
         settingsWebView->load(QUrl(AGENT_SERVER_URL + portConfigurer->port() + SHARE_PAGE_PATH));        
     }

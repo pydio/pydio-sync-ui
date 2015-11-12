@@ -11,7 +11,7 @@ LocalServer::LocalServer(QObject *parent) :
     QObject(parent)
 {
     localserver = new QLocalServer(this);
-    if (!localserver->listen("pydioLocalServer")) {
+    if (!localserver->listen(LOCAL_SERVER_URL)) {
         // return Unable to start the server msg
         //close();
         return;
