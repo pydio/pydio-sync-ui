@@ -19,7 +19,8 @@ HEADERS      += window.h \
     globals.h \
     pydioupdatepinger.h \
     updatedialog.h \
-    localserver.h
+    localserver.h \
+    runguard.h
 SOURCES       = main.cpp \
                 window.cpp \
                 portconfigurer.cpp \
@@ -33,7 +34,8 @@ SOURCES       = main.cpp \
     cmdhelper.cpp \
     pydioupdatepinger.cpp \
     updatedialog.cpp \
-    localserver.cpp
+    localserver.cpp \
+    runguard.cpp
 
 RESOURCES     = systray.qrc
 

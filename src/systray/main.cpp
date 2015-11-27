@@ -21,6 +21,7 @@
 ****************************************************************************/
 
 #include <QApplication>
+#include <runguard.h>
 
 #ifndef QT_NO_SYSTEMTRAYICON
 
@@ -30,6 +31,10 @@
 int main(int argc, char *argv[])
 {
     Q_INIT_RESOURCE(systray);
+
+    RunGuard guard( PYDIO_DATA_DIR + "_sync_key" );
+    if ( !guard.tryToRun() )
+        return 0;
 
     QApplication app(argc, argv);
 
