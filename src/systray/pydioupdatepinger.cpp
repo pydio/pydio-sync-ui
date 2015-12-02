@@ -48,7 +48,7 @@ void PydioUpdatePinger::lookForUpdate(QString servUrl, QString username, QString
     this->serverUsername = username;
     this->serverPassword = password;
 
-    manager->get(QNetworkRequest(QUrl(this->serverUrl + "/url/" + url)));
+    manager->get(QNetworkRequest(QUrl(this->serverUrl + "/url/" + QUrl::toPercentEncoding(url))));
 }
 
 void PydioUpdatePinger::requestFinished(QNetworkReply* reply){
