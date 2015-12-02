@@ -40,7 +40,7 @@ void PydioUpdatePinger::lookForUpdate(QString servUrl, QString username, QString
         return;
     }
 
-    QString url = UPDATE_URL+"?package=pydio-sync"
+    QString url = UPDATE_URL+"?package="+UPDATE_PACKAGE_NAME+
                              "&channel="+BUILD_CHANNEL+"&version="+PYDIO_VERSION+"&"
                              "arch="+PYDIO_BUILD_ARCH+"&version_date="+VERSION_DATE;
 

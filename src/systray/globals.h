@@ -51,7 +51,8 @@ const QString BUILD_CHANNEL = "##BUILD_CHANNEL##";
 
 const QString PYDIO_BUILD_ARCH = "##BUILD_ARCH##";
 
-const QString UPDATE_URL = "https://pyd.io/update/";
+const QString UPDATE_URL = "https://update.pydio.com/pub/";
+const QString UPDATE_PACKAGE_NAME = "pydio-sync";
 const bool CHECK_FOR_UPDATE = true;
 
 const  QString LOCAL_SERVER_URL = "##LOCAL_SERVER_URL##";
