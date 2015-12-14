@@ -11,7 +11,22 @@ LocalServer::LocalServer(QObject *parent) :
     QObject(parent)
 {
     localserver = new QLocalServer(this);
-    if (!localserver->listen(LOCAL_SERVER_URL)) {
+    QString namedpipe;
+    #ifdef Q_OS_WIN
+        namedpipe = LOCAL_SERVER_URL;
+    #else
+        namedpipe = "/tmp/" + LOCAL_SERVER_URL;
+    #endif
+    if (!localserver->listen(namedpipe)) {
+        qDebug() << "Failed to open named pipe, deleting and trying again...";
+        if (!QLocalServer::removeServer(namedpipe))
+            qDebug() << "Failed to delete named pipe";
+        if (!localserver->listen(namedpipe)) {
+            qDebug() << "Trying to delete named pipe wasn't enough";
+            //exit(-1);
+        } else {
+            qDebug() << "FIFO ok";
+        }
         // return Unable to start the server msg
         //close();
         return;
