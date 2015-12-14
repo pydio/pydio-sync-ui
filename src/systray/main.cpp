@@ -49,10 +49,13 @@ int main(int argc, char *argv[])
             qDebug() << "Starting MacOS extension";
             QObject *parent = 0;
             QProcess *macExtension = new QProcess(parent);
-            macExtension->start("open", QStringList() <<"../Resources/pydioswiftsync.app");
+            macExtension->start("open", QStringList() <<"/Applications/PydioSync.app/Contents/Resources/pydioswiftsync.app/Contents/MacOS/pydioswiftsync");
             if(!macExtension->waitForFinished()){
                 qDebug() << "Failed to launch MacOS extension.";
+            } else {
+                qDebug() << "Extension started.";
             }
+            qDebug() << macExtension->readAll();
         }
     #endif
     Window window;
