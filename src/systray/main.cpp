@@ -44,20 +44,7 @@ int main(int argc, char *argv[])
     app.installTranslator(&myappTranslator);
 
     QApplication::setQuitOnLastWindowClosed(false);
-    #ifdef TARGET_OS_MAC
-        if(QSysInfo::MacintoshVersion >= 12){
-            qDebug() << "Starting MacOS extension";
-            QObject *parent = 0;
-            QProcess *macExtension = new QProcess(parent);
-            macExtension->start("open", QStringList() <<"/Applications/PydioSync.app/Contents/Resources/pydioswiftsync.app");
-            if(!macExtension->waitForFinished()){
-                qDebug() << "Failed to launch MacOS extension.";
-            } else {
-                qDebug() << "Extension started.";
-            }
-            qDebug() << macExtension->readAll();
-        }
-    #endif
+
     Window window;
     return app.exec();
 }

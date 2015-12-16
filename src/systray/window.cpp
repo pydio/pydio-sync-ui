@@ -114,6 +114,21 @@ Window::Window()
         //this->setWindowFlags(Qt::Tool);
         setWindowTitle(PYDIO_DATA_DIR);
         setWindowIcon(QIcon(":/images/PydioSync-Systray-Mac.png"));
+
+        #ifdef TARGET_OS_MAC
+        if(QSysInfo::MacintoshVersion >= 12){
+            qDebug() << "Starting MacOS extension";
+            QObject *parent = 0;
+            QProcess *macExtension = new QProcess(parent);
+            macExtension->start("open", QStringList() <<"/Applications/PydioSync.app/Contents/Resources/pydioswiftsync.app");
+            if(!macExtension->waitForFinished()){
+                qDebug() << "Failed to launch MacOS extension.";
+            } else {
+                qDebug() << "Extension started.";
+            }
+            qDebug() << macExtension->readAll();
+        }
+        #endif
     }
 }
 
