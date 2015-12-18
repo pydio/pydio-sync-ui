@@ -96,12 +96,11 @@ Window::Window()
         connect(httpManager, SIGNAL(jobNotifyMessage(QString,QString,QString)), tray, SLOT(notificationReceived(QString,QString,QString)));
 
         connect(tray, SIGNAL(about()), this, SLOT(about()));
-        connect(tray, SIGNAL(share()), this, SLOT(share()));
+        connect(localServer, SIGNAL(share(QString,QString,QString)), this, SLOT(share(QString,QString,QString)));
         connect(tray, SIGNAL(pauseSync()), httpManager, SLOT(pauseSync()));
         connect(tray, SIGNAL(resumeSync()), httpManager, SLOT(resumeSync()));
         connect(tray, SIGNAL(quit()), this, SLOT(cleanQuit()));
         connect(tray, SIGNAL(launchAgentSignal()), cmdHelper, SLOT(launchAgentProcess()));
-//        connect(cmdHelper, SIGNAL(winAgentLaunched()), this, SLOT(show()));
 
         settingsWebView = new QWebView();
 
@@ -114,8 +113,8 @@ Window::Window()
         //this->setWindowFlags(Qt::Tool);
         setWindowTitle(PYDIO_DATA_DIR);
         setWindowIcon(QIcon(":/images/PydioSync-Systray-Mac.png"));
-
-        #ifdef TARGET_OS_MAC
+		
+		#ifdef TARGET_OS_MAC
         if(QSysInfo::MacintoshVersion >= 12){
             qDebug() << "Starting MacOS extension";
             QObject *parent = 0;
@@ -231,11 +230,11 @@ void Window::about(){
     }
 }
 
-void Window::share(){
+void Window::share(QString JobId,QString FolderFlag,QString RelativePath){
     if(tray->agentUp()){        
         this->show();
         this->activateWindow();
-        settingsWebView->load(QUrl(AGENT_SERVER_URL + portConfigurer->port() + SHARE_PAGE_PATH));        
+        settingsWebView->load(QUrl(AGENT_SERVER_URL + portConfigurer->port() + SHARE_PAGE_PATH + "/" + "standard" + "/" + JobId +"/"+ FolderFlag +"/"+  QUrl::toPercentEncoding(RelativePath)));
     }
 }
 

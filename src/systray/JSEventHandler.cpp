@@ -46,33 +46,6 @@ void JSEventHandler::openLogs(){
     QDesktopServices::openUrl(QUrl::fromLocalFile(logDir));
 }
 
-QString JSEventHandler::getFilePath()
-{
-   QString pydioDir = QDir::homePath() + "/" + PYDIO_DATA_DIR;
-   return QFileDialog::getOpenFileName(0, tr("Select local path"), pydioDir,0);
-}
-
-QString JSEventHandler::getShareName()
-{
-   return shareFileName;
-}
-QString JSEventHandler::getShareJobId()
-{
-   return shareFileJobId;
-}
-
-QString JSEventHandler::getItemType()
-{
-    return ItemType;
-}
-
-void JSEventHandler::setFileName(QList<QString> value)
-{
-    shareFileName = value[1];
-    shareFileJobId = value[0];
-    ItemType = value[2];
-}
-
 void JSEventHandler::copyToClipBoard(QString value)
 {
    QClipboard *clipboard = QApplication::clipboard();

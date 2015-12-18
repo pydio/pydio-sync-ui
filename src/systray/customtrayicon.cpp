@@ -251,7 +251,7 @@ void CustomTrayIcon::createMainMenu(){
     mainMenu->addSeparator();
     mainMenu->addAction(settingsAction);
     mainMenu->insertAction(settingsAction, noAgentAction);
-    //mainMenu->addAction(shareAction);
+    //mainMenu->addAction(shareAction); // To be only enabled during debug
     mainMenu->addSeparator();
     mainMenu->addAction(aboutAction);    
     mainMenu->addAction(quitAction);
@@ -284,8 +284,9 @@ void CustomTrayIcon::createActions(){
     aboutAction = new QAction(tr("About"), this);
     connect(aboutAction, SIGNAL(triggered()), this, SIGNAL(about()));
 
+    // To be only enabled during debug
     //shareAction = new QAction(tr("Share"), this);
-    //connect(shareAction, SIGNAL(triggered()), this, SIGNAL(share()));
+    //connect(shareAction, SIGNAL(triggered()), this, SIGNAL(share(QString, QString, QString)));
     //shareAction->setDisabled(true);
 
     quitAction = new QAction(tr("&Quit"), this);
