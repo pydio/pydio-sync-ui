@@ -106,7 +106,6 @@ Window::Window()
 
         jsDialog = new JSEventHandler(this);
 
-        connect(localServer, SIGNAL(OnFileNameChanged(QList<QString>)), jsDialog, SLOT(setFileName(QList<QString>)));
         httpManager->setUrl(AGENT_SERVER_URL + portConfigurer->port(), portConfigurer->username(), portConfigurer->password());
         httpManager->poll();
 
