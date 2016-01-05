@@ -44,15 +44,12 @@ LocalServer::LocalServer(QObject *parent) :
 			qDebug() << "Failed to delete named pipe";
 		if (!localserver->listen(namedpipe)) {
 			qDebug() << "Trying to delete named pipe wasn't enough";
-			//exit(-1);
 		} else {
 			qDebug() << "FIFO ok";
 		}
-		// return Unable to start the server msg
-		//close();
-		return;
 	}
     connect(localserver, SIGNAL(newConnection()), this, SLOT(GenerateLink()));
+	return;
 }
 
 void LocalServer::GenerateLink()
