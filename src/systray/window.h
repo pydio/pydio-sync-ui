@@ -68,6 +68,7 @@ private slots:
     void notFoundFromPython();
     void connectionLost();
     void about();
+    void check_for_update();
     void share(QString JobId,QString FolderFlag,QString RelativePath);
     void openLink(QUrl);
 

@@ -44,6 +44,7 @@ void UpdateDialog::proposeDownload(QString package, QString version, QString rel
     layout->addWidget(downloadButton, 1, 1);
     this->setLayout(layout);
     this->exec();
+    this->hasFocus();
 }
 
 void UpdateDialog::download(){

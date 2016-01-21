@@ -186,6 +186,7 @@ void CustomTrayIcon::connectionMade(){
     if(!this->syncAgentUp){
         debug("SINGLE JOB IS " + (singleJob ? singleJob->getJob()->getName() : "NULL"));
         debug("NUMBER OF JOBS : " +  QString::number(this->jobMenus->size()));
+        emit check_for_update();
         this->syncAgentUp = true;
         this->setIconNormal();
         this->normalIcon = true;
