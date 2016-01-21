@@ -118,7 +118,7 @@ Window::Window()
             qDebug() << "Starting MacOS extension";
             QObject *parent = 0;
             QProcess *macExtension = new QProcess(parent);
-            macExtension->start("open", QStringList() <<"/Applications/PydioSync.app/Contents/Resources/pydioswiftsync.app");
+            macExtension->start("open", QStringList() << MAC_EXT);
             if(!macExtension->waitForFinished()){
                 qDebug() << "Failed to launch MacOS extension.";
             } else {

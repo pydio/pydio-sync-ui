@@ -58,4 +58,6 @@ const bool CHECK_FOR_UPDATE = true;
 const  QString LOCAL_SERVER_URL = "##LOCAL_SERVER_URL##";
 //"pydioLocalServer" for pydio-sync and "workspacesLocalServer" for workspaces-sync
 
+const QString MAC_EXT = "/Applications/PydioSync.app/Contents/Resources/pydioswiftsync.app";
+
 #endif // GLOBALS_H
