@@ -23,6 +23,18 @@
 
 CustomTrayIcon::CustomTrayIcon(QObject* parent) : QSystemTrayIcon(parent)
 {
+
+/*#ifdef Q_OS_MAC
+    // Yes the files names are inverted...
+    this->iconActive = QIcon(":/images/flat.sips.png");
+    this->iconTransfer = QIcon(":/images/PydioSync-Systray-Windows-Transfer.png");
+    this->iconInactive = QIcon(":/images/PydioSync-Systray-Mac-Inactive.png");
+#else*/
+    this->iconActive = QIcon(":/images/PydioSync-Systray-Mac.png");
+    this->iconTransfer = QIcon(":/images/PydioSync-Systray-Mac-Transfer.png");
+    this->iconInactive = QIcon(":/images/PydioSync-Systray-Mac-Inactive.png");
+//#endif
+
     this->debugMode = true;
     this->pathToWinAgent = pathToWinAgent;
     this->syncAgentUp = false;
@@ -334,23 +346,18 @@ void CustomTrayIcon::changeIcon(){
 }
 
 void CustomTrayIcon::setIconNormal(){
-#ifdef Q_OS_WIN
-    this->setIcon(QIcon(":/images/PydioSync-Systray-Mac.png"));
-#else
-    this->setIcon(QIcon(":/images/PydioSync-Systray-Mac.png"));
-#endif
+    //qDebug() << "SETTING ICON normal";
+    this->setIcon(this->iconActive);
 }
 
 void CustomTrayIcon::setIconBusy(){
-#ifdef Q_OS_WIN
-    this->setIcon(QIcon(":/images/PydioSync-Systray-Mac-Transfer.png"));
-#else
-    this->setIcon(QIcon(":/images/PydioSync-Systray-Mac-Transfer.png"));
-#endif
+    //qDebug() << "SETTING ICON busy";
+    this->setIcon(this->iconTransfer);
 }
 
 void CustomTrayIcon::setIconInactive(){
-    this->setIcon(QIcon(":/images/PydioSync-Systray-Mac-Inactive.png"));
+    //qDebug() << "SETTING ICON inactive";
+    this->setIcon(this->iconInactive);
 }
 
 

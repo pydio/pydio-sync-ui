@@ -92,6 +92,9 @@ private:
     QAction *singleJobLocal;
     QAction *singleJobRemote;
     QAction *separatorAction;
+    QIcon iconActive;
+    QIcon iconInactive;
+    QIcon iconTransfer;
     //QAction *shareAction;
 
     bool globalRunningStatus;
