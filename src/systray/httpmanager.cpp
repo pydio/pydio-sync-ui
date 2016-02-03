@@ -175,11 +175,7 @@ void HTTPManager::pollingFinished(QNetworkReply* reply)
                 }
             }
         }
-    }
-    else if(reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 404){
-        emit webUI404();
-    }
-    else{
+    }else{
         if(failed_attempts < MAX_CONNECTION_ATTEMPTS)
             debug("HTTP Poller Reply : " + reply->errorString());
         ++failed_attempts;
@@ -204,9 +200,17 @@ void HTTPManager::checkNoJobAtLaunch(){
     }
 }
 
+void HTTPManager::headRequestFinished(QNetworkReply* reply){
+    if(reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 404){
+        emit webUI404();
+    }
+}
+
 void HTTPManager::testWebView(){
-    manager->clearAccessCache();
-    manager->get(QNetworkRequest(QUrl(this->serverUrl + "/res/index.html")));
+    QNetworkAccessManager *headManager = new QNetworkAccessManager();
+    connect(headManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(headRequestFinished(QNetworkReply*)));
+    headManager->head(QNetworkRequest(QUrl(this->serverUrl + "/res/index.html")));
+    headManager->head(QNetworkRequest(QUrl(this->serverUrl + "/res/angularjs/angular.min.js")));
 }
 
 void HTTPManager::resumeSync(){

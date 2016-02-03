@@ -61,6 +61,7 @@ signals:
 public slots:
     void poll();
     void pollingFinished(QNetworkReply*);
+    void headRequestFinished(QNetworkReply*);
     void resumeSync();
     void pauseSync();
     void terminateAgent();
