@@ -336,27 +336,27 @@ void CustomTrayIcon::workDone(){
 void CustomTrayIcon::changeIcon(){
     if(normalIcon){
         this->setIconBusy();
-        this->animationTimer->setInterval(700);
+        //this->animationTimer->setInterval(700);
         normalIcon = false;
     }else{
         this->setIconNormal();
-        this->animationTimer->setInterval(800);
+        //this->animationTimer->setInterval(800);
         normalIcon = true;
     }
 }
 
 void CustomTrayIcon::setIconNormal(){
-    //qDebug() << "SETTING ICON normal";
+    qDebug() << "SETTING ICON normal";
     this->setIcon(this->iconActive);
 }
 
 void CustomTrayIcon::setIconBusy(){
-    //qDebug() << "SETTING ICON busy";
+    qDebug() << "SETTING ICON busy";
     this->setIcon(this->iconTransfer);
 }
 
 void CustomTrayIcon::setIconInactive(){
-    //qDebug() << "SETTING ICON inactive";
+    qDebug() << "SETTING ICON inactive";
     this->setIcon(this->iconInactive);
 }
 
