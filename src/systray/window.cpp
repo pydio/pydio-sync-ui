@@ -62,13 +62,6 @@ Window::Window()
         portConfigurer->updatePorts();
 
         localServer = new LocalServer(this);
-        if(CHECK_FOR_UPDATE){
-            updateDialog = new UpdateDialog(this);
-            updatePinger = new PydioUpdatePinger(this);
-            connect(updatePinger, SIGNAL(updateFound(QString,QString,QString,QString)),
-                    updateDialog, SLOT(proposeDownload(QString,QString,QString,QString)));
-            updatePinger->lookForUpdate(AGENT_SERVER_URL + portConfigurer->port(), portConfigurer->username(), portConfigurer->password());
-        }
 
         pollTimer = new QTimer(this);
         pollTimer->setInterval(POLL_INTERVAL);
@@ -96,6 +89,7 @@ Window::Window()
         connect(httpManager, SIGNAL(jobNotifyMessage(QString,QString,QString)), tray, SLOT(notificationReceived(QString,QString,QString)));
 
         connect(tray, SIGNAL(about()), this, SLOT(about()));
+        connect(tray, SIGNAL(check_for_update()), this, SLOT(check_for_update()));
         connect(localServer, SIGNAL(share(QString,QString,QString)), this, SLOT(share(QString,QString,QString)));
         connect(tray, SIGNAL(pauseSync()), httpManager, SLOT(pauseSync()));
         connect(tray, SIGNAL(resumeSync()), httpManager, SLOT(resumeSync()));
@@ -188,6 +182,17 @@ void Window::show()
     this->showNormal();
 }
 
+void Window::check_for_update()
+{
+    if(CHECK_FOR_UPDATE){
+        QDebug<<"Check for update";
+        updateDialog = new UpdateDialog(this);
+        updatePinger = new PydioUpdatePinger(this);
+        connect(updatePinger, SIGNAL(updateFound(QString,QString,QString,QString)),
+                updateDialog, SLOT(proposeDownload(QString,QString,QString,QString)));
+        updatePinger->lookForUpdate(AGENT_SERVER_URL + portConfigurer->port(), portConfigurer->username(), portConfigurer->password());
+    }
+}
 
 void Window::closeEvent(QCloseEvent *e)
 {
