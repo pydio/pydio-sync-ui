@@ -58,6 +58,7 @@ void HTTPManager::setUrl(QString servUrl, QString username, QString password)
 
 void HTTPManager::poll()
 {
+    manager->setNetworkAccessible(QNetworkAccessManager::UnknownAccessibility);
     manager->clearAccessCache();
     manager->get(QNetworkRequest(QUrl(this->serverUrl + "/jobs-status")));
 }
