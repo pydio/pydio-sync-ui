@@ -185,7 +185,7 @@ void Window::show()
 void Window::check_for_update()
 {
     if(CHECK_FOR_UPDATE){
-        QDebug<<"Check for update";
+        //qDebug() << "Check for update";
         updateDialog = new UpdateDialog(this);
         updatePinger = new PydioUpdatePinger(this);
         connect(updatePinger, SIGNAL(updateFound(QString,QString,QString,QString)),
