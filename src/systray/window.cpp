@@ -23,7 +23,7 @@
 
 #ifndef QT_NO_SYSTEMTRAYICON
 
-Window::Window()
+Window::Window(QNetworkAccessManager* manager)
 {
     QCommandLineParser parser;
     QCommandLineOption pathToAgentOption("p", "Path to sync agent", "agentPath");
@@ -74,7 +74,7 @@ Window::Window()
         pollTimer->setInterval(POLL_INTERVAL);
         pollTimer->setSingleShot(true);
 
-        httpManager = new HTTPManager(this);
+        httpManager = new HTTPManager(this, manager);
         this->createTrayIcon();
         tray->show();
 

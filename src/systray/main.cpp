@@ -21,16 +21,15 @@
 ****************************************************************************/
 
 #include <QApplication>
-
+#include <QNetworkAccessManager>
 #ifndef QT_NO_SYSTEMTRAYICON
 
 #include <QMessageBox>
 #include "window.h"
-
 int main(int argc, char *argv[])
 {
     Q_INIT_RESOURCE(systray);
-
+    QNetworkAccessManager *networkManager = new QNetworkAccessManager;
     QApplication app(argc, argv);
 
     if (!QSystemTrayIcon::isSystemTrayAvailable()) {
@@ -42,10 +41,9 @@ int main(int argc, char *argv[])
     QTranslator myappTranslator;
     myappTranslator.load(":/languages/pydioUI_" + QLocale::system().name());
     app.installTranslator(&myappTranslator);
-
     QApplication::setQuitOnLastWindowClosed(false);
 
-    Window window;
+    Window window(networkManager);
     return app.exec();
 }
 

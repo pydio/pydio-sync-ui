@@ -44,7 +44,7 @@
 #include <pydioupdatepinger.h>
 #include <updatedialog.h>
 #include <localserver.h>
-
+#include <QNetworkAccessManager>
 
 #ifndef QT_NO_SYSTEMTRAYICON
 
@@ -55,7 +55,7 @@ class Window : public QMainWindow
     Q_OBJECT
 
 public:
-    Window();
+    Window(QNetworkAccessManager*);
 protected slots:
    void closeEvent(QCloseEvent *);
 

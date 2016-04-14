@@ -40,7 +40,7 @@ class HTTPManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit HTTPManager(QObject *parent = 0);
+     HTTPManager(QObject *parent = 0, QNetworkAccessManager* QNetworkAccessManager=NULL);
     void setUrl(QString, QString, QString);
     void testWebView();
 

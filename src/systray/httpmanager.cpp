@@ -23,11 +23,11 @@
 #include <QAuthenticator>
 #include <QNetworkProxy>
 
-HTTPManager::HTTPManager(QObject *parent) :
+HTTPManager::HTTPManager(QObject *parent, QNetworkAccessManager *nmanager) :
     QObject(parent)
 {
     debugMode = true;
-    manager = new QNetworkAccessManager(parent);
+    manager = nmanager;
     connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(pollingFinished(QNetworkReply*)));
     connect(manager, SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)),
                 SLOT(provideAuthentication(QNetworkReply*,QAuthenticator*)));
