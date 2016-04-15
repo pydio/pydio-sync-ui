@@ -46,6 +46,7 @@ signals:
     void about();
     void quit();
     void connectionLostSignal();
+    void check_for_update();
     void share(QString, QString, QString);
 
 public slots:
