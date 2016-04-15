@@ -29,8 +29,9 @@
 int main(int argc, char *argv[])
 {
     Q_INIT_RESOURCE(systray);
-    QNetworkAccessManager *networkManager = new QNetworkAccessManager;
+
     QApplication app(argc, argv);
+    QNetworkAccessManager *networkManager = new QNetworkAccessManager;
 
     if (!QSystemTrayIcon::isSystemTrayAvailable()) {
         QMessageBox::critical(0, QObject::tr("Systray"),
