@@ -26,13 +26,7 @@
 
 #include <QMessageBox>
 #include "window.h"
-int main(int argc, char *argv[])
-{
-    Q_INIT_RESOURCE(systray);
-
-    QApplication app(argc, argv);
-    QNetworkAccessManager *networkManager = new QNetworkAccessManager;
-
+int pydiosync(QApplication *app, QNetworkAccessManager *networkManager){
     if (!QSystemTrayIcon::isSystemTrayAvailable()) {
         QMessageBox::critical(0, QObject::tr("Systray"),
                               QObject::tr("I couldn't detect any system tray "
@@ -41,11 +35,27 @@ int main(int argc, char *argv[])
     }
     QTranslator myappTranslator;
     myappTranslator.load(":/languages/pydioUI_" + QLocale::system().name());
-    app.installTranslator(&myappTranslator);
+    app->installTranslator(&myappTranslator);
     QApplication::setQuitOnLastWindowClosed(false);
 
     Window window(networkManager);
-    return app.exec();
+    return app->exec();
+}
+
+int main(int argc, char *argv[]) {
+    try {
+        // On some versions of Qt initialising the network manager before the app reduces CPU peaks
+        Q_INIT_RESOURCE(systray);
+        QNetworkAccessManager *networkManager = new QNetworkAccessManager;
+        QApplication *app = new QApplication(argc, argv);
+        return pydiosync(app, networkManager);
+    } catch (const std::exception& ex) {
+        // On some versions of Qt initialising the network manager before the app fails :/
+        Q_INIT_RESOURCE(systray);
+        QApplication *app = new QApplication(argc, argv);
+        QNetworkAccessManager *networkManager = new QNetworkAccessManager;
+        return pydiosync(app, networkManager);
+    }
 }
 
 #else
