@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
         QNetworkAccessManager *networkManager = new QNetworkAccessManager;
         QApplication *app = new QApplication(argc, argv);
         return pydiosync(app, networkManager);
-    } catch (const std::exception& ex) {
+    } catch (void*) {
         // On some versions of Qt initialising the network manager before the app fails :/
         Q_INIT_RESOURCE(systray);
         QApplication *app = new QApplication(argc, argv);
