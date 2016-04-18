@@ -43,19 +43,11 @@ int pydiosync(QApplication *app, QNetworkAccessManager *networkManager){
 }
 
 int main(int argc, char *argv[]) {
-    try {
-        // On some versions of Qt initialising the network manager before the app reduces CPU peaks
-        Q_INIT_RESOURCE(systray);
-        QNetworkAccessManager *networkManager = new QNetworkAccessManager;
-        QApplication *app = new QApplication(argc, argv);
-        return pydiosync(app, networkManager);
-    } catch (void*) {
-        // On some versions of Qt initialising the network manager before the app fails :/
-        Q_INIT_RESOURCE(systray);
-        QApplication *app = new QApplication(argc, argv);
-        QNetworkAccessManager *networkManager = new QNetworkAccessManager;
-        return pydiosync(app, networkManager);
-    }
+    Q_INIT_RESOURCE(systray);
+    // On some versions of Qt initialising the network manager before the app reduces CPU peaks
+    QNetworkAccessManager *networkManager = new QNetworkAccessManager;
+    QApplication *app = new QApplication(argc, argv);
+    return pydiosync(app, networkManager);
 }
 
 #else
