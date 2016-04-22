@@ -76,6 +76,7 @@ void HTTPManager::provideAuthentication(QNetworkReply *reply, QAuthenticator *au
         authenticator->setPassword(this->serverPassword);
         failed_attempts ++;
     }
+    reply->deleteLater();
 }
 
 void HTTPManager::pollingFinished(QNetworkReply* reply)
@@ -205,6 +206,7 @@ void HTTPManager::headRequestFinished(QNetworkReply* reply){
     if(reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 404){
         emit webUI404();
     }
+    reply->deleteLater();
 }
 
 void HTTPManager::testWebView(){
