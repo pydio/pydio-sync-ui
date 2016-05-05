@@ -177,7 +177,8 @@ void Window::show()
         else
             this->move(this->tray->geometry().center().x() - this->width()/2, desktopHeight - 80 - this->height());
     }
-
+    settingsWebView->show();
+    settingsWebView->raise();
     this->raise();
     this->showNormal();
 }
