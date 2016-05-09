@@ -44,7 +44,7 @@ Window::Window(QNetworkAccessManager* manager)
         t->setInterval(5000);
         t->setSingleShot(true);
         t->start();
-        qDebug()<<"Dumb test, will exit in 5 seconds...";
+        qDebug() << "Dumb test, will exit in 5 seconds...";
     }
     else{
         if(startAgent){
