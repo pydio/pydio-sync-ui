@@ -32,7 +32,11 @@ Window::Window(QNetworkAccessManager* manager)
     parser.addOption(skipAgentStartOption);
     QCommandLineOption dumbTestOption("test", "Super simple start/stop test.");
     parser.addOption(dumbTestOption);
+
+    parser.addHelpOption();
+    //parser.addVersionOption();
     parser.process(*qApp);
+
     bool startAgent = true;
     if(parser.isSet(skipAgentStartOption) && parser.value(skipAgentStartOption) == "true"){
         startAgent = false;

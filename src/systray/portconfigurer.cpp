@@ -20,6 +20,7 @@
 **
 ****************************************************************************/
 #include "portconfigurer.h"
+#include <stdio.h>
 
 PortConfigurer::PortConfigurer(QString pathToFile)
 {
@@ -56,10 +57,14 @@ QString PortConfigurer::address()
 
 void PortConfigurer::updatePorts()
 {
+    printf("Before");
+    fflush(stdout);
     if(!configFile->open(QIODevice::ReadOnly | QIODevice::Text)){
         setPortsToDefault();
         return;
     }
+    printf("After");
+    fflush(stdout);
 
     QTextStream in(configFile);
     if(!in.readLine().startsWith("Pydio port config file")){
