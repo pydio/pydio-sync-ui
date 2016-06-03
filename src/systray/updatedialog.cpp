@@ -49,4 +49,5 @@ void UpdateDialog::proposeDownload(QString package, QString version, QString rel
 
 void UpdateDialog::download(){
     QDesktopServices::openUrl(url);
+    this->close();
 }
