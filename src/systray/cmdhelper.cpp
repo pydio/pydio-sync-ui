@@ -49,16 +49,22 @@ CmdHelper::CmdHelper(QObject *parent, QString path) :
 }
 
 void CmdHelper::launchAgentMac(bool stopBeforeLaunch){
+    qDebug() << "@@@ @@@ @@ @ENABLE ME FOR PROD";
+    return;
     QProcess process;
     QString processName = "launchctl";
     QStringList arguments;
     if(stopBeforeLaunch){
         arguments = QStringList() << "remove"<< MAC_SERVICE_NAME_AGENT;
+        qDebug() << arguments;
         process.start(processName, arguments);
         process.waitForStarted();
         process.waitForFinished();
     }
     arguments = QStringList()<<"load"<<"-w"<<"/Library/LaunchAgents/"+MAC_SERVICE_FILE_AGENT;
+    qDebug() << arguments;
+    qDebug() << "---\n";
+    qDebug() << processName << " | " << arguments;
     process.start(processName, arguments);
     process.waitForStarted();
     process.waitForFinished();
@@ -72,6 +78,8 @@ void CmdHelper::launchAgentProcess(){
 }
 
 void CmdHelper::stopAgentMac(){
+    qDebug() << "@@@ @@@ @@ @ENABLE ME FOR PROD";
+    return;
     QProcess process;
     QString processName = "launchctl";
     QStringList arguments = QStringList() << "remove"<< MAC_SERVICE_NAME_AGENT;

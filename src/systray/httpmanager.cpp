@@ -210,6 +210,7 @@ void HTTPManager::headRequestFinished(QNetworkReply* reply){
 void HTTPManager::testWebView(){
     QNetworkAccessManager *headManager = new QNetworkAccessManager();
     connect(headManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(headRequestFinished(QNetworkReply*)));
+    qDebug() << "This probably requires changing";
     headManager->head(QNetworkRequest(QUrl(this->serverUrl + "/res/index.html")));
     headManager->head(QNetworkRequest(QUrl(this->serverUrl + "/res/angularjs/angular.min.js")));
 }
@@ -229,4 +230,12 @@ void HTTPManager::terminateAgent(){
 void HTTPManager::debug(QString s){
     if(this->debugMode)
         qDebug()<<"  -- HTTPMANAGER --   :    "<<s;
+}
+
+QString HTTPManager::getAgentPassword(){
+    return this->serverPassword;
+}
+
+QString HTTPManager::getAgentUsername(){
+    return this->serverUsername;
 }

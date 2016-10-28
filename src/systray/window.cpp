@@ -20,6 +20,7 @@
 **
 ****************************************************************************/
 #include "window.h"
+#include <QAuthenticator>
 
 #ifndef QT_NO_SYSTEMTRAYICON
 
@@ -100,7 +101,7 @@ Window::Window(QNetworkAccessManager* manager)
         connect(tray, SIGNAL(quit()), this, SLOT(cleanQuit()));
         connect(tray, SIGNAL(launchAgentSignal()), cmdHelper, SLOT(launchAgentProcess()));
 
-        settingsWebView = new QWebView();
+        settingsWebView = new QWebEngineView();
 
         jsDialog = new JSEventHandler(this);
 
@@ -125,16 +126,32 @@ Window::Window(QNetworkAccessManager* manager)
             qDebug() << macExtension->readAll();
         }
         #endif
+
+
     }
+}
+
+void Window::authenticate(const QUrl &requestUrl, QAuthenticator *auth)
+{
+        auth->setUser(httpManager->getAgentUsername());
+        auth->setPassword(httpManager->getAgentPassword());
 }
 
 void Window::show()
 {
-    settingsWebView = new QWebView();
-    settingsWebView->settings()->setAttribute(QWebSettings::JavascriptEnabled, true);
-    settingsWebView->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
-    connect(settingsWebView, SIGNAL(linkClicked(QUrl)), this, SLOT(openLink(QUrl)) );
-    settingsWebView->setContextMenuPolicy(Qt::NoContextMenu);
+    settingsWebView = new QWebEngineView();
+    channel = new QWebChannel(settingsWebView->page());
+    settingsWebView->page()->setWebChannel(channel);
+    pydiouijs = new PydioUiJS();
+
+    channel->registerObject(QStringLiteral("pydiouijs"), pydiouijs);
+    channel->registerObject(QStringLiteral("PydioQtFileDialog"), jsDialog);
+
+
+    //--settingsWebView->settings()->setAttribute(QWebSettings::JavascriptEnabled, true);
+    //--settingsWebView->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
+    //--connect(settingsWebView, SIGNAL(linkClicked(QUrl)), this, SLOT(openLink(QUrl)) );
+    // UNCOMMENT ME TODO settingsWebView->setContextMenuPolicy(Qt::NoContextMenu);
     this->setCentralWidget(settingsWebView);
 
 
@@ -146,16 +163,18 @@ void Window::show()
 
     httpManager->testWebView();
 
-    QNetworkAccessManager * nam = settingsWebView->page()->networkAccessManager();
+    //--QNetworkAccessManager * nam = settingsWebView->page()->networkAccessManager();
 //    nam->clearAccessCache();
-    connect(nam, SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)), httpManager,
-                SLOT(provideAuthentication(QNetworkReply*,QAuthenticator*)));
+    //--connect(nam, SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)), httpManager,
+        //--        SLOT(provideAuthentication(QNetworkReply*,QAuthenticator*)));
 
     settingsWebView->load(syncUrl);
-
     // link the javascript dialog of the ui to the system FileDialog
-    settingsWebView->page()->currentFrame()->addToJavaScriptWindowObject("PydioQtFileDialog", jsDialog);
+    //settingsWebView->page()->currentFrame()->addToJavaScriptWindowObject("PydioQtFileDialog", jsDialog);
+    //settingsWebView->page()->runJavaScript("PydioQtFileDialog =" + jsDialog,  [](const QVariant &result){ qDebug() << result; });
+    jsDialog->page = settingsWebView->page();
 
+    QObject::connect(settingsWebView->page(), &QWebEnginePage::authenticationRequired, this, &Window::authenticate);
     QRect rec = QApplication::desktop()->screenGeometry();
     int desktopHeight = rec.height();
     int desktopWidth = rec.width();
@@ -167,7 +186,7 @@ void Window::show()
     else{
         this->resize(WIDTH, HEIGHT);
     }
-    this->setFixedWidth(WIDTH);
+    //this->setFixedWidth(WIDTH);
     if(tray->geometry().y() < desktopHeight*0.5)
     {
         // MacOS case
@@ -183,8 +202,12 @@ void Window::show()
     }
     settingsWebView->show();
     settingsWebView->raise();
+
+
     this->raise();
     this->showNormal();
+    qDebug() << "YALA DEBUG";
+
 }
 
 void Window::check_for_update()
@@ -235,7 +258,7 @@ void Window::about(){
     }
     else{
         this->aboutDialog->show();
-        aboutDialog->aboutWebView->page()->currentFrame()->addToJavaScriptWindowObject("PydioQtFileDialog", jsDialog);
+        //--aboutDialog->aboutWebView->page()->currentFrame()->addToJavaScriptWindowObject("PydioQtFileDialog", jsDialog);
     }
 }
 
@@ -274,7 +297,7 @@ void Window::connectionLost(){
 }
 
 void Window::notFoundFromPython(){
-#ifdef Q_OS_MAC
+/*#ifdef Q_OS_MAC
     qDebug()<<"WILL LOAD PYTHON";
     settingsWebView->load(QUrl("qrc:/webkit-sources/reload_python.html"));
     cmdHelper->launchAgentMac(true);
@@ -285,9 +308,15 @@ void Window::notFoundFromPython(){
     t->setSingleShot(true);
     t->start();
 #endif
+*/
 }
 
 void Window::openLink(QUrl link){
     QDesktopServices::openUrl(link);
 }
+
+void PydioUiJS::jsTrigger(int x){
+    qDebug() << "O M G triggered from JS";
+}
+
 #endif

@@ -43,6 +43,8 @@ public:
      HTTPManager(QObject *parent = 0, QNetworkAccessManager* QNetworkAccessManager=NULL);
     void setUrl(QString, QString, QString);
     void testWebView();
+    QString getAgentUsername();
+    QString getAgentPassword();
 
 signals:
    void requestFinished();

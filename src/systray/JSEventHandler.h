@@ -26,6 +26,7 @@
 #include <QFileDialog>
 #include <QDesktopServices>
 #include <cmdhelper.h>
+#include <QWebEngineView>
 
 class JSEventHandler : public QObject
 {
@@ -33,9 +34,11 @@ class JSEventHandler : public QObject
 
 public:
     explicit JSEventHandler(QObject *parent = 0);
-
+    QString pydioDirectory;
+    QWebEnginePage* page;
 public slots:
     QString getPath();
+    void getDirectory();
     void openUrl(QString);
     void openLogs();
     void copyToClipBoard(QString value);

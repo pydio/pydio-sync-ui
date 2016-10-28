@@ -28,12 +28,15 @@
 JSEventHandler::JSEventHandler(QObject *parent) :
     QObject(parent)
 {
+    QString pydioDirectory = "";
 }
 
 QString JSEventHandler::getPath()
 {
    QString pydioDir = QDir::homePath() + "/" + PYDIO_DATA_DIR;
-   return QFileDialog::getExistingDirectory(0, tr("Select local path"), pydioDir, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+   QString res = QFileDialog::getExistingDirectory(0, tr("Select local path"), pydioDir, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+   pydioDirectory = res;
+   return res;
 }
 
 void JSEventHandler::openUrl(QString toOpen)
@@ -52,3 +55,7 @@ void JSEventHandler::copyToClipBoard(QString value)
    clipboard->setText(value);
 }
 
+void JSEventHandler::getDirectory(){
+    //qDebug() << "Pushing directory through JS : " + this->pydioDirectory;
+    this->page->runJavaScript(QString("window.PydioDirectory = '" + this->pydioDirectory + "'"));
+}

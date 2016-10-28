@@ -23,7 +23,7 @@
 #define ABOUTDIALOG_H
 
 #include <QDialog>
-#include <QWebView>
+#include <QWebEngineView>
 #include <QApplication>
 #include <QDesktopServices>
 #include <globals.h>
@@ -34,7 +34,7 @@ class AboutDialog : public QDialog
 public:
     explicit AboutDialog(QWidget *parent = 0);
     void show();
-    QWebView *aboutWebView;
+    QWebEngineView  *aboutWebView;
 
 signals:
 

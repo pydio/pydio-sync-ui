@@ -24,8 +24,8 @@
 AboutDialog::AboutDialog(QWidget *parent) :
     QDialog(parent)
 {
-    aboutWebView = new QWebView(this);
-    aboutWebView->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
+    aboutWebView = new QWebEngineView(this);
+    //--aboutWebView->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
     this->resize(WIDTH, HEIGHT);
 }
 

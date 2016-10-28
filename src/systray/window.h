@@ -24,9 +24,9 @@
 
 #include <QMainWindow>
 #include <QSystemTrayIcon>
-#include <QtWebKit>
-#include <QWebView>
-#include <QWebFrame>
+
+#include <QCommandLineParser>
+#include <QWebEngineView>
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QStyleFactory>
@@ -45,19 +45,28 @@
 #include <updatedialog.h>
 #include <localserver.h>
 #include <QNetworkAccessManager>
+#include <QWebChannel>
 
 #ifndef QT_NO_SYSTEMTRAYICON
 
 #include <QDialog>
-
+class PydioUiJS : public QObject{
+    Q_OBJECT
+    public slots:
+        void jsTrigger(int x);
+};
 class Window : public QMainWindow
 {
     Q_OBJECT
 
 public:
     Window(QNetworkAccessManager*);
+    PydioUiJS *pydiouijs;
+
 protected slots:
    void closeEvent(QCloseEvent *);
+
+
 
 private slots:
     void show();
@@ -72,8 +81,9 @@ private slots:
     void share(QString JobId,QString FolderFlag,QString RelativePath);
     void openLink(QUrl);
 
+
 private:
-    QWebView *settingsWebView;
+    QWebEngineView *settingsWebView;
 
     bool globalRunningStatus;
 
@@ -92,6 +102,8 @@ private:
     UpdateDialog* updateDialog;
 
     QObject* localServer;
+    void authenticate(const QUrl&, QAuthenticator*);
+    QWebChannel* channel;
 };
 
 #endif // QT_NO_SYSTEMTRAYICON

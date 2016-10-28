@@ -43,11 +43,11 @@ TRANSLATIONS += languages/pydioUI_fr_FR.ts
  target.path = ./
  INSTALLS += target
 
-QT += widgets \
-      webkitwidgets \
+QT += core \
+      webenginewidgets \
+      gui \
+      webchannel \
       network
-
-simulator: warning(This example might not fully work on Simulator platform)
 
 INCLUDEPATH += \
     $(QTDIR)/include \
