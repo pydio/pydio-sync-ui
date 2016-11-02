@@ -49,8 +49,8 @@ CmdHelper::CmdHelper(QObject *parent, QString path) :
 }
 
 void CmdHelper::launchAgentMac(bool stopBeforeLaunch){
-    qDebug() << "@@@ @@@ @@ @ENABLE ME FOR PROD";
-    return;
+    //qDebug() << "@@@ @@@ @@ @ENABLE ME FOR PROD";
+    //return;
     QProcess process;
     QString processName = "launchctl";
     QStringList arguments;
@@ -78,8 +78,8 @@ void CmdHelper::launchAgentProcess(){
 }
 
 void CmdHelper::stopAgentMac(){
-    qDebug() << "@@@ @@@ @@ @ENABLE ME FOR PROD";
-    return;
+    //qDebug() << "@@@ @@@ @@ @ENABLE ME FOR PROD";
+    //return;
     QProcess process;
     QString processName = "launchctl";
     QStringList arguments = QStringList() << "remove"<< MAC_SERVICE_NAME_AGENT;
