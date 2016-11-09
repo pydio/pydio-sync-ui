@@ -45,8 +45,8 @@ int pydiosync(QApplication *app, QNetworkAccessManager *networkManager){
 
 int main(int argc, char *argv[]) {
     Q_INIT_RESOURCE(systray);
-    qputenv("QTWEBENGINE_REMOTE_DEBUGGING", "23654");
-    qDebug() << "Yala REMOVE ME FOR PROD";
+    //qputenv("QTWEBENGINE_REMOTE_DEBUGGING", "23654");
+    //qDebug() << "Yala REMOVE ME FOR PROD";
     // On some versions of Qt initialising the network manager before the app reduces CPU peaks
     QApplication *app = new QApplication(argc, argv);
     QNetworkAccessManager *networkManager = new QNetworkAccessManager; // Unfortunately iniatilizing it before QApplication causes missing graphics libraries errors on most platforms.

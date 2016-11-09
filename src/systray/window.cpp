@@ -151,7 +151,8 @@ void Window::show()
     //--settingsWebView->settings()->setAttribute(QWebSettings::JavascriptEnabled, true);
     //--settingsWebView->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
     //--connect(settingsWebView, SIGNAL(linkClicked(QUrl)), this, SLOT(openLink(QUrl)) );
-    // UNCOMMENT ME TODO settingsWebView->setContextMenuPolicy(Qt::NoContextMenu);
+    // UNCOMMENT ME TODO
+    settingsWebView->setContextMenuPolicy(Qt::NoContextMenu);
     this->setCentralWidget(settingsWebView);
 
 
@@ -206,7 +207,6 @@ void Window::show()
 
     this->raise();
     this->showNormal();
-    qDebug() << "YALA DEBUG";
 
 }
 
