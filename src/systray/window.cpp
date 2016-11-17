@@ -22,6 +22,12 @@
 #include "window.h"
 #include <QAuthenticator>
 
+#ifdef Q_OS_WIN
+    // seems required for msvc_2015
+    #include "Windows.h"
+    #pragma comment(lib,"user32.lib")
+#endif
+
 #ifndef QT_NO_SYSTEMTRAYICON
 
 Window::Window(QNetworkAccessManager* manager)
@@ -174,7 +180,8 @@ void Window::show()
     //settingsWebView->page()->currentFrame()->addToJavaScriptWindowObject("PydioQtFileDialog", jsDialog);
     //settingsWebView->page()->runJavaScript("PydioQtFileDialog =" + jsDialog,  [](const QVariant &result){ qDebug() << result; });
     jsDialog->page = settingsWebView->page();
-
+    qDebug() << QUrl(AGENT_SERVER_URL + portConfigurer->port() + ABOUT_PAGE_PATH);
+    qDebug() << syncUrl;
     QObject::connect(settingsWebView->page(), &QWebEnginePage::authenticationRequired, this, &Window::authenticate);
     QRect rec = QApplication::desktop()->screenGeometry();
     int desktopHeight = rec.height();
