@@ -1,26 +1,22 @@
 The pydio-sync repository is providing a headless python script for running the synchro.
 It's based on the Qt (see http://qt-project.org) library.
 
-Since some changes have occurred with Qt 5, we recommend to install the latest version  !
-
 ## Build instructions
 
-To run it, you must 
- * Install Qt 5.2
+To run it, you must:
+ * Install Qt
  * Clone the project
 ```
 git clone git://github.com/pydio/pydio-sync-ui
 ```
- * Open the .pro file in Qt Creator and build the project or :
+ * Open the .pro file in Qt Creator and build the project
 
+## Manual build instructions
 ### On Mac OS
-```
-export PATH=$PATH:/your/path/to/qmake
-```
  * Generate a makefile from your project file
 ```
-cd /your/path/to/pydio-sync-ui/src/systray/
-qmake -o path/you/want/makefile/to/go systray.pro
+cd pydio-sync-ui/src/systray/
+/path/to/qmake systray.pro
 ```
  * Compile
 ```
@@ -29,44 +25,22 @@ make
 
 #### Deployment
 ```
-cd ../../build
-macdeployqt pydio-ui.app -no-plugins
-open pydio-ui.app
+cd pydio-sync-ui/build
+macdeployqt pydio-ui.app -executable=pydio-ui.app/Contents/MacOS/pydio-ui
 ```
 
 ### On Windows
- * Generate a makefile from your project file
+ * If you choose to use Visual Studio tools:
 ```
-c:/qt/5.2.1/mingw48_32/bin/./qmake your/path/to/pydio-sync-ui/src/systray/systray.pro
+REM Create makefile
+"C:\Qt\Qt5.7.0-2\5.7\msvc2015_64\bin\qmake.exe" systray.pro -r -spec win32-msvc2015
+REM Load required env variables
+"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" amd64
+REM Compile
+"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\nmake.exe" -f Makefile.Release
 ```
- * Compile
-```
-C:/Qt/Tools/mingw48_32/bin/./mingw32-make -f makefile
-```
-* Add the following .dll files to the systray.exe folder :
-```
-Qt5Core.dll
-Qt5Gui.dll
-Qt5Multimedia.dll
-Qt5MultimediaWidgets.dll
-Qt5Network.dll
-Qt5OpenGL.dll
-Qt5Positioning.dll
-Qt5PrintSupport.dll
-Qt5Qml.dll
-Qt5Quick.dll
-Qt5Sensors.dll
-Qt5Sql.dll
-Qt5WebKit.dll
-Qt5WebKitWidgets.dll
-Qt5Widgets.dll
-icudt51.dll
-icuin51.dll
-icuuc51.dll
-```
-* Launch the UI
 
-Currently tested on Mac and Windows 7.
+Currently tested on Mac and Windows 10.
 
 ## Contributing
 
