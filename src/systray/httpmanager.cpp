@@ -211,8 +211,8 @@ void HTTPManager::testWebView(){
     QNetworkAccessManager *headManager = new QNetworkAccessManager();
     connect(headManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(headRequestFinished(QNetworkReply*)));
     qDebug() << "This probably requires changing";
-    headManager->head(QNetworkRequest(QUrl(this->serverUrl + "/res/index.html")));
-    headManager->head(QNetworkRequest(QUrl(this->serverUrl + "/res/angularjs/angular.min.js")));
+    headManager->head(QNetworkRequest(QUrl(this->serverUrl + "/app/index.html")));
+    //headManager->head(QNetworkRequest(QUrl(this->serverUrl + "/res/angularjs/angular.min.js")));
 }
 
 void HTTPManager::resumeSync(){
