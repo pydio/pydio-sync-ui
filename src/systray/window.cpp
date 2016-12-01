@@ -20,7 +20,10 @@
 **
 ****************************************************************************/
 #include "window.h"
+#include "customwebenginepage.h"
 #include <QAuthenticator>
+#include <chrono>
+#include <thread>
 
 #ifdef Q_OS_WIN
     // seems required for msvc_2015
@@ -44,7 +47,7 @@ Window::Window(QNetworkAccessManager* manager)
     //parser.addVersionOption();
     parser.process(*qApp);
 
-    bool startAgent = true;
+    bool startAgent = false; // true for PRODUCTION - DEBUG false
     if(parser.isSet(skipAgentStartOption) && parser.value(skipAgentStartOption) == "true"){
         startAgent = false;
     }
@@ -56,18 +59,15 @@ Window::Window(QNetworkAccessManager* manager)
         t->setSingleShot(true);
         t->start();
         qDebug() << "Dumb test, will exit in 5 seconds...";
-    }
-    else{
-        if(startAgent){
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+    } else {
+        if (startAgent){
+        #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
             cmdHelper->launchAgentProcess();
-#elif defined(Q_OS_MAC)
+        #elif defined(Q_OS_MAC)
             qDebug()<<"Starting agent via launchctl command.";
             cmdHelper->launchAgentMac();
-#endif
-
+        #endif
         }
-
         QString dataDir = CmdHelper::getAppDataDir() +'/'+ PORT_CONFIG_FILE_NAME;
         portConfigurer = new PortConfigurer(dataDir);
         portConfigurer->updatePorts();
@@ -146,6 +146,7 @@ void Window::authenticate(const QUrl &requestUrl, QAuthenticator *auth)
 void Window::show()
 {
     settingsWebView = new QWebEngineView();
+    settingsWebView->setPage(new CustomQWebEnginePage());
     channel = new QWebChannel(settingsWebView->page());
     settingsWebView->page()->setWebChannel(channel);
     pydiouijs = new PydioUiJS();
@@ -154,9 +155,10 @@ void Window::show()
     channel->registerObject(QStringLiteral("PydioQtFileDialog"), jsDialog);
 
 
-    //--settingsWebView->settings()->setAttribute(QWebSettings::JavascriptEnabled, true);
-    //--settingsWebView->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
-    //--connect(settingsWebView, SIGNAL(linkClicked(QUrl)), this, SLOT(openLink(QUrl)) );
+    //settingsWebView->settings()->setAttribute(QWebSettings::JavascriptEnabled, true);
+    //settingsWebView->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
+    //settingsWebView->page()->acceptNavigationRequest()
+    //connect(settingsWebView, SIGNAL(linkClicked(QUrl)), this, SLOT(openLink(QUrl)) );
     // UNCOMMENT ME TODO
     settingsWebView->setContextMenuPolicy(Qt::NoContextMenu);
     this->setCentralWidget(settingsWebView);
@@ -209,12 +211,11 @@ void Window::show()
             this->move(this->tray->geometry().center().x() - this->width()/2, desktopHeight - 80 - this->height());
     }
     settingsWebView->show();
+    settingsWebView->activateWindow();
     settingsWebView->raise();
 
-
-    this->raise();
     this->showNormal();
-
+    this->raise();
 }
 
 void Window::check_for_update()
@@ -298,6 +299,13 @@ void Window::agentReached(){
 }
 
 void Window::connectionLost(){
+    #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+        cmdHelper->launchAgentProcess();
+    #elif defined(Q_OS_MAC)
+        qDebug()<<"Starting agent via launchctl command.";
+        cmdHelper->launchAgentMac();
+    #endif
+    std::this_thread::sleep_for(std::chrono::seconds(2));
     qDebug()<<"UPDATING PORTS FROM CONFIG FILE";
     portConfigurer->updatePorts();
     httpManager->setUrl(AGENT_SERVER_URL + portConfigurer->port(), portConfigurer->username(), portConfigurer->password());

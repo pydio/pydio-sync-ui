@@ -19,7 +19,8 @@ HEADERS      += window.h \
     globals.h \
     pydioupdatepinger.h \
     updatedialog.h \
-    localserver.h
+    localserver.h \
+    customwebenginepage.h
 SOURCES       = main.cpp \
                 window.cpp \
                 portconfigurer.cpp \
