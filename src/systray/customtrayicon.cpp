@@ -200,7 +200,7 @@ void CustomTrayIcon::connectionMade(){
         debug("NUMBER OF JOBS : " +  QString::number(this->jobMenus->size()));
         emit check_for_update();
         this->syncAgentUp = true;
-        this->setIconNormal();
+        //this->setIconNormal(); // shouldn't be here
         this->normalIcon = true;
         this->jobsCleared("Connection Made");
         this->contextMenu()->removeAction(noAgentAction);
