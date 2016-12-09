@@ -80,7 +80,7 @@ private slots:
     void check_for_update();
     void share(QString JobId,QString FolderFlag,QString RelativePath);
     void openLink(QUrl);
-
+    void doPoll();
 
 private:
     QWebEngineView *settingsWebView;

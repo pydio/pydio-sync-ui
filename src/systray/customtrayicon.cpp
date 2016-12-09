@@ -33,6 +33,8 @@ CustomTrayIcon::CustomTrayIcon(QObject* parent) : QSystemTrayIcon(parent)
     this->iconActive = QIcon(":/images/PydioSync-Systray-Mac.png");
     this->iconTransfer = QIcon(":/images/PydioSync-Systray-Mac-Transfer.png");
     this->iconInactive = QIcon(":/images/PydioSync-Systray-Mac-Inactive.png");
+    this->iconError = QIcon(":/images/warning-4-128.png");
+    this->iconConflicts = QIcon(":/images/PydioSync-Systray-Mac-Error1.png");
 //#endif
 
     this->debugMode = true;
@@ -51,6 +53,7 @@ CustomTrayIcon::CustomTrayIcon(QObject* parent) : QSystemTrayIcon(parent)
     this->animationTimer = new QTimer(this);
     this->animationTimer->setInterval(1100);
     connect(animationTimer, SIGNAL(timeout()), this, SLOT(changeIcon()));
+
     separatorAction = new QAction(this);
     separatorAction->setSeparator(true);
     singleJobLocal = new QAction(tr("Open local folder"), this);
@@ -346,18 +349,28 @@ void CustomTrayIcon::changeIcon(){
     }
 }
 
+void CustomTrayIcon::setIconError(){
+    //qDebug() << "SETTING ICON Error";
+    this->setIcon(this->iconError);
+}
+
+void CustomTrayIcon::setIconConflicts(){
+    //qDebug() << "SETTING ICON Conflicts";
+    this->setIcon(this->iconConflicts);
+}
+
 void CustomTrayIcon::setIconNormal(){
-    qDebug() << "SETTING ICON normal";
+    //qDebug() << "SETTING ICON normal";
     this->setIcon(this->iconActive);
 }
 
 void CustomTrayIcon::setIconBusy(){
-    qDebug() << "SETTING ICON busy";
+    //qDebug() << "SETTING ICON busy";
     this->setIcon(this->iconTransfer);
 }
 
 void CustomTrayIcon::setIconInactive(){
-    qDebug() << "SETTING ICON inactive";
+    //qDebug() << "SETTING ICON inactive";
     this->setIcon(this->iconInactive);
 }
 
@@ -369,4 +382,27 @@ bool CustomTrayIcon::agentUp(){
 void CustomTrayIcon::debug(QString s){
     if(this->debugMode)
         qDebug()<<"  -- JOBSMANAGER --   :    "<<s;
+}
+
+void CustomTrayIcon::updateIcon(int icon){
+    switch (icon) {
+    case 0: // active
+        this->setIconBusy();
+        break;
+    case 1: // error
+        this->setIconError();
+        break;
+    case 2: // conflicts
+        this->setIconConflicts();
+        break;
+    case 3: // nointernet
+        this->setIconInactive();
+        break;
+    case 4: // normal
+        this->setIconNormal();
+        break;
+    default:
+        qDebug() << "[WARNING] unknow icon requested " << icon;
+        break;
+    }
 }

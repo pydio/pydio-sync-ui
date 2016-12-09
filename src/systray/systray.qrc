@@ -10,5 +10,8 @@
         <file>images/PydioSync-Systray-Mac-Inactive.png</file>
         <file>images/folder-32.png</file>
         <file>images/PydioSync-Systray-Windows.png</file>
+        <file>images/PydioSync-Systray-Mac-Error1.png</file>
+        <file>images/ic_error_48pt_3x.png</file>
+        <file>images/warning-4-128.png</file>
     </qresource>
 </RCC>

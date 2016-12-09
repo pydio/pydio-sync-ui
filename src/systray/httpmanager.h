@@ -45,6 +45,7 @@ public:
     void testWebView();
     QString getAgentUsername();
     QString getAgentPassword();
+    int wantIcon = 0;
 
 signals:
    void requestFinished();

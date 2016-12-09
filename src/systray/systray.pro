@@ -21,6 +21,7 @@ HEADERS      += window.h \
     updatedialog.h \
     localserver.h \
     customwebenginepage.h
+
 SOURCES       = main.cpp \
                 window.cpp \
                 portconfigurer.cpp \

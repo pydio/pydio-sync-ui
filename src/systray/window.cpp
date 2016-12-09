@@ -47,7 +47,7 @@ Window::Window(QNetworkAccessManager* manager)
     //parser.addVersionOption();
     parser.process(*qApp);
 
-    bool startAgent = false; // true for PRODUCTION - DEBUG false
+    bool startAgent = true; // true for PRODUCTION - DEBUG false
     if(parser.isSet(skipAgentStartOption) && parser.value(skipAgentStartOption) == "true"){
         startAgent = false;
     }
@@ -84,7 +84,7 @@ Window::Window(QNetworkAccessManager* manager)
 
         aboutDialog = new AboutDialog(this);
 
-        connect(pollTimer, SIGNAL(timeout()), httpManager, SLOT(poll()));
+        connect(pollTimer, SIGNAL(timeout()), this, SLOT(doPoll()));
         connect(httpManager, SIGNAL(requestFinished()), pollTimer, SLOT(start()));
         connect(httpManager, SIGNAL(newJob(Job*)), tray, SLOT(onNewJob(Job*)));
         connect(httpManager, SIGNAL(jobUpdated(QString)), tray, SLOT(onJobUpdate(QString)));
@@ -135,6 +135,12 @@ Window::Window(QNetworkAccessManager* manager)
 
 
     }
+}
+
+void Window::doPoll(){
+    httpManager->poll();
+    // Update icon httpManager updated its internal state... #Spaghetti
+    tray->updateIcon(httpManager->wantIcon);
 }
 
 void Window::authenticate(const QUrl &requestUrl, QAuthenticator *auth)
@@ -305,7 +311,7 @@ void Window::connectionLost(){
         qDebug()<<"Starting agent via launchctl command.";
         cmdHelper->launchAgentMac();
     #endif
-    std::this_thread::sleep_for(std::chrono::seconds(2));
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     qDebug()<<"UPDATING PORTS FROM CONFIG FILE";
     portConfigurer->updatePorts();
     httpManager->setUrl(AGENT_SERVER_URL + portConfigurer->port(), portConfigurer->username(), portConfigurer->password());

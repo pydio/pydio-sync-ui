@@ -173,8 +173,11 @@ void HTTPManager::pollingFinished(QNetworkReply* reply)
                             }
                         }
                     }
+
                 }
             }
+            this->wantIcon = jsonResponse.value("icon").toInt();
+
         }
     }else{
         if(failed_attempts < MAX_CONNECTION_ATTEMPTS)
@@ -211,7 +214,7 @@ void HTTPManager::testWebView(){
     QNetworkAccessManager *headManager = new QNetworkAccessManager();
     connect(headManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(headRequestFinished(QNetworkReply*)));
     qDebug() << "This probably requires changing";
-    headManager->head(QNetworkRequest(QUrl(this->serverUrl + "/app/index.html")));
+    //headManager->head(QNetworkRequest(QUrl(this->serverUrl + "/app/index.html")));
     //headManager->head(QNetworkRequest(QUrl(this->serverUrl + "/res/angularjs/angular.min.js")));
 }
 

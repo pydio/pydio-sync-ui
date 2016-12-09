@@ -39,6 +39,12 @@ class CustomTrayIcon : public QSystemTrayIcon
 public:
     explicit CustomTrayIcon(QObject *parent = 0);
     bool agentUp();
+    void setIconNormal();
+    void setIconBusy();
+    void setIconInactive();
+    void setIconError();
+    void setIconConflicts();
+    void updateIcon(int);
 signals:
     void launchAgentSignal();
     void pauseSync();
@@ -48,6 +54,7 @@ signals:
     void connectionLostSignal();
     void check_for_update();
     void share(QString, QString, QString);
+
 
 public slots:
     void connectionMade();
@@ -74,9 +81,6 @@ private:
     void debug(QString);
     void workOccuring();
     void workDone();
-    void setIconNormal();
-    void setIconBusy();
-    void setIconInactive();
 
     QTimer *animationTimer;
     QMenu *mainMenu;
@@ -96,6 +100,8 @@ private:
     QIcon iconActive;
     QIcon iconInactive;
     QIcon iconTransfer;
+    QIcon iconError;
+    QIcon iconConflicts;
     //QAction *shareAction;
 
     bool globalRunningStatus;
