@@ -11,7 +11,7 @@ public:
     CustomQWebEnginePage(QObject* parent = 0) : QWebEnginePage(parent){}
 
     bool acceptNavigationRequest(const QUrl & url, QWebEnginePage::NavigationType type, bool isMainFrame){
-         //qDebug() << "acceptNavigationRequest " << url << " " << type << " " << isMainFrame;
+         qDebug() << "acceptNavigationRequest " << url << " " << type << " " << isMainFrame;
 
         if(url.toString().indexOf("/app/index.html") != -1){
             qDebug() << "The requested window was loaded in the Qt managed webview";
