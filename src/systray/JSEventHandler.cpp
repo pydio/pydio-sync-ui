@@ -29,6 +29,7 @@ JSEventHandler::JSEventHandler(QObject *parent) :
     QObject(parent)
 {
     QString pydioDirectory = "";
+    this->window = (Window*) parent;
 }
 
 QString JSEventHandler::getPath()
@@ -58,4 +59,9 @@ void JSEventHandler::copyToClipBoard(QString value)
 void JSEventHandler::getDirectory(){
     //qDebug() << "Pushing directory through JS : " + this->pydioDirectory;
     this->page->runJavaScript(QString("window.PydioDirectory = '" + this->pydioDirectory + "'"));
+}
+
+class Window; // Forward declaration, necessary because of inter dependance
+void JSEventHandler::qtReload(){
+    this->window->doShow();
 }

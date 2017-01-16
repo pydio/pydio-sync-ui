@@ -151,6 +151,10 @@ void Window::authenticate(const QUrl &requestUrl, QAuthenticator *auth)
 
 void Window::show()
 {
+   this->doShow();
+}
+
+void Window::doShow(){
     settingsWebView = new QWebEngineView();
     settingsWebView->setPage(new CustomQWebEnginePage());
     channel = new QWebChannel(settingsWebView->page());
@@ -202,7 +206,7 @@ void Window::show()
     else{
         this->resize(WIDTH, HEIGHT);
     }
-    //this->setFixedWidth(WIDTH);
+    this->setFixedWidth(WIDTH);
     if(tray->geometry().y() < desktopHeight*0.5)
     {
         // MacOS case

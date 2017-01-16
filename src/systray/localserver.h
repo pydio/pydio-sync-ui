@@ -31,6 +31,8 @@ QT_BEGIN_NAMESPACE
 class QLocalServer;
 QT_END_NAMESPACE
 
+class JSEventHandler;
+
 class LocalServer : public QObject
 {
     Q_OBJECT

@@ -26,6 +26,7 @@
 #ifndef QT_NO_SYSTEMTRAYICON
 
 #include <QMessageBox>
+#include "JSEventHandler.h"
 #include "window.h"
 int pydiosync(QApplication *app, QNetworkAccessManager *networkManager){
     if (!QSystemTrayIcon::isSystemTrayAvailable()) {

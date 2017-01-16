@@ -27,6 +27,10 @@
 #include <QDesktopServices>
 #include <cmdhelper.h>
 #include <QWebEngineView>
+#include <QWindow>
+#include "window.h"
+
+class Window;
 
 class JSEventHandler : public QObject
 {
@@ -42,6 +46,10 @@ public slots:
     void openUrl(QString);
     void openLogs();
     void copyToClipBoard(QString value);
+    void qtReload();
+
+private:
+    Window *window;
 };
 
 

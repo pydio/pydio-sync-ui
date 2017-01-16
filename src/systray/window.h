@@ -55,6 +55,9 @@ class PydioUiJS : public QObject{
     public slots:
         void jsTrigger(int x);
 };
+
+class JSEventHandler;
+
 class Window : public QMainWindow
 {
     Q_OBJECT
@@ -62,11 +65,10 @@ class Window : public QMainWindow
 public:
     Window(QNetworkAccessManager*);
     PydioUiJS *pydiouijs;
+    void doShow();
 
 protected slots:
    void closeEvent(QCloseEvent *);
-
-
 
 private slots:
     void show();
