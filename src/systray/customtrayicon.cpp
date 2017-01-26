@@ -207,8 +207,8 @@ void CustomTrayIcon::connectionMade(){
         this->normalIcon = true;
         this->jobsCleared("Connection Made");
         this->contextMenu()->removeAction(noAgentAction);
-        this->contextMenu()->insertAction(settingsAction, noJobAction);
         settingsAction->setDisabled(false);
+        this->contextMenu()->insertAction(settingsAction, noJobAction);
         //shareAction->setDisabled(false);
         this->contextMenu()->insertAction(aboutAction, resumePauseSyncAction);        
     }
@@ -277,7 +277,7 @@ void CustomTrayIcon::createMainMenu(){
 void CustomTrayIcon::createActions(){
     settingsAction = new QAction(tr("Settings"), this);
     connect(settingsAction, SIGNAL(triggered()), this->parent(), SLOT(show()));
-    settingsAction->setDisabled(true);
+    //settingsAction->setDisabled(true);
 
     noJobAction = new QAction(tr("No active job"), this);
     noJobAction->setDisabled(true);
