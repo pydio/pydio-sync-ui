@@ -78,6 +78,7 @@ private:
     QString serverPassword;
     QHash<QString, Job*> *jobs;
     int failed_attempts;
+    bool initialConnection = true;
     bool launch;
     void checkNoJobAtLaunch();
     void debug(QString);

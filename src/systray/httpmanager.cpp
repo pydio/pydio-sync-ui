@@ -183,7 +183,8 @@ void HTTPManager::pollingFinished(QNetworkReply* reply)
         if(failed_attempts < MAX_CONNECTION_ATTEMPTS)
             debug("HTTP Poller Reply : " + reply->errorString());
         ++failed_attempts;
-        if(failed_attempts >= MAX_CONNECTION_ATTEMPTS){
+        if(failed_attempts >= MAX_CONNECTION_ATTEMPTS || initialConnection){
+            initialConnection = false;
             debug("-----------------------MAX CONNECTION ATTEMPTS REACHED, CLEARING JOBS-----------------------");
             this->jobs->clear();
             emit connectionProblem();
