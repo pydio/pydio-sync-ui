@@ -53,6 +53,7 @@ public slots:
     void launchAgentMac(bool stopBeforeLaunch = false);
     void launchAgentProcess();
     void stopAgentMac();
+    void launchAgent();
 
 private:
     QString pathToAgent;

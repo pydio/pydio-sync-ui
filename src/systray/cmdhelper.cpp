@@ -77,6 +77,16 @@ void CmdHelper::launchAgentProcess(){
     }
 }
 
+void CmdHelper::launchAgent(){
+    qDebug() << "Launch agent";
+    #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+        this->launchAgentProcess();
+    #elif defined(Q_OS_MAC)
+        qDebug()<<"Starting agent via launchctl command.";
+        this->launchAgentMac();
+    #endif
+}
+
 void CmdHelper::stopAgentMac(){
     //qDebug() << "@@@ @@@ @@ @ENABLE ME FOR PROD";
     //return;

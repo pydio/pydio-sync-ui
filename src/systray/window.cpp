@@ -38,8 +38,8 @@ Window::Window(QNetworkAccessManager* manager)
     QCommandLineParser parser;
     QCommandLineOption pathToAgentOption("p", "Path to sync agent", "agentPath");
     parser.addOption(pathToAgentOption);
-    QCommandLineOption skipAgentStartOption("s", "Do not try to start agent on start up", "skipAgentStart");
-    parser.addOption(skipAgentStartOption);
+    QCommandLineOption forceAgentStartOption("s", "Force spawn an agent on start up", "forceAgentStart");
+    parser.addOption(forceAgentStartOption);
     QCommandLineOption dumbTestOption("test", "Super simple start/stop test.");
     parser.addOption(dumbTestOption);
 
@@ -47,9 +47,9 @@ Window::Window(QNetworkAccessManager* manager)
     //parser.addVersionOption();
     parser.process(*qApp);
 
-    bool startAgent = true; // true for PRODUCTION - DEBUG false
-    if(parser.isSet(skipAgentStartOption) && parser.value(skipAgentStartOption) == "true"){
-        startAgent = false;
+    bool startAgent = false;
+    if(parser.isSet(forceAgentStartOption) && parser.value(forceAgentStartOption) == "true"){
+        startAgent = true;
     }
     cmdHelper = new CmdHelper(this, (parser.isSet(pathToAgentOption))?parser.value(pathToAgentOption):"");
     if(parser.isSet(dumbTestOption)){
@@ -60,17 +60,13 @@ Window::Window(QNetworkAccessManager* manager)
         t->start();
         qDebug() << "Dumb test, will exit in 5 seconds...";
     } else {
-        if (startAgent){
-        #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-            cmdHelper->launchAgentProcess();
-        #elif defined(Q_OS_MAC)
-            qDebug()<<"Starting agent via launchctl command.";
-            cmdHelper->launchAgentMac();
-        #endif
-        }
         QString dataDir = CmdHelper::getAppDataDir() +'/'+ PORT_CONFIG_FILE_NAME;
         portConfigurer = new PortConfigurer(dataDir);
         portConfigurer->updatePorts();
+
+        if (startAgent){
+            cmdHelper->launchAgent(); // TODO REMOVE
+        }
 
         localServer = new LocalServer(this);
 
@@ -164,12 +160,6 @@ void Window::doShow(){
     channel->registerObject(QStringLiteral("pydiouijs"), pydiouijs);
     channel->registerObject(QStringLiteral("PydioQtFileDialog"), jsDialog);
 
-
-    //settingsWebView->settings()->setAttribute(QWebSettings::JavascriptEnabled, true);
-    //settingsWebView->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
-    //settingsWebView->page()->acceptNavigationRequest()
-    //connect(settingsWebView, SIGNAL(linkClicked(QUrl)), this, SLOT(openLink(QUrl)) );
-    // UNCOMMENT ME TODO
     settingsWebView->setContextMenuPolicy(Qt::NoContextMenu);
     this->setCentralWidget(settingsWebView);
 
