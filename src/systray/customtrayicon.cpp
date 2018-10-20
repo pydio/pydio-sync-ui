@@ -24,16 +24,15 @@
 CustomTrayIcon::CustomTrayIcon(QObject* parent) : QSystemTrayIcon(parent)
 {
 
-/*#ifdef Q_OS_MAC
-    // Yes the files names are inverted...
-    this->iconActive = QIcon(":/images/flat.sips.png");
-    this->iconTransfer = QIcon(":/images/PydioSync-Systray-Windows-Transfer.png");
-    this->iconInactive = QIcon(":/images/PydioSync-Systray-Mac-Inactive.png");
-#else*/
+#ifdef Q_OS_LINUX
+    this->iconActive = QIcon(":/images/PydioSync-Systray-Linux.png");
+    this->iconTransfer = QIcon(":/images/PydioSync-Systray-Linux-Transfer.png");
+    this->iconInactive = QIcon(":/images/PydioSync-Systray-Linux-Inactive.png");
+#else
     this->iconActive = QIcon(":/images/PydioSync-Systray-Mac.png");
     this->iconTransfer = QIcon(":/images/PydioSync-Systray-Mac-Transfer.png");
     this->iconInactive = QIcon(":/images/PydioSync-Systray-Mac-Inactive.png");
-//#endif
+#endif
 
     this->debugMode = true;
     this->pathToWinAgent = pathToWinAgent;
